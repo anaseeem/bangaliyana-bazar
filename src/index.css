@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif-bn: "Baloo Da 2", "Hind Siliguri", sans-serif;
+  --font-sans-bn: "Baloo Da 2", "Hind Siliguri", sans-serif;
+  --color-rickshaw: #b91c1c;
+  --color-rickshaw-dark: #7f1d1d;
+  --color-holud: #f59e0b;
+  --color-holud-soft: #fde68a;
+  --color-leaf: #166534;
+  --color-leaf-soft: #dcfce7;
+  --color-cream: #fff7e6;
+  --color-cream-deep: #fdeecb;
+  --color-terra: #c2410c;
+  --color-alpana: #fffdf5;
+}
+
+/* Style rules for this site: only weight 400, no italic, no hyphenation. */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Baloo Da 2", "Hind Siliguri", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background: #fff7e6;
+  color: #292524;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+h1,
+h2,
+h3,
+p,
+span,
+a,
+button,
+input,
+select,
+label,
+dt,
+dd,
+li,
+legend {
+  font-weight: 400;
+  font-style: normal;
+  hyphens: none;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: "Baloo Da 2", "Hind Siliguri", sans-serif;
+}
+
+/* --- Kantha stitch border: dashed running stitch --- */
+.kantha-border {
+  background-image: linear-gradient(90deg, #b91c1c 55%, transparent 45%);
+  background-size: 18px 3px;
+  background-repeat: repeat-x;
+  height: 3px;
+}
+.kantha-border-v {
+  background-image: linear-gradient(180deg, #b91c1c 55%, transparent 45%);
+  background-size: 3px 18px;
+  background-repeat: repeat-y;
+  width: 3px;
+}
+
+/* Alpana dot pattern background */
+.alpana-dots {
+  background-image: radial-gradient(#b91c1c 1.2px, transparent 1.3px);
+  background-size: 22px 22px;
+}
+.jamdani-bg {
+  background-color: #7f1d1d;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(245, 158, 11, 0.35) 0 2px, transparent 3px),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.25) 0 2px, transparent 3px);
+  background-size: 36px 36px;
+}
+
+/* --- Animations --- */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes sun-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+@keyframes stitch-move {
+  to { stroke-dashoffset: -24; }
+}
+
+.animate-spin-slow { animation: spin-slow 40s linear infinite; }
+.animate-marquee { animation: marquee 28s linear infinite; }
+.animate-float { animation: float-y 5s ease-in-out infinite; }
+.animate-sway { animation: sway 6s ease-in-out infinite; transform-origin: top center; }
+.animate-fade-up { animation: fade-up 0.7s ease both; }
+.animate-pop { animation: pop-in 0.45s ease both; }
+.animate-sun { animation: sun-pulse 4s ease-in-out infinite; }
+.animate-stitch { stroke-dasharray: 8 6; animation: stitch-move 1.6s linear infinite; }
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow,
+  .animate-marquee,
+  .animate-float,
+  .animate-sway,
+  .animate-sun {
+    animation: none;
+  }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
