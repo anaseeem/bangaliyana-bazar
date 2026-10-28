@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ARTISANS, PRODUCTS, bn, formatBDT, type ArtKind } from '../data/products'
 import { AlpanaCorner } from '../components/Alpana'
@@ -6,6 +7,8 @@ import { StitchFrame, StitchLine } from '../components/Stitch'
 import ProductCard from '../components/ProductCard'
 import ProductPicture from '../components/ProductPicture'
 import Stall from '../components/Stall'
+import { PotBanner, RickshawBanner, SellerBanner } from '../components/Banners'
+import { useMarket } from '../store/market'
 
 const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; awning: [string, string]; photo: string }[] = [
   { name: 'শাড়ি', art: 'jamdani', palette: ['#7f1d1d', '#f59e0b', '#fff7e6'], awning: ['#b91c1c', '#f59e0b'], photo: '/products/jamdani-shari.webp' },
@@ -19,7 +22,23 @@ const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; a
   { name: 'লোকশিল্প', art: 'jhapi', palette: ['#be185d', '#f59e0b', '#fff7e6'], awning: ['#1f3b73', '#f59e0b'], photo: '/products/shola-mala.webp' },
 ]
 
+// নতুন বিক্রেতার পণ্য না থাকলে এগুলো "নতুন এসেছে"-তে থাকে
+const NEW_IDS = ['dhokra-lonthon', 'hans-nouka', 'shola-mala', 'pot-thala']
+// ঘর সাজানোর ছবি: প্রথমটা বড়
+const ROOM_IDS = ['pitoler-tob', 'matir-pakhi', 'alor-kulungi', 'bet-tray', 'kather-hati']
+const GIFT_BANDS: { label: string; fits: (price: number) => boolean }[] = [
+  { label: '৳১,০০০-এর নিচে', fits: (p) => p < 1000 },
+  { label: '৳১,০০০ থেকে ৳৩,০০০', fits: (p) => p >= 1000 && p <= 3000 },
+  { label: '৳৩,০০০-এর বেশি', fits: (p) => p > 3000 },
+]
+
 export default function Home() {
+  const { catalog } = useMarket()
+  const [band, setBand] = useState(0)
+  const byId = (id: string) => catalog.find((p) => p.id === id)
+  const fresh = [...catalog.filter((p) => p.sellerId).reverse(), ...NEW_IDS.map(byId).filter((p) => p !== undefined)].slice(0, 4)
+  const gifts = catalog.filter((p) => GIFT_BANDS[band].fits(p.price)).sort((a, b) => b.rating - a.rating).slice(0, 4)
+  const room = ROOM_IDS.map(byId).filter((p) => p !== undefined)
   const best = [...PRODUCTS].sort((a, b) => b.rating - a.rating).slice(0, 4)
   // একজন কারিগরের গল্প, তাঁর নিজের একটা কাজসহ
   const artisan = ARTISANS[0]
@@ -69,6 +88,10 @@ export default function Home() {
       </section>
       <Marquee />
 
+      <section className="mx-auto max-w-7xl px-4 pt-12">
+        <RickshawBanner />
+      </section>
+
       {/* মেলার দোকান */}
       <section className="mx-auto max-w-7xl px-4 pt-12 pb-10">
         <h2 className="text-3xl">কোন দোকানে যাবেন?</h2>
@@ -86,6 +109,54 @@ export default function Home() {
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {best.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </section>
+
+      {/* নতুন এসেছে */}
+      <section className="mx-auto max-w-7xl px-4 pb-12">
+        <h2 className="text-3xl">নতুন এসেছে</h2>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {fresh.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-12">
+        <PotBanner />
+      </section>
+
+      {/* উপহার খুঁজছেন */}
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="text-3xl">উপহার খুঁজছেন?</h2>
+          <div className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full border-2 border-amber-300 p-1">
+            {GIFT_BANDS.map((b, i) => (
+              <button key={b.label} type="button" onClick={() => setBand(i)} aria-pressed={band === i} className={`shrink-0 rounded-full px-4 py-1.5 ${band === i ? 'bg-rickshaw text-white' : 'text-rickshaw hover:bg-holud-soft'}`}>
+                {b.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {gifts.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </section>
+      <AlpanaBorder />
+
+      {/* ঘর সাজান */}
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <h2 className="text-3xl">ঘর সাজান</h2>
+        <p className="mt-2 text-stone-600">বসার ঘর, বারান্দা আর পড়ার টেবিলের জন্য।</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-2">
+          {room.map((p, i) => (
+            <Link key={p.id} to={`/product/${p.id}`} className={`group relative block overflow-hidden rounded-[10px] bg-paper ${i === 0 ? 'sm:col-span-2 md:row-span-2' : ''}`}>
+              <ProductPicture product={p} className={`block w-full transition-transform duration-500 group-hover:scale-105 ${i === 0 ? 'h-72 md:h-full' : 'h-56'}`} />
+              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 to-transparent px-4 pt-10 pb-3 text-cream">
+                <p className={i === 0 ? 'font-display text-2xl' : 'text-lg'}>{p.nameBn}</p>
+                <p className="text-amber-200">{formatBDT(p.price)}</p>
+              </div>
+              <StitchFrame color="var(--color-holud)" />
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -114,6 +185,10 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <SellerBanner />
+      </section>
     </div>
   )
 }
