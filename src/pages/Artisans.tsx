@@ -4,8 +4,7 @@ import { ARTISANS, PRODUCTS, bn } from '../data/products'
 export default function Artisans() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
-      <p className="text-sm tracking-widest text-rickshaw">কারিগর</p>
-      <h1 className="mt-1 text-4xl">যাদের হাতে এই বাজার</h1>
+      <h1 className="text-4xl">যাদের হাতে এই বাজার</h1>
       <p className="mt-3 max-w-3xl text-stone-700">কাজটা তাঁদের। আমরা শুধু আপনার ঘরে পৌঁছে দিই।</p>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -14,7 +14,7 @@ function NotFound() {
     <div className="mx-auto max-w-3xl px-4 py-16 text-center">
       <h1 className="text-3xl">এই পাতাটা নেই</h1>
       <p className="mt-2 text-stone-600">মেলায় হারিয়ে গেছেন? হোমে ফিরে আবার শুরু করুন।</p>
-      <a href="/" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">হোমে ফিরুন →</a>
+      <a href="/" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">হোমে ফিরুন</a>
     </div>
   )
 }

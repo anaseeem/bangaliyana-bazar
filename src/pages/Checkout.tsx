@@ -25,7 +25,7 @@ export default function Checkout() {
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="text-3xl">অর্ডার করার মতো কিছু নেই</h1>
         <p className="mt-2 text-stone-600">আগে ঝুড়িতে কিছু নিন, তারপর অর্ডার করুন।</p>
-        <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">বাজারে যান →</Link>
+        <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">বাজারে যান</Link>
       </div>
     )
   }
@@ -90,7 +90,7 @@ export default function Checkout() {
             পেমেন্ট: <span>ক্যাশ অন ডেলিভারি</span>। পণ্য হাতে পেয়ে টাকা দিন। এটা ডেমো অর্ডার, কোনো অনলাইন পেমেন্ট নেওয়া হয়নি।
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/shop" className="rounded-full bg-rickshaw px-6 py-3 text-white">আরও কিনুন →</Link>
+            <Link to="/shop" className="rounded-full bg-rickshaw px-6 py-3 text-white">আরও কিনুন</Link>
             <Link to="/" className="rounded-full border-2 border-rickshaw px-6 py-3 text-rickshaw">হোমে ফিরুন</Link>
           </div>
         </div>

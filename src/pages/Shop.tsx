@@ -34,8 +34,7 @@ export default function Shop() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
-      <p className="text-sm tracking-widest text-rickshaw">বাজার</p>
-      <h1 className="mt-1 text-4xl">সব পণ্য, এক মেলায়</h1>
+      <h1 className="text-4xl">সব পণ্য, এক মেলায়</h1>
 
       <div className="mt-6 flex flex-col gap-3 rounded-3xl border-2 border-amber-200 bg-white p-4 shadow-sm lg:flex-row lg:items-end">
         <div className="flex-1">

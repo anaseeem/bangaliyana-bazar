@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { bn } from '../data/products'
+import JhuriIcon from './JhuriIcon'
+import { StitchLine } from './Stitch'
 import { useCart } from '../store/cart'
 
 const LINKS = [
@@ -14,6 +16,13 @@ export default function Header() {
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  // ঝুড়িতে কিছু পড়লে ঝুড়ি একটু লাফায়
+  const [bounce, setBounce] = useState(0)
+  useEffect(() => {
+    const onAdd = () => setBounce((n) => n + 1)
+    window.addEventListener('jhuri:add', onAdd)
+    return () => window.removeEventListener('jhuri:add', onAdd)
+  }, [])
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,8 +72,11 @@ export default function Header() {
             </NavLink>
           ))}
         </nav>
-        <Link to="/cart" className="relative ml-auto rounded-full bg-holud px-4 py-2 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${bn(count)}টি পণ্য`}>
-          🧺 ঝুড়ি
+        <Link to="/cart" className="relative ml-auto flex items-center gap-2 rounded-full bg-holud py-1.5 pr-4 pl-3 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${bn(count)}টি পণ্য`}>
+          <span id="jhuri-target" key={bounce} className={bounce ? 'animate-jhuri' : ''}>
+            <JhuriIcon className="h-6 w-7" />
+          </span>
+          ঝুড়ি
           {count > 0 && (
             <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-rickshaw text-xs text-white">
               {bn(count)}
@@ -89,7 +101,7 @@ export default function Header() {
           ))}
         </nav>
       )}
-      <div className="kantha-border" aria-hidden="true" />
+      <StitchLine />
     </header>
   )
 }

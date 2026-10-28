@@ -27,7 +27,7 @@ There is no test suite. Verify UI changes in a real browser with the Playwright 
 
 ## Architecture
 
-- **Two copies of product data.** The server reads `data/products.json`. The client bundles `src/data/products.ts` (types, `CATEGORIES`, `formatBDT`). The client reads only the bundled copy; `/api/products` exists but the UI does not call it. `src/data/products.ts` is the source: edit it, then run `pnpm sync:products`. Never hand-edit the JSON.
+- **Two copies of product data.** The server reads `data/products.json`. The client bundles `src/data/products.ts` (types, `CATEGORIES`, `formatBDT`, `bn`). The client reads only the bundled copy; `/api/products` exists but the UI does not call it. `src/data/products.ts` is the source: edit it, then run `pnpm sync:products`. Never hand-edit the JSON.
 - **The site works without the server.** Cart and wishlist live in localStorage (`bb-cart`, `bb-wishlist`) via `src/store/cart.tsx`. If `POST /api/orders` fails, Checkout saves the order to `bb-local-orders` so the demo flow still finishes.
 - **The server is one file** (`server/index.js`, plain JS, no DB). It recomputes prices from products.json and never trusts client totals. It only accepts cash on delivery. Orders are appended to `data/orders.json`.
 - **Product images are hand-drawn SVG**, chosen by `art` (an `ArtKind`) and `palette` in `src/components/ProductArt.tsx`. There are no photos. New kinds of goods need a new SVG drawing there.
@@ -39,7 +39,7 @@ There is no test suite. Verify UI changes in a real browser with the Playwright 
 - All UI text is simple, plain Bangla: short sentences, no hard words, no hype or AI buzzwords.
 - Every number shown to users uses Bengali digits (৳৮,৫০০, ১টি, ৪.৯).
 - Font weight is always 400. No bold, no italic. Hyphenation is disabled in CSS.
-- Font is Baloo Da 2 with Hind Siliguri as fallback.
+- Body font is Baloo Da 2 (Hind Siliguri fallback). h1/h2 use Tiro Bangla via `--font-display`. Never use slanted or script display fonts.
 - Rickshaw art, nakshi kantha and alpana are visual inspiration only. Never write "রিকশা আর্ট" as decoration text.
 - Cut any text the shopper doesn't need.
 - Payment is a cash-on-delivery demo. Never add bKash, Nagad or card flows.

@@ -12,7 +12,7 @@ export default function CartPage() {
         <p className="text-6xl" aria-hidden="true">🧺</p>
         <h1 className="mt-4 text-3xl">ঝুড়ি এখনো খালি</h1>
         <p className="mt-2 text-stone-600">মেলায় ঘুরে কিছু পছন্দ করুন। জামদানি, কাঁথা, মাটির বাটি, যা ভালো লাগে।</p>
-        <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">বাজার ঘুরে দেখুন →</Link>
+        <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">বাজার ঘুরে দেখুন</Link>
       </div>
     )
   }
@@ -64,7 +64,7 @@ export default function CartPage() {
           </dl>
           <p className="mt-3 text-xs text-stone-500">পেমেন্ট: ক্যাশ অন ডেলিভারি (ডেমো)। পণ্য হাতে পেয়ে টাকা দেবেন। কোনো অনলাইন পেমেন্ট নেই।</p>
           <Link to="/checkout" className="mt-4 block rounded-full bg-rickshaw py-3 text-center text-white hover:bg-rickshaw-dark">
-            অর্ডার করুন →
+            অর্ডার করুন
           </Link>
           <button type="button" onClick={clear} className="mt-2 w-full rounded-full border-2 border-amber-300 py-2 text-sm text-stone-600 hover:bg-holud-soft">
             ঝুড়ি খালি করুন

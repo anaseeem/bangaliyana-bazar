@@ -10,7 +10,7 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 - The mascot is clean, sharp, layered SVG with medium detail. For now he only appears on `/jhuri`.
 - Mascot moods for now: walking, happy and sad. Sad is enough; no big drama.
 - Ratings stay, shown in Bengali digits.
-- Headings and logo use Galada. Everything else uses Baloo Da 2.
+- Headings (h1, h2) use Tiro Bangla. Everything else uses Baloo Da 2. Galada was tried and dropped because it reads as bold italic.
 - The announcement bar stays, made shorter and better.
 - No scroll-reveal fade-ins. Animations must be quick, visible and fun.
 - Defaults the owner can still change:
@@ -26,17 +26,17 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 - [x] Make the announcement bar short and evergreen, and stop the footer repeating it.
 
 ## Phase 1: Visual language
-- [ ] Palette: keep maroon, red and turmeric yellow; add indigo, kantha green, terracotta and a little magenta; remove the mint.
-- [ ] Load Galada for headings and the logo.
-- [ ] Make the kantha stitch divider look like real thread: uneven stitches, thread colour, sometimes two colours.
-- [ ] Alpana corner motif as a reusable component.
-- [ ] New product card: handmade-paper surface, inset stitch border, alpana corners, price tag, rating, one main button plus a heart.
-- [ ] Remove the label text above section headings.
-- [ ] Motion: card art sways on hover, stitch sews itself on hover, item drops into the header ঝুড়ি when added. Respect reduced motion.
+- [x] Palette: keep maroon, red and turmeric yellow; add indigo (`nil`), banana leaf (`kolapata`), shapla pink and a paper tone. The mint goes with the Home rework in Phase 2.
+- [x] Display font for headings: Tiro Bangla.
+- [x] Make the kantha stitch look like real thread: uneven stitches, two-colour divider (`StitchLine`, `StitchFrame`).
+- [x] Alpana corner and flower as reusable components (`Alpana.tsx`).
+- [x] New product card: paper surface, inset stitch, alpana corners on the art, ribbon badge, rating, one main button plus a heart. A separate price tag was dropped to keep it calm.
+- [x] Remove the label text above section headings, and the → on buttons.
+- [x] Motion: card art swings on hover, stitch moves on hover, an item flies into the header ঝুড়ি and it bounces. Respects reduced motion.
 
 ## Phase 2: Page passes
 - [ ] Home: keep the hero; then a row of category stalls, popular products, one artisan story, footer.
-- [ ] Shop: cut the intro text and restyle the filters to match (keep dropdowns for now).
+- [ ] Shop: restyle the filters to match (keep dropdowns for now). On phones they take a whole screen now; make them compact.
 - [ ] Product: fix the art frame and make the info side read like the artisan talking.
 - [ ] Artisans: stitched cards with name, district, craft and years of work, with their products under them.
 - [ ] 404 page restyle.

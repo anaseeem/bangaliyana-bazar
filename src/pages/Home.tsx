@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ARTISANS, PRODUCTS, bn, formatBDT } from '../data/products'
 import { AlpanaBorder, BoishakhSun, Marquee } from '../components/Decor'
+import { StitchLine } from '../components/Stitch'
 import ProductCard from '../components/ProductCard'
 import ProductArt from '../components/ProductArt'
 
@@ -31,7 +32,7 @@ export default function Home() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/shop" className="rounded-full bg-holud px-6 py-3 text-stone-900 shadow hover:bg-amber-400">
-                বাজার ঘুরে দেখুন →
+                বাজার ঘুরে দেখুন
               </Link>
               <Link to="/artisans" className="rounded-full border-2 border-cream px-6 py-3 text-cream hover:bg-white/10">
                 কারিগরদের গল্প
@@ -52,15 +53,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="kantha-border" aria-hidden="true" />
+        <StitchLine colors={['var(--color-holud)', 'var(--color-alpana)']} />
       </section>
       <Marquee />
 
       {/* Collections */}
       <section className="mx-auto max-w-7xl px-4 py-12">
         <div>
-          <p className="text-sm tracking-widest text-rickshaw">সংগ্রহ</p>
-          <h2 className="mt-1 text-3xl">মেলার মতো করে সাজানো বাজার</h2>
+          <h2 className="text-3xl">মেলার মতো করে সাজানো বাজার</h2>
           <p className="mt-2 max-w-2xl text-stone-600">যেমন বৈশাখী মেলায় এক দোকান থেকে আরেক দোকানে ঘোরা যায়, তেমনই এখানে প্রতিটি সংগ্রহ একেকটা গল্প।</p>
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -70,7 +70,7 @@ export default function Home() {
               <div className="p-4">
                 <h3 className="font-display text-xl">{c.name}</h3>
                 <p className="mt-1 text-sm text-stone-600">{c.note}</p>
-                <p className="mt-2 text-sm text-rickshaw">দেখুন →</p>
+                <p className="mt-2 text-sm text-rickshaw">দেখুন</p>
               </div>
             </Link>
           ))}
@@ -82,10 +82,9 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 py-12">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-sm tracking-widest text-rickshaw">সেরা বিক্রি</p>
-            <h2 className="mt-1 text-3xl">সবাই যা পছন্দ করছে</h2>
+            <h2 className="text-3xl">সবাই যা পছন্দ করছে</h2>
           </div>
-          <Link to="/shop" className="rounded-full border-2 border-rickshaw px-4 py-2 text-sm text-rickshaw hover:bg-holud-soft">সব পণ্য দেখুন →</Link>
+          <Link to="/shop" className="rounded-full border-2 border-rickshaw px-4 py-2 text-sm text-rickshaw hover:bg-holud-soft">সব পণ্য দেখুন</Link>
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {best.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -96,8 +95,7 @@ export default function Home() {
       <section className="bg-leaf-soft">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-2">
           <div>
-            <p className="text-sm tracking-widest text-leaf">উৎসব</p>
-            <h2 className="mt-1 text-3xl">বৈশাখ মানেই নতুন কিছু</h2>
+            <h2 className="text-3xl">বৈশাখ মানেই নতুন কিছু</h2>
             <p className="mt-3 text-stone-700">
               পহেলা বৈশাখে নতুন শাড়ি, নতুন কাঁথা, ঘরে নতুন মাটির বাটি। এই অভ্যাসটা
               আমাদের দাদা-নানাদের আমলের। বাঙালিয়ানা বাজার সেই অভ্যাসটাই ধরে রাখতে চায়,
@@ -108,7 +106,7 @@ export default function Home() {
               <li>✦ পণ্য হাতে পেয়ে দেখে, তারপর ক্যাশে টাকা দিন।</li>
               <li>✦ ঢাকায় ২ দিন, ঢাকার বাইরে ৪ দিনের মধ্যে ডেলিভারি।</li>
             </ul>
-            <Link to="/shop" className="mt-6 inline-block rounded-full bg-leaf px-6 py-3 text-white hover:bg-green-800">বৈশাখের সংগ্রহ দেখুন →</Link>
+            <Link to="/shop" className="mt-6 inline-block rounded-full bg-leaf px-6 py-3 text-white hover:bg-green-800">বৈশাখের সংগ্রহ দেখুন</Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {featured.map((p) => (
@@ -127,8 +125,7 @@ export default function Home() {
       {/* Artisan strip */}
       <section className="mx-auto max-w-7xl px-4 py-12">
         <div>
-          <p className="text-sm tracking-widest text-rickshaw">কারিগর</p>
-          <h2 className="mt-1 text-3xl">যাদের হাতে এই বাজার</h2>
+          <h2 className="text-3xl">যাদের হাতে এই বাজার</h2>
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {ARTISANS.slice(0, 3).map((a) => (
@@ -139,7 +136,7 @@ export default function Home() {
             </article>
           ))}
         </div>
-        <Link to="/artisans" className="mt-6 inline-block text-rickshaw underline">সব কারিগরের গল্প পড়ুন →</Link>
+        <Link to="/artisans" className="mt-6 inline-block text-rickshaw underline">সব কারিগরের গল্প পড়ুন</Link>
       </section>
 
     </div>

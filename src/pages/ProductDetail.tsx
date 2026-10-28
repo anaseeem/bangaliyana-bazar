@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { PRODUCTS, bn, formatBDT } from '../data/products'
+import { flyToJhuri } from '../lib/flyToJhuri'
 import { useCart } from '../store/cart'
 import ProductArt from '../components/ProductArt'
 import ProductCard from '../components/ProductCard'
@@ -17,7 +18,7 @@ export default function ProductDetail() {
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="text-3xl">পণ্যটি পাওয়া যায়নি</h1>
         <p className="mt-2 text-stone-600">হয়তো ঠিকানাটা ভুল, নয়তো পণ্যটি আর নেই।</p>
-        <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">বাজারে ফিরুন →</Link>
+        <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white">বাজারে ফিরুন</Link>
       </div>
     )
   }
@@ -65,7 +66,7 @@ export default function ProductDetail() {
             <button
               type="button"
               disabled={product.stock <= 0}
-              onClick={() => { add(product.id, qty); setAdded(true); window.setTimeout(() => setAdded(false), 2000) }}
+              onClick={(e) => { add(product.id, qty); flyToJhuri(e.currentTarget, product.palette[1]); setAdded(true); window.setTimeout(() => setAdded(false), 2000) }}
               className="rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark disabled:opacity-40"
             >
               {added ? '✓ ঝুড়িতে গেছে' : 'ঝুড়িতে নিন'}

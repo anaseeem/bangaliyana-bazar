@@ -1,14 +1,14 @@
 /** আলপনা ভাগ, চলমান লেখা আর বৈশাখের সূর্য। */
+import { AlpanaFlower } from './Alpana'
+import { StitchLine } from './Stitch'
 
+/** দুই সারি সেলাই, মাঝখানে একটা আলপনা ফুল। */
 export function AlpanaBorder() {
   return (
-    <div aria-hidden="true" className="flex items-center gap-2 py-1">
-      <div className="kantha-border flex-1" />
-      <svg width="26" height="26" viewBox="0 0 26 26" className="shrink-0 animate-spin-slow">
-        <circle cx="13" cy="13" r="9" fill="#f59e0b" />
-        <circle cx="13" cy="13" r="4" fill="#b91c1c" />
-      </svg>
-      <div className="kantha-border flex-1" />
+    <div aria-hidden="true" className="flex items-center gap-3 py-1">
+      <StitchLine className="flex-1" />
+      <AlpanaFlower className="h-10 w-10 shrink-0" />
+      <StitchLine className="flex-1" />
     </div>
   )
 }
