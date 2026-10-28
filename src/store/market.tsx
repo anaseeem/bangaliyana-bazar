@@ -7,8 +7,16 @@ import { PRODUCTS, type Product } from '../data/products'
 import { ART_FOR, SEED_SELLERS, type Seller } from '../data/sellers'
 import { newOrderId, readLS, writeLS } from '../lib/local'
 
-export interface User { id: string; name: string; phone: string; passHash: string; createdAt: string }
-
+export interface User {
+  id: string
+  name: string
+  phone: string
+  passHash: string
+  createdAt: string
+  /** শেষ অর্ডারের ঠিকানা, ঝুড়িতে আগে থেকে বসে যায় */
+  district?: string
+  address?: string
+}
 
 export interface OrderItem { id: string; nameBn: string; price: number; qty: number; sellerId: string }
 
@@ -23,7 +31,14 @@ export interface Order {
   deliveryFee: number
   total: number
   createdAt: string
+  /** যেসব বিক্রেতা নিজের অংশ পাঠিয়ে দিয়েছেন */
+  sentBy?: string[]
+  /** ক্রেতা হাতে পেয়েছেন */
+  received?: boolean
 }
+
+type ShopInfo = Pick<Seller, 'shopName' | 'craft' | 'district' | 'story' | 'phone'>
+type NewProduct = Omit<Product, 'id' | 'sellerId' | 'artisan' | 'district' | 'rating' | 'art' | 'palette'>
 
 /** ডেমো পাসওয়ার্ড হ্যাশ। আসল সাইটে এটা সার্ভারে হবে। */
 async function hash(text: string) {
@@ -39,17 +54,24 @@ interface MarketCtx {
   signup: (name: string, phone: string, password: string) => Promise<string | null>
   login: (phone: string, password: string) => Promise<string | null>
   logout: () => void
+  updateProfile: (p: Partial<Pick<User, 'name' | 'district' | 'address'>>) => void
+  changePassword: (oldPass: string, newPass: string) => Promise<string | null>
   sellers: Seller[]
   mySeller: Seller | null
-  registerSeller: (s: Pick<Seller, 'shopName' | 'craft' | 'district' | 'story' | 'phone'>) => void
+  registerSeller: (s: ShopInfo) => void
+  updateShop: (s: ShopInfo) => void
   approveSeller: (id: string) => void
   /** সব পণ্য: আগের পণ্য আর অনুমোদিত বিক্রেতাদের নতুন পণ্য */
   catalog: Product[]
   sellerProducts: Product[]
-  addProduct: (p: Omit<Product, 'id' | 'sellerId' | 'artisan' | 'district' | 'rating' | 'art' | 'palette'>) => void
+  addProduct: (p: NewProduct) => void
+  updateProduct: (id: string, p: NewProduct) => void
   removeProduct: (id: string) => void
   orders: Order[]
   saveOrder: (o: Omit<Order, 'id' | 'createdAt' | 'userId'>, id?: string) => Order
+  /** বিক্রেতা নিজের অংশ পাঠালেন */
+  markSent: (orderId: string) => void
+  markReceived: (orderId: string) => void
 }
 
 const Ctx = createContext<MarketCtx | null>(null)
@@ -87,11 +109,24 @@ export function MarketProvider({ children }: { children: ReactNode }) {
         return null
       },
       logout: () => setSessionId(null),
+      updateProfile: (p) => setUsers((prev) => prev.map((u) => (u.id === sessionId ? { ...u, ...p } : u))),
+      changePassword: async (oldPass, newPass) => {
+        if (!user || user.passHash !== (await hash(oldPass))) return 'আগের পাসওয়ার্ড মিলছে না।'
+        const passHash = await hash(newPass)
+        setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, passHash } : u)))
+        return null
+      },
       sellers,
       mySeller,
       registerSeller: (s) => {
         if (!user || mySeller) return
         setNewSellers((prev) => [...prev, { ...s, id: newId('s'), userId: user.id, ownerName: user.name, status: 'pending', createdAt: new Date().toISOString() }])
+      },
+      updateShop: (s) => {
+        if (!mySeller) return
+        setNewSellers((prev) => prev.map((x) => (x.id === mySeller.id ? { ...x, ...s } : x)))
+        // পণ্যের পাতায় জেলা দোকানের সাথে মেলে
+        setSellerProducts((prev) => prev.map((p) => (p.sellerId === mySeller.id ? { ...p, district: s.district } : p)))
       },
       approveSeller: (id) => setNewSellers((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'approved' } : s))),
       catalog: [...PRODUCTS, ...sellerProducts.filter((p) => p.sellerId && approved.has(p.sellerId))],
@@ -104,6 +139,10 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           { ...p, ...look, id: newId('p'), sellerId: mySeller.id, artisan: mySeller.ownerName, district: mySeller.district, rating: 0 },
         ])
       },
+      updateProduct: (id, p) => {
+        const look = ART_FOR[p.category] ?? ART_FOR['লোকশিল্প']
+        setSellerProducts((prev) => prev.map((x) => (x.id === id && x.sellerId === mySeller?.id ? { ...x, ...p, ...look } : x)))
+      },
       removeProduct: (id) => setSellerProducts((prev) => prev.filter((p) => !(p.id === id && p.sellerId === mySeller?.id))),
       orders,
       saveOrder: (o, id) => {
@@ -111,6 +150,11 @@ export function MarketProvider({ children }: { children: ReactNode }) {
         setOrders((prev) => [...prev, order])
         return order
       },
+      markSent: (orderId) => {
+        if (!mySeller) return
+        setOrders((prev) => prev.map((o) => (o.id === orderId && !o.sentBy?.includes(mySeller.id) ? { ...o, sentBy: [...(o.sentBy ?? []), mySeller.id] } : o)))
+      },
+      markReceived: (orderId) => setOrders((prev) => prev.map((o) => (o.id === orderId && o.userId === user?.id ? { ...o, received: true } : o))),
     }
   }, [users, sessionId, newSellers, sellerProducts, orders])
 

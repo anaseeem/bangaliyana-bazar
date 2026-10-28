@@ -49,8 +49,8 @@ function readLastOrder(): PlacedOrder | null {
 export default function Jhuri() {
   const [params, setParams] = useSearchParams()
   const { detailed, setQty, remove, clear, total, count } = useCart()
-  const { user, sellers, saveOrder } = useMarket()
-  const [address, setAddress] = useState<Address>({ name: user?.name ?? '', phone: user ? bn(user.phone) : '', district: 'ঢাকা', address: '' })
+  const { user, sellers, saveOrder, updateProfile } = useMarket()
+  const [address, setAddress] = useState<Address>({ name: user?.name ?? '', phone: user ? bn(user.phone) : '', district: user?.district ?? 'ঢাকা', address: user?.address ?? '' })
   const [errors, setErrors] = useState<Errors>({})
   const [order, setOrder] = useState<PlacedOrder | null>(readLastOrder)
   const [placing, setPlacing] = useState(false)
@@ -131,6 +131,8 @@ export default function Jhuri() {
     if (placed) {
       const items = detailed.map((d) => ({ id: d.product.id, nameBn: d.product.nameBn, price: d.product.price, qty: d.qty, sellerId: sellerIdOf(d.product) }))
       saveOrder({ name: payload.name, phone: payload.phone, district: payload.district, address: payload.address, items, deliveryFee: delivery.fee, total: placed.total }, placed.id)
+      // পরের বার ঠিকানা আবার লিখতে হবে না
+      if (user) updateProfile({ district: payload.district, address: payload.address })
       const bySeller = new Map<string, string[]>()
       for (const it of items) bySeller.set(it.sellerId, [...(bySeller.get(it.sellerId) ?? []), `${it.nameBn} × ${bn(it.qty)}`])
       placed.split = [...bySeller].map(([sid, list]) => ({ shop: sellers.find((x) => x.id === sid)?.shopName ?? 'বিক্রেতা', items: list }))
