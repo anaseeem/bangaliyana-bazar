@@ -36,13 +36,16 @@ export default function Artisans() {
               </div>
               <p className="mt-4 text-stone-700">{a.story}</p>
               {works.length > 0 && (
-                <ul className="mt-auto grid grid-cols-2 gap-3 pt-5">
-                  {works.slice(0, 4).map((w) => (
-                    <li key={w.id}>
-                      <Link to={`/product/${w.id}`} className="group block">
-                        <ProductPicture product={w} className="hang-swing block h-20 w-full rounded" />
-                        <p className="mt-1 text-sm leading-snug group-hover:text-rickshaw">{w.nameBn}</p>
-                        <p className="text-sm text-rickshaw">{formatBDT(w.price)}</p>
+                // কাজ যতগুলোই থাক (সর্বোচ্চ ৪), পুরো জায়গাটা ভরে থাকে: ১টা পুরোটা, ২টা দুই ভাগ, ৩টা কোলাজ, ৪টা সমান ঘর
+                <ul className={`mt-auto grid h-64 gap-2 pt-5 ${works.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} ${works.length >= 3 ? 'grid-rows-2' : ''}`}>
+                  {works.slice(0, 4).map((w, i) => (
+                    <li key={w.id} className={`min-h-0 ${works.length === 3 && i === 0 ? 'row-span-2' : ''}`}>
+                      <Link to={`/product/${w.id}`} className="group relative block h-full overflow-hidden rounded">
+                        <ProductPicture product={w} className="block h-full w-full transition-transform duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 to-transparent px-2.5 pt-6 pb-1.5 text-cream">
+                          <p className="text-sm leading-snug">{w.nameBn}</p>
+                          <p className="text-sm text-amber-200">{formatBDT(w.price)}</p>
+                        </div>
                       </Link>
                     </li>
                   ))}
