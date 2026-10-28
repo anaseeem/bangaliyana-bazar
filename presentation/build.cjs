@@ -1,4 +1,4 @@
-// লোকালহাটের প্রেজেন্টেশন। চালাতে: NODE_PATH=<pptxgenjs, sharp, react-icons, jszip যেখানে আছে>/node_modules node presentation/build.cjs
+// বাঙালিয়ানা বাজারের প্রেজেন্টেশন। চালাতে: NODE_PATH=<pptxgenjs, sharp, react-icons, jszip যেখানে আছে>/node_modules node presentation/build.cjs
 const path = require('path')
 const fs = require('fs')
 const pptxgen = require('pptxgenjs')
@@ -9,7 +9,7 @@ const pi = require('react-icons/pi')
 const JSZip = require('jszip')
 const { applyTheme } = require(process.env.APPLY_THEME || path.join(process.env.HOME, '.claude/skills/synced/0d945669-51e6-486f-bf74-1c34c95d8182_be40d226-6487-4889-8206-28c93991cd5f/pptx/scripts/apply_theme.js'))
 
-const OUT = path.join(__dirname, 'LocalHaat.pptx')
+const OUT = path.join(__dirname, 'BangaliyanaBazar.pptx')
 const SHOT = (n) => path.join(__dirname, 'shots', n)
 
 // Site palette (src/index.css)
@@ -22,7 +22,7 @@ const FT = 'Tiro Bangla'
 const FB = 'Baloo Da 2'
 
 const THEME = {
-  name: 'LocalHaat',
+  name: 'Bangaliyana Bazar',
   headFontFace: FT,
   bodyFontFace: FB,
   colors: {
@@ -74,8 +74,8 @@ const icon = async (name, color) => {
 
   const pres = new pptxgen()
   pres.layout = 'LAYOUT_WIDE' // 13.333 x 7.5
-  pres.title = 'LocalHaat'
-  pres.author = 'LocalHaat team'
+  pres.title = 'Bangaliyana Bazar'
+  pres.author = 'Bangaliyana Bazar team'
   pres.theme = { headFontFace: FT, bodyFontFace: FB }
   const W = 13.333, H = 7.5
 
@@ -135,8 +135,8 @@ const icon = async (name, color) => {
   pres.addSection({ title: 'শুরু' })
   let s = pres.addSlide({ masterName: 'LH_DARK_MAROON', sectionTitle: 'শুরু' })
   s.addImage({ data: A.sun, x: 1.0, y: 0.95, w: 0.95, h: 0.95 })
-  T(s, 'LocalHaat', { x: 2.12, y: 1.2, w: 3, h: 0.45, fontSize: 20, color: K.holud, charSpacing: 3 })
-  T(s, 'লোকালহাট', { x: 1.0, y: 1.95, w: 7.2, h: 1.45, fontFace: FT, fontSize: 72, color: K.cream, valign: 'middle' })
+  T(s, 'Bangaliyana Bazar', { x: 2.12, y: 1.2, w: 5.5, h: 0.45, fontSize: 18, color: K.holud, charSpacing: 3 })
+  T(s, 'বাঙালিয়ানা বাজার', { x: 1.0, y: 1.95, w: 7.2, h: 1.45, fontFace: FT, fontSize: 60, color: K.cream, valign: 'middle' })
   T(s, 'স্থানীয় পণ্যের ডিজিটাল বাজার', { x: 1.0, y: 3.4, w: 7.2, h: 0.6, fontSize: 26, color: K.holudSoft })
   stitchLine(s, 1.0, 4.3, 6.8)
   T(s, 'দলের সদস্য', { x: 1.0, y: 4.65, w: 3.6, h: 0.4, fontSize: 15, color: K.holud })
@@ -153,12 +153,12 @@ const icon = async (name, color) => {
   ], { x: 4.9, y: 5.05, w: 3.2, h: 0.9, fontSize: 18, color: K.cream, paraSpaceAfter: 2, objectName: 'Instructor names' })
   s.addImage({ data: A.sun, x: 8.25, y: 0.7, w: 3.9, h: 3.9, transparency: 10 })
   s.addImage({ path: SHOT('mascot.png'), x: 9.15, y: 1.55, w: 5.6 * mascotAR, h: 5.6 })
-  s.addNotes('সবাইকে শুভেচ্ছা। আমাদের প্রজেক্টের নাম লোকালহাট, স্থানীয় পণ্যের ডিজিটাল বাজার। আমাদের দলে আছেন ... আর আমাদের শিক্ষক ...')
+  s.addNotes('সবাইকে শুভেচ্ছা। আমাদের প্রজেক্টের নাম বাঙালিয়ানা বাজার, স্থানীয় পণ্যের ডিজিটাল বাজার। আমাদের দলে আছেন ... আর আমাদের শিক্ষক ...')
 
-  // =========== ২. লোকালহাট কী ===========
+  // =========== ২. বাঙালিয়ানা বাজার কী ===========
   pres.addSection({ title: 'ভূমিকা' })
   s = pres.addSlide({ masterName: 'LH_CONTENT', sectionTitle: 'ভূমিকা' })
-  s.addText('লোকালহাট কী', { placeholder: 'title' })
+  s.addText('বাঙালিয়ানা বাজার কী', { placeholder: 'title' })
   T(s, 'স্থানীয় কারিগরের হাতের কাজ, এক জায়গায়, অনলাইনে।', { x: 0.6, y: 1.9, w: 5.5, h: 1.7, fontSize: 30, color: K.ink })
   const chips = [['PiHandHeart', 'হাতে তৈরি'], ['PiBookOpenText', 'কারিগরের গল্প'], ['PiTruck', 'ঘরে ডেলিভারি']]
   for (let i = 0; i < 3; i++) {
@@ -167,7 +167,7 @@ const icon = async (name, color) => {
     T(s, chips[i][1], { x: 1.5, y, w: 4.5, h: 0.7, fontSize: 21, color: K.maroon, valign: 'middle' })
   }
   frameImg(s, 'home-desk.png', 6.65, 2.2, 6.0, 6.0 * 768 / 1366)
-  s.addNotes('লোকালহাট একটা অনলাইন বাজার। এখানে গ্রামের কারিগর আর ছোট ব্যবসায়ীরা নিজের হাতে বানানো জিনিস বিক্রি করেন। প্রতিটি পণ্যের সাথে থাকে কারিগরের নাম, জেলা আর গল্প। ক্রেতা ঘরে বসে অর্ডার দেন, পণ্য হাতে পেয়ে টাকা দেন।')
+  s.addNotes('বাঙালিয়ানা বাজার একটা অনলাইন বাজার। এখানে গ্রামের কারিগর আর ছোট ব্যবসায়ীরা নিজের হাতে বানানো জিনিস বিক্রি করেন। প্রতিটি পণ্যের সাথে থাকে কারিগরের নাম, জেলা আর গল্প। ক্রেতা ঘরে বসে অর্ডার দেন, পণ্য হাতে পেয়ে টাকা দেন।')
 
   // =========== ৩. কেন বানালাম ===========
   s = pres.addSlide({ masterName: 'LH_CONTENT', sectionTitle: 'ভূমিকা' })
@@ -186,10 +186,10 @@ const icon = async (name, color) => {
   }
   stitch(s, 0.6, 5.0, 12.07, 1.3, { fill: K.holudSoft, line: K.maroon })
   T(s, [
-    { text: 'তাই লোকালহাট:  ', options: { color: K.red } },
+    { text: 'তাই বাঙালিয়ানা বাজার:  ', options: { color: K.red } },
     { text: 'কারিগরের নিজের অনলাইন দোকান' },
   ], { x: 0.6, y: 5.0, w: 12.07, h: 1.3, fontSize: 24, color: K.ink, valign: 'middle', align: 'center' })
-  s.addNotes('তিনটা সমস্যা দেখে আমরা এটা বানিয়েছি। এক, কারিগরের পণ্য ফেসবুক পেজ আর হাটে ছড়িয়ে থাকে, ক্রেতা খুঁজে পান না। দুই, মাঝের লোকের হাতে দামের বড় অংশ চলে যায়। তিন, কে বানালেন, কোথায়, কীভাবে, ক্রেতা জানতে পারেন না। তাই লোকালহাট, যেখানে কারিগর নিজেই অনলাইনে দোকান খোলেন।')
+  s.addNotes('তিনটা সমস্যা দেখে আমরা এটা বানিয়েছি। এক, কারিগরের পণ্য ফেসবুক পেজ আর হাটে ছড়িয়ে থাকে, ক্রেতা খুঁজে পান না। দুই, মাঝের লোকের হাতে দামের বড় অংশ চলে যায়। তিন, কে বানালেন, কোথায়, কীভাবে, ক্রেতা জানতে পারেন না। তাই বাঙালিয়ানা বাজার, যেখানে কারিগর নিজেই অনলাইনে দোকান খোলেন।')
 
   // =========== ৪. লক্ষ্য ===========
   s = pres.addSlide({ masterName: 'LH_DARK_NIL', sectionTitle: 'ভূমিকা' })
@@ -228,7 +228,7 @@ const icon = async (name, color) => {
       T(s, a.rows[r][1], { x: x + 1.55, y, w: 4.1, h: 0.7, fontSize: 22, color: K.ink, valign: 'middle' })
     }
   }
-  s.addNotes('দুই ধরনের মানুষের জন্য লোকালহাট। ক্রেতা: শহরের মানুষ যাঁরা দেশি হাতের কাজ ভালোবাসেন, বিয়ে-ঈদ-পূজায় উপহার খোঁজেন যাঁরা, আর প্রবাসী বাঙালি। বিক্রেতা: গ্রামের তাঁতি, কুমার, কাঁথার শিল্পী, ঘরে বসে কাজ করা নারী উদ্যোক্তা, আর ছোট ব্যবসায়ী যাঁদের নিজের ওয়েবসাইট নেই।')
+  s.addNotes('দুই ধরনের মানুষের জন্য বাঙালিয়ানা বাজার। ক্রেতা: শহরের মানুষ যাঁরা দেশি হাতের কাজ ভালোবাসেন, বিয়ে-ঈদ-পূজায় উপহার খোঁজেন যাঁরা, আর প্রবাসী বাঙালি। বিক্রেতা: গ্রামের তাঁতি, কুমার, কাঁথার শিল্পী, ঘরে বসে কাজ করা নারী উদ্যোক্তা, আর ছোট ব্যবসায়ী যাঁদের নিজের ওয়েবসাইট নেই।')
 
   // =========== ৬. ক্রেতার ফিচার ===========
   s = pres.addSlide({ masterName: 'LH_CONTENT', sectionTitle: 'ব্যবহারকারী ও ফিচার' })
@@ -264,7 +264,7 @@ const icon = async (name, color) => {
     await iconDot(s, sf[i][0], x + 0.35, 4.75, 1.0, K.creamDeep, K.kolapata)
     T(s, sf[i][1], { x: x + 1.55, y: 4.3, w: 2.2, h: 1.9, fontSize: 22, color: K.kolapata, valign: 'middle' })
   }
-  s.addNotes('লোকালহাট মাল্টিভেন্ডর। যেকোনো কারিগর নিবন্ধন করেন, আমরা যাচাই করে অনুমোদন দিই, তারপর তিনি নিজের পণ্য তোলেন আর অর্ডার পান। প্রত্যেকের আছে নাম, এলাকা আর গল্পসহ নিজের দোকান; পণ্য, ছবি, দাম আর স্টক ঠিক করার ড্যাশবোর্ড। ক্রেতা এক ঝুড়িতে অনেক বিক্রেতার পণ্য নিলে অর্ডার ভাগ হয়ে যার যার কাছে যায়।')
+  s.addNotes('বাঙালিয়ানা বাজার মাল্টিভেন্ডর। যেকোনো কারিগর নিবন্ধন করেন, আমরা যাচাই করে অনুমোদন দিই, তারপর তিনি নিজের পণ্য তোলেন আর অর্ডার পান। প্রত্যেকের আছে নাম, এলাকা আর গল্পসহ নিজের দোকান; পণ্য, ছবি, দাম আর স্টক ঠিক করার ড্যাশবোর্ড। ক্রেতা এক ঝুড়িতে অনেক বিক্রেতার পণ্য নিলে অর্ডার ভাগ হয়ে যার যার কাছে যায়।')
 
   // =========== ৮. ঝুড়ি ===========
   s = pres.addSlide({ masterName: 'LH_CONTENT', sectionTitle: 'ব্যবহারকারী ও ফিচার' })
@@ -388,7 +388,7 @@ const icon = async (name, color) => {
   }
   stitch(s, 0.6, 5.5, 12.07, 1.15, { fill: K.holud, line: K.cream })
   T(s, 'একটা কেনা মানে একজন কারিগরের পাশে দাঁড়ানো', { x: 0.6, y: 5.5, w: 12.07, h: 1.15, fontSize: 24, color: K.nil, align: 'center', valign: 'middle' })
-  s.addNotes('লোকালহাট শুধু একটা দোকান না। মাঝের লোক না থাকায় কারিগরের আয় বাড়ে। গ্রামের নারীরা ঘরে বসেই নিজের কাজ বিক্রি করে আয় করতে পারেন। জামদানি, নকশি কাঁথা, মাটির কাজের মতো ঐতিহ্য টিকে থাকে, কারণ এগুলোর ক্রেতা বাড়ে। আর শহরের টাকা সরাসরি গ্রামে পৌঁছায়। তাই প্রতিটি কেনা মানে একজন কারিগরের পাশে দাঁড়ানো।')
+  s.addNotes('বাঙালিয়ানা বাজার শুধু একটা দোকান না। মাঝের লোক না থাকায় কারিগরের আয় বাড়ে। গ্রামের নারীরা ঘরে বসেই নিজের কাজ বিক্রি করে আয় করতে পারেন। জামদানি, নকশি কাঁথা, মাটির কাজের মতো ঐতিহ্য টিকে থাকে, কারণ এগুলোর ক্রেতা বাড়ে। আর শহরের টাকা সরাসরি গ্রামে পৌঁছায়। তাই প্রতিটি কেনা মানে একজন কারিগরের পাশে দাঁড়ানো।')
 
   // =========== ১৪. ভবিষ্যৎ ===========
   s = pres.addSlide({ masterName: 'LH_CONTENT', sectionTitle: 'প্রভাব ও ভবিষ্যৎ' })
@@ -415,7 +415,7 @@ const icon = async (name, color) => {
   pres.addSection({ title: 'শেষ' })
   s = pres.addSlide({ masterName: 'LH_DARK_MAROON', sectionTitle: 'শেষ' })
   s.addImage({ data: A.sun, x: 1.0, y: 1.25, w: 0.95, h: 0.95 })
-  T(s, 'LocalHaat', { x: 2.12, y: 1.5, w: 3, h: 0.45, fontSize: 20, color: K.holud, charSpacing: 3 })
+  T(s, 'Bangaliyana Bazar', { x: 2.12, y: 1.5, w: 5.5, h: 0.45, fontSize: 18, color: K.holud, charSpacing: 3 })
   T(s, 'ধন্যবাদ', { x: 1.0, y: 2.4, w: 7.2, h: 1.6, fontFace: FT, fontSize: 80, color: K.cream, valign: 'middle' })
   stitchLine(s, 1.0, 4.3, 6.8)
   T(s, 'কোনো প্রশ্ন থাকলে নির্দ্বিধায় জিজ্ঞেস করুন।', { x: 1.0, y: 4.65, w: 7.2, h: 0.7, fontSize: 26, color: K.holudSoft })
