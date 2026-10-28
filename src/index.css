@@ -172,3 +172,10 @@ legend {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ফোনে কিবোর্ড খোলা থাকলে মামার রাস্তা লুকায়, যাতে লেখার ঘর ঢাকা না পড়ে */
+@media (max-width: 767px) {
+  body:has(input:focus, textarea:focus, select:focus) .jhuri-road {
+    display: none;
+  }
+}

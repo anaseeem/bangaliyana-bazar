@@ -72,7 +72,7 @@ export default function Header() {
             </NavLink>
           ))}
         </nav>
-        <Link to="/cart" className="relative ml-auto flex items-center gap-2 rounded-full bg-holud py-1.5 pr-4 pl-3 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${bn(count)}টি পণ্য`}>
+        <Link to="/jhuri" className="relative ml-auto flex items-center gap-2 rounded-full bg-holud py-1.5 pr-4 pl-3 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${bn(count)}টি পণ্য`}>
           <span id="jhuri-target" key={bounce} className={bounce ? 'animate-jhuri' : ''}>
             <JhuriIcon className="h-6 w-7" />
           </span>

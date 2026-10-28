@@ -32,7 +32,10 @@ There is no test suite. Verify UI changes in a real browser with the Playwright 
 - **The server is one file** (`server/index.js`, plain JS, no DB). It recomputes prices from products.json and never trusts client totals. It only accepts cash on delivery. Orders are appended to `data/orders.json`.
 - **Product images are hand-drawn SVG**, chosen by `art` (an `ArtKind`) and `palette` in `src/components/ProductArt.tsx`. There are no photos. New kinds of goods need a new SVG drawing there.
 - **Design tokens** (colours, fonts) live in the Tailwind 4 `@theme` block in `src/index.css`, along with the kantha stitch and alpana pattern classes. Fonts load in `index.html`.
-- **Mascot reference:** `public/uncle-inspiration.png` is the character sheet for the jhuri-carrying uncle mascot.
+- **Jhuri flow** (`src/pages/Jhuri.tsx`) is cart, address, review and confirmation on one route, `/jhuri`. The step is the `?dhap=` search param, so the browser back button moves between steps. `/cart` and `/checkout` redirect there. A user can only reach steps they have unlocked (`reachable`). The delivery fee follows the district (`src/data/districts.ts`), matching the server.
+- **Orders:** a 400 from `POST /api/orders` is shown to the user. Only a network failure or 5xx falls back to a local demo order. The last order is kept in sessionStorage so the confirmation survives a refresh. Vite ignores `data/orders.json` (`vite.config.ts`); otherwise every order reloads the page in dev.
+- **Mascot library** (`src/libs/mascot`) is a self-contained, layered SVG `<Mascot mood fill walking facing />` with CSS rigging in `mascot.css`. It's drawn from the character sheet `public/uncle-inspiration.png`. `MascotRoad` places him on the haat-to-home road and makes him walk back sad when the step goes backwards. The page flashes `sad` on remove, lower quantity or empty jhuri, and `happy` on raising a quantity.
+- **Visual primitives:** `StitchFrame` and `StitchLine` (kantha running stitch), `AlpanaCorner` and `AlpanaFlower`, `Stall`, `QtyStepper`. Reuse them rather than adding new border or divider styles.
 
 ## Content and style rules (strict)
 

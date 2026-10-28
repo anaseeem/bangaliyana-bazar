@@ -42,26 +42,31 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 - [x] 404 page restyle. Also fixed: scroll to top on page change, and the product page resets when you open another product.
 
 ## Phase 3: Jhuri flow
-- [ ] One `/jhuri` route with tabs. The current step goes in the URL (`?dhap=`), so phone back works. Redirect `/cart` and `/checkout` to it.
-- [ ] ঝুড়ি: items and quantities.
-- [ ] ঠিকানা: name, phone, district, address, delivery area. The phone field must accept both Bengali and English digits, and quantity inputs need Bengali digits (a stepper, not `type=number`).
-- [ ] হিসাব: review, totals, the cash-on-delivery note, the order button.
-- [ ] হয়ে গেল: order number and total.
-- [ ] Bottom progress road with the mascot.
+- [x] One `/jhuri` route with tabs. The current step goes in the URL (`?dhap=`), so phone back works. Redirect `/cart` and `/checkout` to it.
+- [x] ঝুড়ি: items and quantities.
+- [x] ঠিকানা: name, phone, district, address, delivery area. The phone field must accept both Bengali and English digits, and quantity inputs need Bengali digits (a stepper, not `type=number`).
+- [x] হিসাব: review, totals, the cash-on-delivery note, the order button.
+- [x] হয়ে গেল: order number and total.
+- [x] Bottom progress road with the mascot.
   - He walks forward on next and back on previous.
   - Jhuri fill: 0 empty, 1–2 a little, 3–5 half, 6+ almost full.
   - Sad on remove, lowering a quantity, going back or emptying the jhuri.
   - Happy on হয়ে গেল.
 
 ## Phase 4: Mascot library
-- [ ] `src/libs/mascot/`: `<Mascot mood fill walking direction />`, built as layered SVG from `public/uncle-inspiration.png`.
-- [ ] Only the rigging he needs: walk cycle, head droop, arm holding the jhuri.
-- [ ] Reduced motion support.
+- [x] `src/libs/mascot/`: `<Mascot mood fill walking direction />`, built as layered SVG from `public/uncle-inspiration.png`.
+- [x] Only the rigging he needs: walk cycle, head droop, arm holding the jhuri.
+- [x] Reduced motion support.
 
 ## Each phase ends with
 - [ ] `pnpm build` and `pnpm lint` pass.
 - [ ] Playwright check at 1366px and 390px, including the full jhuri flow once it exists.
 - [ ] Screenshots shown to the owner, then a commit.
+
+## Notes from building it
+- The road runs from a haat stall to a thatched home, so the order is complete when the uncle reaches home with a full jhuri.
+- Delivery area is picked automatically from the district; there's no separate radio.
+- Fixed along the way: the old checkout turned server validation errors into fake local orders; Vite reloaded the page on every order.
 
 ## Later
 - Seasonal themes (Boishakh, Nobanno, Eid, Puja).

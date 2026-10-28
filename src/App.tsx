@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AlpanaFlower } from './components/Alpana'
 import { StitchLine } from './components/Stitch'
 import { CartProvider } from './store/cart'
@@ -8,8 +8,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
-import CartPage from './pages/CartPage'
-import Checkout from './pages/Checkout'
+import Jhuri from './pages/Jhuri'
 import Artisans from './pages/Artisans'
 
 function NotFound() {
@@ -46,8 +45,9 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/jhuri" element={<Jhuri />} />
+              <Route path="/cart" element={<Navigate to="/jhuri" replace />} />
+              <Route path="/checkout" element={<Navigate to="/jhuri?dhap=thikana" replace />} />
               <Route path="/artisans" element={<Artisans />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

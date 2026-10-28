@@ -15,7 +15,7 @@ export default function Footer() {
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link className="hover:underline" to="/shop">বাজার। সব পণ্য</Link></li>
             <li><Link className="hover:underline" to="/artisans">কারিগরদের গল্প</Link></li>
-            <li><Link className="hover:underline" to="/cart">আমার ঝুড়ি</Link></li>
+            <li><Link className="hover:underline" to="/jhuri">আমার ঝুড়ি</Link></li>
           </ul>
         </div>
         <div>
