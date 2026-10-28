@@ -4,7 +4,9 @@ services:
     name: bangaliyana-bazar
     runtime: node
     plan: free
-    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    # Render এ pnpm আগে থেকেই আছে। corepack চালানো যায় না, সিস্টেম ফোল্ডার শুধু পড়া যায়।
+    # সার্ভারের শুধু fastify লাগে, তাই --prod।
+    buildCommand: pnpm install --frozen-lockfile --prod
     startCommand: node server/index.js
     healthCheckPath: /api/health
     envVars:
