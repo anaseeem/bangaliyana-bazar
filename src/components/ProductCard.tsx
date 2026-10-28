@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { formatBDT, type Product } from '../data/products'
+import { bn, formatBDT, type Product } from '../data/products'
 import { useCart } from '../store/cart'
 import ProductArt from './ProductArt'
 
@@ -14,7 +14,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="absolute top-3 left-3 rounded-full bg-rickshaw px-3 py-1 text-xs text-white">{product.badge}</span>
         )}
         <span className="absolute top-3 right-3 rounded-full bg-white/90 px-2.5 py-1 text-xs text-stone-700">
-          ★ {product.rating.toFixed(1)}
+          ★ {bn(product.rating.toFixed(1))}
         </span>
       </Link>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
@@ -27,7 +27,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="text-xl text-rickshaw">{formatBDT(product.price)}</span>
           {product.oldPrice && <s className="text-sm text-stone-400">{formatBDT(product.oldPrice)}</s>}
         </p>
-        <p className="text-xs text-stone-500">{product.stock > 0 ? `স্টকে আছে ${product.stock}টি` : 'স্টক শেষ'}</p>
+        {product.stock <= 0 && <p className="text-xs text-stone-500">স্টক শেষ</p>}
         <div className="mt-auto flex gap-2 pt-2">
           <button
             type="button"

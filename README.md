@@ -80,7 +80,6 @@ pnpm preview # বিল্ড করা সাইট দেখায়, http:/
 • server/index.js: Fastify এপিআই। সাধারণ জাভাস্ক্রিপ্ট। ডাটাবেস নেই।
 • src/components: হেডার, ফুটার, পণ্যের কার্ড, পণ্যের ছবি (এসভিজি), সাজ।
 • src/data/products.ts: পণ্যের তালিকার কপি। সার্ভার না চললে এটা দেখায়।
-• src/hooks/useReveal.ts: স্ক্রল করলে জিনিস ভেসে ওঠে।
 • src/pages: হোম, বাজার, পণ্যের পাতা, ঝুড়ি, অর্ডার, কারিগর।
 • src/store/cart.tsx: ঝুড়ি আর পছন্দের তালিকা। ব্রাউজারে জমা থাকে।
 • src/App.tsx: রাউটার। কোন পাতা কোথায় যায়, এখানে লেখা।
@@ -89,9 +88,9 @@ pnpm preview # বিল্ড করা সাইট দেখায়, http:/
 
 ## পণ্য কীভাবে যোগ করবেন
 
-• data/products.json এ একটা পণ্য যোগ করুন। এপিআই এখান থেকে পড়ে।
-• src/data/products.ts এ একই পণ্য যোগ করুন। সার্ভার না চললে এটা দেখায়।
-  আইডি, দাম আর স্টক দুই জায়গায় এক রাখুন।
+• src/data/products.ts এ পণ্য যোগ করুন।
+• তারপর pnpm sync:products চালান। এটা data/products.json বানিয়ে দেয়।
+  জেসন ফাইল হাতে বদলাবেন না।
 • ছবির জন্য art বেছে নিন। যেমন jamdani, kantha, monipuri, terracotta,
   jhapi, bamboo, jute, rickshaw, gamchha, cushion, kansa, pitha, pati, diya।
   নতুন ছবি লাগলে src/components/ProductArt.tsx এ এসভিজি আঁকুন।

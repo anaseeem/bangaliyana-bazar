@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { bn } from '../data/products'
 import { useCart } from '../store/cart'
 
 const LINKS = [
   { to: '/', label: 'হোম' },
   { to: '/shop', label: 'বাজার' },
   { to: '/artisans', label: 'কারিগর' },
-  { to: '/cart', label: 'ঝুড়ি' },
 ]
 
 export default function Header() {
@@ -25,7 +25,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-cream/95 shadow-sm backdrop-blur">
       <div className="bg-rickshaw text-cream">
         <p className="mx-auto max-w-7xl px-4 py-1.5 text-center text-xs sm:text-sm">
-          পহেলা বৈশাখের মেলা চলছে। ঢাকায় ডেলিভারি ৳৬০, ঢাকার বাইরে ৳১২০ • ক্যাশ অন ডেলিভারি
+          সারা দেশে ডেলিভারি • পণ্য হাতে পেয়ে টাকা দিন
         </p>
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
@@ -35,10 +35,7 @@ export default function Header() {
             <circle cx="32" cy="32" r="16" fill="#f59e0b" />
             <circle cx="32" cy="32" r="5" fill="#fff7e6" />
           </svg>
-          <span className="leading-tight">
-            <span className="block font-display text-xl text-rickshaw sm:text-2xl">বাঙালিয়ানা বাজার</span>
-            <span className="block text-[11px] tracking-widest text-stone-500">হাতের কাজ, বাংলার গল্প</span>
-          </span>
+          <span className="font-display text-xl leading-tight text-rickshaw sm:text-2xl">বাঙালিয়ানা বাজার</span>
         </Link>
         <form onSubmit={submit} className="order-3 flex w-full min-w-0 flex-1 sm:order-none sm:w-auto" role="search">
           <label htmlFor="site-search" className="sr-only">পণ্য খুঁজুন</label>
@@ -66,11 +63,11 @@ export default function Header() {
             </NavLink>
           ))}
         </nav>
-        <Link to="/cart" className="relative ml-auto rounded-full bg-holud px-4 py-2 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${count}টি পণ্য`}>
+        <Link to="/cart" className="relative ml-auto rounded-full bg-holud px-4 py-2 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${bn(count)}টি পণ্য`}>
           🧺 ঝুড়ি
           {count > 0 && (
             <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-rickshaw text-xs text-white">
-              {count}
+              {bn(count)}
             </span>
           )}
         </Link>

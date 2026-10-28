@@ -15,6 +15,7 @@ pnpm server        # API only
 pnpm dev           # Vite only; /api is proxied to :3001 (vite.config.ts)
 pnpm build         # tsc -b && vite build -> dist/
 pnpm lint          # oxlint (.oxlintrc.json)
+pnpm sync:products # regenerate data/products.json from src/data/products.ts
 ```
 
 There is no test suite. Verify UI changes in a real browser with the Playwright MCP at desktop (1366px) and phone (390px) widths. Screenshots go in `.playwright-mcp/` (gitignored).
@@ -26,7 +27,7 @@ There is no test suite. Verify UI changes in a real browser with the Playwright 
 
 ## Architecture
 
-- **Two copies of product data.** The server reads `data/products.json`. The client bundles `src/data/products.ts` (types, `CATEGORIES`, `formatBDT`). The cart store resolves product ids against the bundled copy only, and Home tries `/api/products` but falls back to it. When you add or change a product, edit both files and keep id, price and stock in sync.
+- **Two copies of product data.** The server reads `data/products.json`. The client bundles `src/data/products.ts` (types, `CATEGORIES`, `formatBDT`). The client reads only the bundled copy; `/api/products` exists but the UI does not call it. `src/data/products.ts` is the source: edit it, then run `pnpm sync:products`. Never hand-edit the JSON.
 - **The site works without the server.** Cart and wishlist live in localStorage (`bb-cart`, `bb-wishlist`) via `src/store/cart.tsx`. If `POST /api/orders` fails, Checkout saves the order to `bb-local-orders` so the demo flow still finishes.
 - **The server is one file** (`server/index.js`, plain JS, no DB). It recomputes prices from products.json and never trusts client totals. It only accepts cash on delivery. Orders are appended to `data/orders.json`.
 - **Product images are hand-drawn SVG**, chosen by `art` (an `ArtKind`) and `palette` in `src/components/ProductArt.tsx`. There are no photos. New kinds of goods need a new SVG drawing there.

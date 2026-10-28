@@ -19,11 +19,11 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
   - One commit per phase.
 
 ## Phase 0: Cleanup
-- [ ] Add a `bn()` digit helper and remove every English digit from the UI.
-- [ ] Remove the scroll-reveal hook and its CSS.
-- [ ] Remove rickshaw art written as text (hero card, scrolling strip, category blurb).
-- [ ] Cut filler text: hero stats, second hero sub-line, logo tagline, "কেন হাতে তৈরি", stock line on cards, art note on the product page, browser storage note, duplicate ঝুড়ি link in the header.
-- [ ] Make the announcement bar short and evergreen, and stop the footer repeating it.
+- [x] Add a `bn()` digit helper and remove every English digit from the UI.
+- [x] Remove the scroll-reveal hook and its CSS.
+- [x] Remove rickshaw art written as text (hero card, scrolling strip, category blurb).
+- [x] Cut filler text: hero stats, second hero sub-line, logo tagline, "কেন হাতে তৈরি", stock line on cards, art note on the product page, browser storage note, duplicate ঝুড়ি link in the header.
+- [x] Make the announcement bar short and evergreen, and stop the footer repeating it.
 
 ## Phase 1: Visual language
 - [ ] Palette: keep maroon, red and turmeric yellow; add indigo, kantha green, terracotta and a little magenta; remove the mint.
@@ -44,7 +44,7 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 ## Phase 3: Jhuri flow
 - [ ] One `/jhuri` route with tabs. The current step goes in the URL (`?dhap=`), so phone back works. Redirect `/cart` and `/checkout` to it.
 - [ ] ঝুড়ি: items and quantities.
-- [ ] ঠিকানা: name, phone, district, address, delivery area.
+- [ ] ঠিকানা: name, phone, district, address, delivery area. The phone field must accept both Bengali and English digits, and quantity inputs need Bengali digits (a stepper, not `type=number`).
 - [ ] হিসাব: review, totals, the cash-on-delivery note, the order button.
 - [ ] হয়ে গেল: order number and total.
 - [ ] Bottom progress road with the mascot.

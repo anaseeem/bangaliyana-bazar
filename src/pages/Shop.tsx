@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CATEGORIES, DISTRICTS, PRODUCTS, type Product } from '../data/products'
-import { useReveal } from '../hooks/useReveal'
+import { CATEGORIES, DISTRICTS, PRODUCTS, bn, type Product } from '../data/products'
 import { useCart } from '../store/cart'
 import ProductCard from '../components/ProductCard'
 
@@ -33,15 +32,10 @@ export default function Shop() {
     return list
   }, [q, cat, district, sort, onlyWish, wishlist])
 
-  useReveal([filtered.length])
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <p className="text-sm tracking-widest text-rickshaw">বাজার</p>
       <h1 className="mt-1 text-4xl">সব পণ্য, এক মেলায়</h1>
-      <p className="mt-2 max-w-2xl text-stone-600">
-        খুঁজুন, ছাঁকুন, দাম মেলান। তারপর ঝুড়িতে নিন। প্রতিটি পণ্যের পাশে কারিগরের নাম আর জেলা লেখা আছে।
-      </p>
 
       <div className="mt-6 flex flex-col gap-3 rounded-3xl border-2 border-amber-200 bg-white p-4 shadow-sm lg:flex-row lg:items-end">
         <div className="flex-1">
@@ -80,7 +74,7 @@ export default function Shop() {
         </button>
       </div>
 
-      <p className="mt-5 text-sm text-stone-600" role="status">{filtered.length}টি পণ্য পাওয়া গেছে।</p>
+      <p className="mt-5 text-sm text-stone-600" role="status">{bn(filtered.length)}টি পণ্য পাওয়া গেছে।</p>
 
       {filtered.length === 0 ? (
         <div className="mt-8 rounded-3xl border-2 border-dashed border-amber-300 bg-white p-10 text-center">

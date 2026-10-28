@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { DISTRICTS, formatBDT } from '../data/products'
+import { DISTRICTS, bn, formatBDT } from '../data/products'
 import { useCart } from '../store/cart'
 
 type Delivery = 'dhaka' | 'outside'
@@ -84,7 +84,7 @@ export default function Checkout() {
           </svg>
           <h1 className="mt-4 font-display text-3xl text-leaf">ধন্যবাদ! অর্ডার হয়েছে।</h1>
           <p className="mt-2 text-stone-600">আপনার অর্ডার নম্বরটি যত্নে রাখুন। আমরা ফোনে নিশ্চিত করব।</p>
-          <p className="mt-4 inline-block rounded-full bg-cream-deep px-5 py-2 text-xl text-rickshaw">অর্ডার নম্বর: {order.id}</p>
+          <p className="mt-4 inline-block rounded-full bg-cream-deep px-5 py-2 text-xl text-rickshaw">অর্ডার নম্বর: {bn(order.id)}</p>
           <p className="mt-3 text-lg">মোট দিতে হবে: <span className="text-rickshaw">{formatBDT(order.total)}</span></p>
           <p className="mt-2 text-sm text-stone-600">
             পেমেন্ট: <span>ক্যাশ অন ডেলিভারি</span>। পণ্য হাতে পেয়ে টাকা দিন। এটা ডেমো অর্ডার, কোনো অনলাইন পেমেন্ট নেওয়া হয়নি।
@@ -164,11 +164,11 @@ export default function Checkout() {
         </div>
 
         <aside className="h-fit rounded-3xl border-2 border-amber-200 bg-white p-5 shadow-sm lg:sticky lg:top-36">
-          <h2 className="font-display text-xl">অর্ডারের হিসাব ({count}টি পণ্য)</h2>
+          <h2 className="font-display text-xl">অর্ডারের হিসাব ({bn(count)}টি পণ্য)</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {detailed.map((d) => (
               <li key={d.product.id} className="flex justify-between gap-2">
-                <span>{d.product.nameBn} × {d.qty}</span><span className="">{formatBDT(d.product.price * d.qty)}</span>
+                <span>{d.product.nameBn} × {bn(d.qty)}</span><span className="">{formatBDT(d.product.price * d.qty)}</span>
               </li>
             ))}
           </ul>

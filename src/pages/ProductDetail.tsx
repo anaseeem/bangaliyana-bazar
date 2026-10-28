@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { PRODUCTS, formatBDT } from '../data/products'
+import { PRODUCTS, bn, formatBDT } from '../data/products'
 import { useCart } from '../store/cart'
 import ProductArt from '../components/ProductArt'
 import ProductCard from '../components/ProductCard'
@@ -33,15 +33,11 @@ export default function ProductDetail() {
       <div className="mt-4 grid gap-8 lg:grid-cols-2">
         <div className="animate-fade-up overflow-hidden rounded-3xl border-2 border-amber-200 bg-white shadow-sm">
           <ProductArt art={product.art} palette={product.palette} label={product.nameBn} className="h-80 w-full sm:h-96" />
-          <div className="kantha-border" aria-hidden="true" />
-          <p className="px-5 py-3 text-center text-sm text-stone-500">
-            ছবির বদলে হাতে আঁকা চিত্র। প্রতিটি পণ্যের আসল রং আর নকশা এমনই।
-          </p>
         </div>
         <div className="animate-fade-up">
           {product.badge && <span className="rounded-full bg-rickshaw px-3 py-1 text-xs text-white">{product.badge}</span>}
           <h1 className="mt-3 text-4xl">{product.nameBn}</h1>
-          <p className="mt-2 text-sm">★ {product.rating.toFixed(1)} রেটিং • {product.category} • {product.district}</p>
+          <p className="mt-2 text-sm">★ {bn(product.rating.toFixed(1))} রেটিং • {product.category} • {product.district}</p>
           <p className="mt-4 flex items-baseline gap-3">
             <span className="text-3xl text-rickshaw">{formatBDT(product.price)}</span>
             {product.oldPrice && <s className="text-stone-400">{formatBDT(product.oldPrice)}</s>}
@@ -52,7 +48,7 @@ export default function ProductDetail() {
             <p className="mt-1 text-sm text-stone-700">{product.story}</p>
             <p className="mt-2 text-sm"> {product.artisan}, {product.district}</p>
           </div>
-          <p className="mt-4 text-sm">{product.stock > 0 ? `স্টকে আছে ${product.stock}টি` : 'স্টক শেষ। শীঘ্রই আসছে'}</p>
+          <p className="mt-4 text-sm">{product.stock > 0 ? `স্টকে আছে ${bn(product.stock)}টি` : 'স্টক শেষ। শীঘ্রই আসছে'}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <label className="flex items-center gap-2 text-sm" htmlFor="qty">
               পরিমাণ

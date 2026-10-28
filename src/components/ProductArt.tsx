@@ -139,7 +139,6 @@ export default function ProductArt({ art, palette, label, className }: Props) {
           {[0, 1, 2, 3].map((i) => (
             <circle key={i} cx={95 + i * 16} cy="215" r="6" fill={c2} />
           ))}
-          <text x="200" y="80" textAnchor="middle" fontSize="20" fill={c3} fontFamily="Noto Serif Bengali, serif">ঢাকা • রিকশা আর্ট</text>
         </g>
       )}
       {art === 'gamchha' && (
@@ -182,7 +181,6 @@ export default function ProductArt({ art, palette, label, className }: Props) {
           {[0, 1, 2, 3, 4].map((i) => (
             <circle key={i} cx={130 + i * 35} cy="150" r="14" fill={c2} />
           ))}
-          <text x="200" y="245" textAnchor="middle" fontSize="22" fill={c1} fontFamily="Noto Serif Bengali, serif">নকশি পিঠা</text>
         </g>
       )}
       {art === 'pati' && (

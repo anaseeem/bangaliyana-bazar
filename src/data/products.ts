@@ -264,6 +264,11 @@ export const PRODUCTS: Product[] = [
   },
 ]
 
+const BN_DIGITS = '০১২৩৪৫৬৭৮৯'
+
+/** যেকোনো সংখ্যা বা লেখার ইংরেজি অঙ্ক বাংলা অঙ্কে বদলায়। যেমন 4.9 → ৪.৯ */
+export const bn = (v: number | string) => String(v).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)])
+
 export const formatBDT = (n: number) => `৳${n.toLocaleString('bn-BD')}`
 
 export const ARTISANS = [

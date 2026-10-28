@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { formatBDT } from '../data/products'
+import { bn, formatBDT } from '../data/products'
 import { useCart } from '../store/cart'
 import ProductArt from '../components/ProductArt'
 
@@ -20,7 +20,7 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <h1 className="text-4xl">আমার ঝুড়ি</h1>
-      <p className="mt-1 text-stone-600">{count}টি পণ্য • ঝুড়ি আপনার ব্রাউজারে সংরক্ষিত থাকে।</p>
+      <p className="mt-1 text-stone-600">{bn(count)}টি পণ্য</p>
       <div className="mt-6 grid gap-8 lg:grid-cols-3">
         <ul className="space-y-4 lg:col-span-2">
           {detailed.map(({ product, qty }) => (
@@ -33,7 +33,7 @@ export default function CartPage() {
                   <Link to={`/product/${product.id}`} className="hover:text-rickshaw">{product.nameBn}</Link>
                 </h2>
                 <p className="text-sm text-stone-500">{product.artisan} • {product.district}</p>
-                <p className="mt-1 text-rickshaw">{formatBDT(product.price)} <span className="text-sm font-normal text-stone-500">× {qty} = {formatBDT(product.price * qty)}</span></p>
+                <p className="mt-1 text-rickshaw">{formatBDT(product.price)} <span className="text-sm font-normal text-stone-500">× {bn(qty)} = {formatBDT(product.price * qty)}</span></p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <label className="flex items-center gap-2 text-sm" htmlFor={`qty-${product.id}`}>
                     পরিমাণ

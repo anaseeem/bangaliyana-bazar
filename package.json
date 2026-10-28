@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "server": "node server/index.js",
-    "dev:full": "node server/index.js & vite"
+    "dev:full": "node server/index.js & vite",
+    "sync:products": "node --experimental-strip-types scripts/sync-products.ts"
   },
   "dependencies": {
     "fastify": "^5.12.7",
