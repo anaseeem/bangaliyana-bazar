@@ -99,3 +99,18 @@ pnpm preview # বিল্ড করা সাইট দেখায়, http:/
   jhapi, bamboo, jute, rickshaw, gamchha, cushion, kansa, pitha, pati, diya।
   নতুন ছবি লাগলে src/components/ProductArt.tsx এ এসভিজি আঁকুন।
 • দাম টাকায় লিখুন। যেমন ৮৫০০।
+
+## অনলাইনে তোলা
+
+দোকান যায় Vercel এ, এপিআই যায় Render এ।
+
+• Render: New → Blueprint, এই রেপো বেছে নিন। render.yaml থেকে সব সেটিং আসে।
+  চালু হলে ঠিকানাটা নিন, যেমন https://bangaliyana-bazar.onrender.com।
+• vercel.json এ /api এর ঠিকানা যদি আলাদা হয়, Render এর ঠিকানা বসিয়ে পুশ করুন।
+• Vercel: New Project, এই রেপো। Vite নিজেই চিনে নেয়। বিল্ড pnpm build, ফল dist।
+• Render এর ফ্রি সার্ভার ১৫ মিনিট চুপ থাকলে ঘুমায়। প্রথম অর্ডারে এক মিনিট লাগতে পারে।
+• ফ্রি সার্ভারে data/orders.json প্রতিবার নতুন করে চালু হলে মুছে যায়।
+  আসল অর্ডার রাখতে হলে Render এর ডিস্ক বা একটা ডাটাবেস লাগবে।
+• নিজের কম্পিউটারে সার্ভার না চললে অর্ডার ব্রাউজারে জমা হয়। অনলাইনে তা হয় না,
+  তখন ভুলের কথা দেখায়, যাতে কেউ ভুল করে ভাবেন না যে অর্ডার হয়েছে।
+

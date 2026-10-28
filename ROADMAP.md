@@ -54,7 +54,7 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
   - Happy on হয়ে গেল.
 
 ## Phase 4: Mascot library
-- [x] `src/libs/mascot/`: `<Mascot mood fill walking direction />`, built as layered SVG from `public/uncle-inspiration.png`.
+- [x] `src/libs/mascot/`: `<Mascot mood fill walking direction />`, built as layered SVG from `design/uncle-inspiration.png`.
 - [x] Only the rigging he needs: walk cycle, head droop, arm holding the jhuri.
 - [x] Reduced motion support.
 

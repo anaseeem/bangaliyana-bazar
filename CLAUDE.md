@@ -28,14 +28,20 @@ There is no test suite. Verify UI changes in a real browser with the Playwright 
 ## Architecture
 
 - **Two copies of product data.** The server reads `data/products.json`. The client bundles `src/data/products.ts` (types, `CATEGORIES`, `formatBDT`, `bn`). The client reads only the bundled copy; `/api/products` exists but the UI does not call it. `src/data/products.ts` is the source: edit it, then run `pnpm sync:products`. Never hand-edit the JSON.
-- **The site works without the server.** Cart and wishlist live in localStorage (`bb-cart`, `bb-wishlist`) via `src/store/cart.tsx`. If `POST /api/orders` fails, Checkout saves the order to `bb-local-orders` so the demo flow still finishes.
+- **Cart and wishlist** live in localStorage (`bb-cart`, `bb-wishlist`) via `src/store/cart.tsx`. The browser keeps them even without a server.
 - **The server is one file** (`server/index.js`, plain JS, no DB). It recomputes prices from products.json and never trusts client totals. It only accepts cash on delivery. Orders are appended to `data/orders.json`.
 - **Product images are hand-drawn SVG**, chosen by `art` (an `ArtKind`) and `palette` in `src/components/ProductArt.tsx`. There are no photos. New kinds of goods need a new SVG drawing there.
 - **Design tokens** (colours, fonts) live in the Tailwind 4 `@theme` block in `src/index.css`, along with the kantha stitch and alpana pattern classes. Fonts load in `index.html`.
 - **Jhuri flow** (`src/pages/Jhuri.tsx`) is cart, address, review and confirmation on one route, `/jhuri`. The step is the `?dhap=` search param, so the browser back button moves between steps. `/cart` and `/checkout` redirect there. A user can only reach steps they have unlocked (`reachable`). The delivery fee follows the district (`src/data/districts.ts`), matching the server.
-- **Orders:** a 400 from `POST /api/orders` is shown to the user. Only a network failure or 5xx falls back to a local demo order. The last order is kept in sessionStorage so the confirmation survives a refresh. Vite ignores `data/orders.json` (`vite.config.ts`); otherwise every order reloads the page in dev.
-- **Mascot library** (`src/libs/mascot`) is a self-contained, layered SVG `<Mascot mood fill walking facing />` with CSS rigging in `mascot.css`. It's drawn from the character sheet `public/uncle-inspiration.png`. `MascotRoad` places him on the haat-to-home road and makes him walk back sad when the step goes backwards. The page flashes `sad` on remove, lower quantity or empty jhuri, and `happy` on raising a quantity.
+- **Orders:** a 400 from `POST /api/orders` is shown to the user. In dev only, a network failure or 5xx falls back to a local demo order (`bb-local-orders`); in production it shows an error, so nobody sees a fake confirmation. The last order is kept in sessionStorage so the confirmation survives a refresh. Vite ignores `data/orders.json` (`vite.config.ts`); otherwise every order reloads the page in dev.
+- **Mascot library** (`src/libs/mascot`) is a self-contained `<Mascot mood fill walking facing />`: WebP parts cut from the character sheet `design/uncle-inspiration.png` (cutting scripts in `design/mascot-tools/`), posed in an SVG with CSS rigging in `mascot.css`. The jhuri is drawn in SVG. `MascotRoad` places him on the haat-to-home road and makes him walk back sad when the step goes backwards. The page flashes `sad` on remove, lower quantity or empty jhuri, and `happy` on raising a quantity.
 - **Visual primitives:** `StitchFrame` and `StitchLine` (kantha running stitch), `AlpanaCorner` and `AlpanaFlower`, `Stall`, `QtyStepper`. Reuse them rather than adding new border or divider styles.
+
+## Deployment
+
+- The frontend is on Vercel. `vercel.json` rewrites `/api/*` to the Render API and sends every other path to `index.html` for client routing.
+- The API is on Render (`render.yaml` Blueprint, free plan). The server binds `0.0.0.0` when `RENDER` is set, otherwise `127.0.0.1`.
+- On Render's free plan, `data/orders.json` resets on every restart, and the service sleeps after 15 minutes idle.
 
 ## Content and style rules (strict)
 

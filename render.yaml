@@ -1,0 +1,12 @@
+# Render Blueprint: শুধু Fastify এপিআই। দোকান (ফ্রন্টএন্ড) Vercel এ।
+services:
+  - type: web
+    name: bangaliyana-bazar
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: node server/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"

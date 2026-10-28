@@ -31,7 +31,7 @@ function validate(a: Address): Errors {
   return e
 }
 
-/** সার্ভার না চললে ডেমো অর্ডার ব্রাউজারেই রাখা হয়, যাতে পুরো পথটা দেখা যায়। */
+/** শুধু নিজের কম্পিউটারে: সার্ভার না চললে ডেমো অর্ডার ব্রাউজারেই রাখা হয়, যাতে পুরো পথটা দেখা যায়। */
 function saveLocalOrder(payload: object, total: number): string {
   const id = `BB${Date.now().toString().slice(-6)}`
   try {
@@ -57,6 +57,8 @@ export default function Jhuri() {
   const [errors, setErrors] = useState<Errors>({})
   const [order, setOrder] = useState<PlacedOrder | null>(readLastOrder)
   const [placing, setPlacing] = useState(false)
+  // Render এর ফ্রি সার্ভার ঘুমিয়ে থাকলে জাগতে এক মিনিট পর্যন্ত লাগে, তখন একটা কথা দেখাই
+  const [slow, setSlow] = useState(false)
   const [serverError, setServerError] = useState('')
 
   // মামার মেজাজ: কিছু সরালে বা কমালে একটু মন খারাপ, যোগ করলে একটু খুশি
@@ -90,6 +92,7 @@ export default function Jhuri() {
   const placeOrder = async () => {
     setServerError('')
     setPlacing(true)
+    const slowTimer = window.setTimeout(() => setSlow(true), 4000)
     const grand = total + delivery.fee
     const payload = {
       name: address.name.trim(),
@@ -114,8 +117,15 @@ export default function Jhuri() {
         throw new Error(`HTTP ${res.status}`)
       }
     } catch {
-      placed = { id: saveLocalOrder(payload, grand), total: grand, days: delivery.days }
+      if (import.meta.env.DEV) {
+        placed = { id: saveLocalOrder(payload, grand), total: grand, days: delivery.days }
+      } else {
+        // আসল সাইটে নকল অর্ডার দেখালে ক্রেতা ভাববেন অর্ডার হয়েছে, অথচ আমরা পাইনি। তাই ভুল দেখাই।
+        setServerError('অর্ডার পাঠানো গেল না। ইন্টারনেট দেখে একটু পরে আবার চেষ্টা করুন।')
+      }
     }
+    window.clearTimeout(slowTimer)
+    setSlow(false)
     setPlacing(false)
     if (placed) {
       try { sessionStorage.setItem(LAST_ORDER, JSON.stringify(placed)) } catch { /* শুধু রিফ্রেশে কাজে লাগে */ }
@@ -232,6 +242,7 @@ export default function Jhuri() {
               <p className="text-stone-700">{address.address.trim()}, {address.district}</p>
               <p className="mt-2 text-stone-700">পণ্য হাতে পেয়ে টাকা দেবেন। অনলাইনে কিছু দিতে হবে না।</p>
             </div>
+            {slow && <p role="status" className="mt-4 text-stone-600">একটু সময় লাগছে, সার্ভার জেগে উঠছে। পাতা বন্ধ করবেন না।</p>}
             {serverError && <p role="alert" className="mt-4 rounded-md bg-red-50 px-4 py-3 text-rickshaw">{serverError}</p>}
             <div className="mt-6 flex flex-wrap gap-3">
               <button type="button" disabled={placing} onClick={placeOrder} className="rounded-full bg-rickshaw px-8 py-3 text-lg text-white hover:bg-rickshaw-dark disabled:opacity-60">

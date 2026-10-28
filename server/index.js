@@ -2,6 +2,8 @@ import Fastify from 'fastify'
 import { readFile, writeFile } from 'node:fs/promises'
 
 const PORT = Number(process.env.PORT ?? 3001)
+// Render এ বাইরে থেকে ডাকতে হয়, তাই সব ঠিকানায় শোনে। নিজের কম্পিউটারে শুধু 127.0.0.1।
+const HOST = process.env.HOST ?? (process.env.RENDER ? '0.0.0.0' : '127.0.0.1')
 const PRODUCTS_FILE = new URL('../data/products.json', import.meta.url)
 const ORDERS_FILE = new URL('../data/orders.json', import.meta.url)
 const DELIVERY_FEE = { Dhaka: 60, 'Outside Dhaka': 120 }
@@ -110,6 +112,6 @@ app.get('/api/orders/:id', async (req, reply) => {
   return order
 })
 
-app.listen({ port: PORT, host: '127.0.0.1' }).then(() => {
-  app.log.info(`Bangaliyana Bazar API listening on http://127.0.0.1:${PORT}`)
+app.listen({ port: PORT, host: HOST }).then(() => {
+  app.log.info(`Bangaliyana Bazar API listening on http://${HOST}:${PORT}`)
 })
