@@ -1,7 +1,21 @@
-import { useId } from 'react'
+import { useId, type ReactNode } from 'react'
 import './mascot.css'
-
 import type { JhuriFill, MascotMood } from './types'
+import torso from './parts/torso.webp'
+import lungi from './parts/lungi.webp'
+import gamchha from './parts/gamchha.webp'
+import sleeveL from './parts/sleeve_l.webp'
+import sleeveR from './parts/sleeve_r.webp'
+import forearmL from './parts/forearm_l.webp'
+import forearmR from './parts/forearm_r.webp'
+import handL from './parts/hand_l.webp'
+import handR from './parts/hand_r.webp'
+import shinL from './parts/shin_l.webp'
+import shinR from './parts/shin_r.webp'
+import foot from './parts/foot_r.webp'
+import headNeutral from './parts/head_neutral.webp'
+import headHappy from './parts/head_happy.webp'
+import headSad from './parts/head_sad.webp'
 
 export interface MascotProps {
   mood?: MascotMood
@@ -13,30 +27,72 @@ export interface MascotProps {
   label?: string
 }
 
-const SKIN = '#c98a5a'
-const SKIN_SHADE = '#a86a40'
-const HAIR = '#211b19'
-const SHIRT = '#efe9dc'
-const SHIRT_SHADE = '#d8cfbb'
-const LUNGI = '#1f5f7a'
-const GAMCHHA = '#c0283a'
-const SANDAL = '#2a2422'
-const BAMBOO = '#c8902e'
-const BAMBOO_DARK = '#8a5a1a'
+/*
+ * মামার অংশগুলো চরিত্রের নকশার পাতা (public/uncle-inspiration.png) থেকে কেটে নেওয়া।
+ * সব মাপ পাতার পিক্সেলে, ধড়ের ওপরের বাঁ কোণ (০,০)। হাত-পা সোজা ঝোলানো অবস্থায় কাটা,
+ * জোড়াটা ওপরে, তাই এখানে শুধু কোণ বদলে ভঙ্গি তৈরি হয়।
+ */
+const SHOULDER_L = { x: 30, y: 42 }
+const SHOULDER_R = { x: 143, y: 42 }
+const NECK = { x: 88, y: 22 }
+const KNEE_BACK = { x: 72, y: 296 }
+const KNEE_FRONT = { x: 104, y: 296 }
+
+/** মেজাজ অনুযায়ী মাথা। নোঙর = গলার নিচের মাঝখান, ছবির ভেতরে। */
+const HEADS: Record<MascotMood, { src: string; w: number; h: number; ax: number; ay: number; scale: number }> = {
+  neutral: { src: headNeutral, w: 105, h: 147, ax: 48, ay: 139, scale: 1 },
+  happy: { src: headHappy, w: 133, h: 182, ax: 67, ay: 172, scale: 0.8 },
+  sad: { src: headSad, w: 177, h: 182, ax: 80, ay: 172, scale: 0.8 },
+}
+
+/** একটা অংশ: জোড়ার বিন্দু (px, py) বসে (x, y) তে, সেখান থেকে angle ডিগ্রি ঘোরে। ভেতরের children পরের জোড়া। */
+function Limb({ src, w, h, px, py, x, y, angle, children }: { src: string; w: number; h: number; px: number; py: number; x: number; y: number; angle: number; children?: ReactNode }) {
+  return (
+    <g transform={`rotate(${angle} ${x} ${y})`}>
+      <image href={src} x={x - px} y={y - py} width={w} height={h} />
+      {children}
+    </g>
+  )
+}
+
+/** একটা হাত: কাঁধ থেকে ওপরে উঠে ঝুড়ির কিনারা ধরে আছে। side = -1 বাঁ, 1 ডান। */
+function Arm({ side }: { side: -1 | 1 }) {
+  const s = side === 1 ? SHOULDER_R : SHOULDER_L
+  const sleeve = side === 1 ? { src: sleeveR, w: 43, h: 84, reach: 49 } : { src: sleeveL, w: 45, h: 88, reach: 53 }
+  const fore = side === 1 ? { src: forearmR, w: 36, h: 96, reach: 76 } : { src: forearmL, w: 34, h: 91, reach: 71 }
+  const hand = side === 1 ? { src: handR, w: 42, h: 78 } : { src: handL, w: 41, h: 73 }
+  const elbow = { x: s.x, y: s.y + sleeve.reach }
+  const wrist = { x: s.x, y: elbow.y + fore.reach }
+  return (
+    <Limb src={sleeve.src} w={sleeve.w} h={sleeve.h} px={sleeve.w / 2} py={13} x={s.x} y={s.y} angle={-150 * side}>
+      <Limb src={fore.src} w={fore.w} h={fore.h} px={fore.w / 2} py={12} x={elbow.x} y={elbow.y} angle={-48 * side}>
+        <Limb src={hand.src} w={hand.w} h={hand.h} px={hand.w / 2} py={5} x={wrist.x} y={wrist.y} angle={14 * side} />
+      </Limb>
+    </Limb>
+  )
+}
+
+/** একটা পা: হাঁটু লুঙ্গির নিচে লুকানো, নিচে নলা আর চপ্পল। */
+function Leg({ knee, src, className }: { knee: { x: number; y: number }; src: string; className: string }) {
+  const ankle = { x: knee.x, y: knee.y + 70 }
+  return (
+    <g className={`m-leg ${className}`} style={{ transformOrigin: `${knee.x}px ${knee.y}px` }}>
+      <image href={src} x={knee.x - 19} y={knee.y - 12} width={38} height={92} />
+      <image href={foot} x={ankle.x - 24} y={ankle.y - 12} width={75} height={54} />
+    </g>
+  )
+}
 
 /**
- * মামা: মাঝবয়সী বাঙালি, শার্ট আর লুঙ্গি, কাঁধে গামছা, মাথায় ঝুড়ি।
- * ডান দিকে মুখ করে হাঁটে। শুধু যতটুকু নড়াচড়া দরকার ততটুকুই রিগ করা:
- * পা, লুঙ্গির দোলা, শরীরের ওঠানামা, মাথা ঝোঁকা।
+ * মামা: শার্ট, লুঙ্গি, কাঁধে গামছা, মাথায় ঝুড়ি। ডান দিকে মুখ করে হাঁটেন।
+ * মেজাজ বদলালে মাথা বদলায়: নকশার পাতার খুশি আর মন খারাপের মুখ।
  */
 export default function Mascot({ mood = 'neutral', fill = 0, walking = false, facing = 'right', className = '', label }: MascotProps) {
-  const uid = useId().replace(/:/g, '')
-  const plaid = `lungi-${uid}`
-  const check = `gamchha-${uid}`
+  const head = HEADS[mood]
 
   return (
     <svg
-      viewBox="0 -26 120 226"
+      viewBox="-62 -205 300 625"
       className={`mascot ${className}`}
       data-mood={mood}
       data-walking={walking}
@@ -45,165 +101,106 @@ export default function Mascot({ mood = 'neutral', fill = 0, walking = false, fa
       aria-label={label}
       aria-hidden={label ? undefined : true}
     >
-      <defs>
-        {/* লুঙ্গির চেক */}
-        <pattern id={plaid} width="14" height="14" patternUnits="userSpaceOnUse">
-          <rect width="14" height="14" fill={LUNGI} />
-          <rect x="0" width="4" height="14" fill="#2f6b3a" opacity="0.7" />
-          <rect y="0" width="14" height="4" fill="#2f6b3a" opacity="0.55" />
-          <rect x="9" width="1" height="14" fill="#e8d9b5" opacity="0.6" />
-          <rect y="9" width="14" height="1" fill="#e8d9b5" opacity="0.6" />
-          <rect x="6" width="0.8" height="14" fill="#b91c1c" opacity="0.8" />
-        </pattern>
-        {/* গামছার চেক */}
-        <pattern id={check} width="8" height="8" patternUnits="userSpaceOnUse">
-          <rect width="8" height="8" fill={GAMCHHA} />
-          <rect x="5" width="1.4" height="8" fill="#f4c2c2" opacity="0.8" />
-          <rect y="5" width="8" height="1.4" fill="#f4c2c2" opacity="0.8" />
-          <rect x="1" width="1" height="8" fill="#7f1d1d" opacity="0.6" />
-        </pattern>
-      </defs>
-
-      <ellipse cx="60" cy="196" rx="30" ry="3.5" fill="#000" opacity="0.12" />
-
-      <g className="m-flip">
+      <ellipse cx="88" cy="414" rx="78" ry="9" fill="#000" opacity="0.12" />
+      <g className="m-flip" style={{ transformOrigin: '88px 100px' }}>
         <g className="m-body">
-          {/* পেছনের পা */}
-          <g className="m-leg m-leg-back">
-            <path d="M54,152 L52,186 L61,186 L63,152 Z" fill={SKIN_SHADE} />
-            <path d="M46,185 Q56,181.5 66,185 L66,190 L46,190 Z" fill={SANDAL} />
-          </g>
-          {/* সামনের পা */}
-          <g className="m-leg m-leg-front">
-            <path d="M61,152 L61,186 L70,186 L71,152 Z" fill={SKIN} />
-            <path d="M57,185 Q67,181.5 79,185 L79,190 L57,190 Z" fill={SANDAL} />
+          <Leg knee={KNEE_BACK} src={shinL} className="m-leg-back" />
+          <Leg knee={KNEE_FRONT} src={shinR} className="m-leg-front" />
+
+          {/* লুঙ্গি: শার্টের নিচ থেকে, পাতার চেয়ে একটু চওড়া করে */}
+          <g className="m-lungi" style={{ transformOrigin: '88px 150px' }}>
+            <image href={lungi} x={88 - 61} y={150} width={122} height={189} preserveAspectRatio="none" />
           </g>
 
-          {/* লুঙ্গি: কোমর থেকে পায়ের নলা পর্যন্ত, হাঁটার সাথে একটু দোলে */}
-          <g className="m-lungi">
-            <path d="M40,100 L82,100 L87,160 Q62,165 35,160 Z" fill={`url(#${plaid})`} />
-            <path d="M40,100 L82,100 L82.6,107 L39.4,107 Z" fill="#163f52" opacity="0.6" />
-            {/* কোমরের গিঁট */}
-            <path d="M64,101 Q70,99 73,104 Q69,108 64,106 Z" fill="#163f52" />
-            <path d="M70,107 L77,159" stroke="#163f52" strokeWidth="1.4" opacity="0.5" />
+          {/* মাথা: গলা কলারের পেছনে ঢোকে */}
+          <g className="m-head" style={{ transformOrigin: `${NECK.x}px ${NECK.y}px` }}>
+            <image href={head.src} x={NECK.x - head.ax * head.scale} y={NECK.y - head.ay * head.scale} width={head.w * head.scale} height={head.h * head.scale} />
           </g>
 
-          {/* শার্ট */}
-          <path d="M40,62 Q61,54 82,62 L84,104 L38,104 Z" fill={SHIRT} />
-          <path d="M40,62 L38,104 L47,104 L46,66 Z" fill={SHIRT_SHADE} />
-          <rect x="66" y="74" width="9" height="9" rx="1" fill="none" stroke={SHIRT_SHADE} strokeWidth="1.2" />
-          {[70, 80, 90].map((y) => <circle key={y} cx="61" cy={y} r="0.9" fill="#b8ad96" />)}
-          {/* কলার */}
-          <path d="M54,58 L60,66 L66,58" fill="none" stroke={SHIRT_SHADE} strokeWidth="2" strokeLinejoin="round" />
-
-          {/* গামছা: কাঁধ থেকে বুকের ওপর ঝুলে আছে */}
-          <path d="M46,60 Q52,56 58,59 L56,98 Q51,100 47,97 Z" fill={`url(#${check})`} />
-          <path d="M47,97 Q51,100 56,98 L56.4,101 Q51,103 46.6,100 Z" fill="#7f1d1d" opacity="0.7" />
-
-          {/* গলা */}
-          <path d="M56,48 L65,48 L65,60 L56,60 Z" fill={SKIN_SHADE} />
-
-          {/* হাত দুটো ওপরে, ঝুড়ি ধরে আছে */}
-          <g className="m-arms">
-            {/* পেছনের হাত */}
-            <path d="M44,66 L30,42 L34,8" fill="none" stroke={SKIN_SHADE} strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M44,65 L38,53" stroke={SHIRT_SHADE} strokeWidth="12" strokeLinecap="round" />
-            {/* সামনের হাত */}
-            <path d="M79,66 L94,44 L90,8" fill="none" stroke={SKIN} strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M79,65 L86,53" stroke={SHIRT} strokeWidth="12" strokeLinecap="round" />
+          <g className="m-jhuri" style={{ transformOrigin: '92px -100px' }}>
+            <Jhuri fill={fill} />
           </g>
 
-          {/* মাথা: দুঃখ পেলে ঝুঁকে পড়ে */}
-          <g className="m-head">
-            <ellipse cx="62" cy="35" rx="16" ry="17.5" fill={SKIN} />
-            {/* কান */}
-            <ellipse cx="48.5" cy="37" rx="3.4" ry="5" fill={SKIN_SHADE} />
-            {/* নাক */}
-            <path d="M75,31 Q81.5,38 75,41" fill={SKIN} stroke={SKIN_SHADE} strokeWidth="1.1" />
-            {/* চুল: ঝুড়ির নিচে চাপা, পাশে জুলফি */}
-            <path d="M46,32 Q45,17 60,16 Q75,16 79,26 Q68,22 56,25 L51,40 Q47,38 46,32 Z" fill={HAIR} />
-            <path d="M51,33 L52,45 L54.5,45 L54.5,32 Z" fill={HAIR} />
-            <Face mood={mood} />
-          </g>
+          <image href={torso} x={0} y={0} width={172} height={179} />
+          {/* গামছা ডান কাঁধে, বুকের ওপর ঝুলে */}
+          <image href={gamchha} x={22} y={8} width={46} height={132} />
 
-          {/* ঝুড়ি আর ভেতরের জিনিস */}
-          <g className="m-jhuri">
-            <g transform="translate(62 4) scale(1.25) translate(-62 -14)">
-              <JhuriLoad fill={fill} />
-            </g>
-            <path d="M28,4 L96,4 L86,23 Q62,28 38,23 Z" fill={BAMBOO} />
-            <g stroke={BAMBOO_DARK} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.85">
-              <path d="M31,10 Q62,14 93,10" />
-              <path d="M34,16.5 Q62,20.5 90,16.5" />
-              {[40, 50, 62, 74, 84].map((x) => <path key={x} d={`M${x},4.5 L${x + (x < 62 ? 2 : x > 62 ? -2 : 0)},25`} />)}
-            </g>
-            <ellipse cx="62" cy="4" rx="34.5" ry="5" fill="#e0a83a" stroke={BAMBOO_DARK} strokeWidth="1.3" />
-            {/* হাতের মুঠো ঝুড়ির কিনারায় */}
-            <circle cx="33" cy="6.5" r="4.6" fill={SKIN_SHADE} />
-            <circle cx="91" cy="6.5" r="4.6" fill={SKIN} />
-          </g>
+          <Arm side={-1} />
+          <Arm side={1} />
         </g>
       </g>
     </svg>
   )
 }
 
-function Face({ mood }: { mood: MascotMood }) {
+/**
+ * বাঁশের ঝুড়ি, নকশার পাতার মতো নরম রঙে আঁকা। কিনারার ওপরে যা উঁকি দেয় তা ভরা অনুযায়ী।
+ * মাথার তালুর ওপর বসে, তাই নিচের দিকটা চুল একটু ঢাকে।
+ */
+function Jhuri({ fill }: { fill: JhuriFill }) {
+  const uid = useId().replace(/:/g, '')
+  const body = `jb-${uid}`
+  const rim = `jr-${uid}`
+  const grain = `jg-${uid}`
+  const cx = 92
+  const top = -150
   return (
     <g>
-      {/* ভুরু: দুঃখে ভেতরের দিক ওঠে */}
-      {mood === 'sad' ? (
-        <path d="M64,26 Q68,23.5 72,27" fill="none" stroke={HAIR} strokeWidth="1.6" strokeLinecap="round" />
-      ) : (
-        <path d="M64,27 Q68,25 72,26.5" fill="none" stroke={HAIR} strokeWidth="1.6" strokeLinecap="round" />
-      )}
-      {/* চোখ */}
-      {mood === 'happy' ? (
-        <path d="M66,33 Q68.5,30.5 71,33" fill="none" stroke={HAIR} strokeWidth="1.6" strokeLinecap="round" />
-      ) : (
-        <ellipse cx="68.5" cy={mood === 'sad' ? 33.5 : 32.5} rx="1.7" ry="2.1" fill={HAIR} />
-      )}
-      {/* দুঃখে এক ফোঁটা চোখের জল */}
-      {mood === 'sad' && <path className="m-tear" d="M70,37 Q72,41 70,43 Q68,41 70,37 Z" fill="#7cc4e8" />}
-      {/* গাল */}
-      <circle cx="66" cy="40" r="2.6" fill="#d9694a" opacity={mood === 'happy' ? 0.45 : 0.2} />
-      {/* গোঁফ */}
-      <path d="M66,43 Q71,40.5 76,43 Q73,45.5 70,44.5 Q68,46 66,43 Z" fill={HAIR} />
-      {/* মুখ */}
-      {mood === 'happy' && <path d="M68,47 Q72,51 75,46.5 Z" fill="#7a2e22" />}
-      {mood === 'neutral' && <path d="M68.5,47.5 Q72,49 74.5,47" fill="none" stroke="#7a2e22" strokeWidth="1.3" strokeLinecap="round" />}
-      {mood === 'sad' && <path d="M68.5,49 Q72,46.5 74.5,48.8" fill="none" stroke="#7a2e22" strokeWidth="1.3" strokeLinecap="round" />}
+      <defs>
+        <linearGradient id={body} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#d9a556" />
+          <stop offset="1" stopColor="#a8722f" />
+        </linearGradient>
+        <linearGradient id={rim} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e9bd6e" />
+          <stop offset="1" stopColor="#b98236" />
+        </linearGradient>
+        {/* কাগজের মতো দানা, নকশার পাতার রঙের সাথে মেলাতে */}
+        <filter id={grain} x="0" y="0" width="1" height="1">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" />
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.08  0 0 0 0.35 0" result="t" />
+          <feComposite in="t" in2="SourceGraphic" operator="in" result="g" />
+          <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="g" /></feMerge>
+        </filter>
+      </defs>
+      <Load fill={fill} cx={cx} top={top} />
+      <g filter={`url(#${grain})`}>
+        <path d={`M${cx - 74},${top} L${cx + 74},${top} L${cx + 56},${top + 46} Q${cx},${top + 58} ${cx - 56},${top + 46} Z`} fill={`url(#${body})`} />
+        <g stroke="#7d5220" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity="0.7">
+          <path d={`M${cx - 70},${top + 14} Q${cx},${top + 24} ${cx + 70},${top + 14}`} />
+          <path d={`M${cx - 64},${top + 30} Q${cx},${top + 41} ${cx + 64},${top + 30}`} />
+          {[-48, -24, 0, 24, 48].map((d) => (
+            <path key={d} d={`M${cx + d * 1.4},${top + 4} L${cx + d},${top + 52}`} />
+          ))}
+        </g>
+        <ellipse cx={cx} cy={top} rx="76" ry="11" fill={`url(#${rim})`} stroke="#7d5220" strokeWidth="2.5" />
+        <ellipse cx={cx} cy={top} rx="66" ry="6.5" fill="#6b4318" opacity="0.55" />
+      </g>
     </g>
   )
 }
 
-/** ঝুড়ির কিনারার ওপরে যা উঁকি দেয়: শাড়ি, মাটির হাঁড়ি, কাঁথার রোল, গামছা। */
-function JhuriLoad({ fill }: { fill: JhuriFill }) {
+/** ঝুড়ির জিনিস: ১ শাড়ি, ২ সাথে মাটির হাঁড়ি, ৩ সাথে কাঁথার রোল আর ঝুলন্ত গামছা। */
+function Load({ fill, cx, top }: { fill: JhuriFill; cx: number; top: number }) {
   if (fill === 0) return null
   return (
-    <g className="m-load">
-      {/* ভাঁজ করা লাল শাড়ি */}
-      <path d="M44,14 Q48,6 58,7 L62,14 Z" fill="#b91c1c" />
-      <path d="M47,11 L59,10" stroke="#f59e0b" strokeWidth="1.2" />
-      {fill >= 2 && (
-        // মাটির হাঁড়ি
-        <g>
-          <ellipse cx="72" cy="8" rx="8" ry="7" fill="#c2410c" />
-          <rect x="68" y="-1" width="8" height="3" rx="1" fill="#9a3412" />
-          <path d="M66,8 Q72,10 78,8" stroke="#fde68a" strokeWidth="1" fill="none" />
-        </g>
-      )}
+    <g>
       {fill >= 3 && (
         <g>
-          {/* কাঁথার রোল */}
-          <rect x="52" y="-4" width="16" height="9" rx="4.5" fill="#2f6b3a" transform="rotate(-12 60 0)" />
-          <path d="M54,-2 L66,-5" stroke="#fde68a" strokeWidth="0.9" strokeDasharray="2 1.6" />
-          {/* গামছার কোণা বাইরে ঝুলছে */}
-          <path d="M82,11 Q88,12 89,21 L85,22 Q84,15 80,13 Z" fill="#b91c1c" />
-          {/* পাটের ব্যাগের হাতল */}
-          <path d="M38,13 Q38,4 45,5" stroke="#8a5a1a" strokeWidth="1.8" fill="none" />
+          <rect x={cx - 20} y={top - 44} width="44" height="24" rx="12" fill="#2f6b3a" transform={`rotate(-10 ${cx} ${top - 32})`} />
+          <path d={`M${cx - 14},${top - 36} L${cx + 18},${top - 42}`} stroke="#f2d38a" strokeWidth="2" strokeDasharray="5 4" />
+          <path d={`M${cx + 62},${top - 6} Q${cx + 80},${top - 2} ${cx + 82},${top + 30} L${cx + 72},${top + 32} Q${cx + 70},${top + 10} ${cx + 56},${top}`} fill="#c0283a" />
         </g>
       )}
+      {fill >= 2 && (
+        <g>
+          <ellipse cx={cx + 30} cy={top - 18} rx="22" ry="19" fill="#c2532a" />
+          <ellipse cx={cx + 24} cy={top - 24} rx="7" ry="5" fill="#e58a5a" opacity="0.6" />
+          <rect x={cx + 20} y={top - 42} width="20" height="8" rx="3" fill="#9a3a18" />
+        </g>
+      )}
+      <path d={`M${cx - 58},${top + 2} Q${cx - 44},${top - 26} ${cx - 8},${top - 22} L${cx + 4},${top + 2} Z`} fill="#b3262c" />
+      <path d={`M${cx - 50},${top - 10} Q${cx - 30},${top - 20} ${cx - 4},${top - 16}`} stroke="#e8a83a" strokeWidth="4" fill="none" />
     </g>
   )
 }
