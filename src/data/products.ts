@@ -29,6 +29,10 @@ export interface Product {
   badge?: string
   art: ArtKind
   palette: [string, string, string]
+  /** নতুন বিক্রেতার পণ্য হলে তাঁর আইডি। আগের পণ্যে নেই, কারিগরের নাম দিয়ে মেলানো হয়। */
+  sellerId?: string
+  /** বিক্রেতার তোলা ছবি (data URL)। না থাকলে আঁকা নকশা। */
+  photo?: string
 }
 
 export const CATEGORIES = [
@@ -39,23 +43,6 @@ export const CATEGORIES = [
   'বাঁশ-বেত',
   'পাট',
   'লোকশিল্প',
-] as const
-
-export const DISTRICTS = [
-  'সব জেলা',
-  'ঢাকা',
-  'টাঙ্গাইল',
-  'যশোর',
-  'সিলেট',
-  'দিনাজপুর',
-  'বগুড়া',
-  'রংপুর',
-  'ফরিদপুর',
-  'পাবনা',
-  'কুষ্টিয়া',
-  'জামালপুর',
-  'বরিশাল',
-  'কুমিল্লা',
 ] as const
 
 export const PRODUCTS: Product[] = [

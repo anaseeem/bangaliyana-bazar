@@ -3,7 +3,7 @@ import { bn, formatBDT, type Product } from '../data/products'
 import { flyToJhuri } from '../lib/flyToJhuri'
 import { useCart } from '../store/cart'
 import { AlpanaCorner } from './Alpana'
-import ProductArt from './ProductArt'
+import ProductPicture from './ProductPicture'
 import { StitchFrame } from './Stitch'
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -13,7 +13,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <article className="group relative flex flex-col rounded-[10px] border border-amber-200/70 bg-paper">
       <StitchFrame />
       <Link to={`/product/${product.id}`} className="hang-swing relative mx-3.5 mt-3.5 block overflow-hidden rounded-md" aria-label={product.nameBn}>
-        <ProductArt plain art={product.art} palette={product.palette} label={product.nameBn} className="block h-48 w-full" />
+        <ProductPicture product={product} className="block h-48 w-full" />
         <AlpanaCorner corner="tl" className="absolute top-1 left-1 w-11" />
         <AlpanaCorner corner="br" className="absolute right-1 bottom-1 w-11" />
         {product.badge && (
@@ -30,9 +30,13 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-xl text-rickshaw">{formatBDT(product.price)}</span>
             {product.oldPrice && <s className="text-sm text-stone-400">{formatBDT(product.oldPrice)}</s>}
           </p>
-          <span className="text-sm text-stone-600" aria-label={`রেটিং ${bn(product.rating.toFixed(1))}`}>
-            <span className="text-holud">★</span> {bn(product.rating.toFixed(1))}
-          </span>
+          {product.rating > 0 ? (
+            <span className="text-sm text-stone-600" aria-label={`রেটিং ${bn(product.rating.toFixed(1))}`}>
+              <span className="text-holud">★</span> {bn(product.rating.toFixed(1))}
+            </span>
+          ) : (
+            <span className="rounded-full bg-holud-soft px-2 text-xs text-stone-700">নতুন</span>
+          )}
         </div>
         {product.stock <= 0 && <p className="text-xs text-stone-500">স্টক শেষ</p>}
         <div className="mt-auto flex gap-2 pt-3">

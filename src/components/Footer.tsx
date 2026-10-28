@@ -16,6 +16,7 @@ export default function Footer() {
             <li><Link className="hover:underline" to="/shop">বাজার। সব পণ্য</Link></li>
             <li><Link className="hover:underline" to="/artisans">কারিগরদের গল্প</Link></li>
             <li><Link className="hover:underline" to="/jhuri">আমার ঝুড়ি</Link></li>
+            <li><Link className="hover:underline" to="/bikreta">বিক্রেতা হোন</Link></li>
           </ul>
         </div>
         <div>

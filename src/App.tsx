@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react
 import { AlpanaFlower } from './components/Alpana'
 import { StitchLine } from './components/Stitch'
 import { CartProvider } from './store/cart'
+import { MarketProvider } from './store/market'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -10,6 +11,12 @@ import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Jhuri from './pages/Jhuri'
 import Artisans from './pages/Artisans'
+import Login from './pages/Login'
+import Account from './pages/Account'
+import SellerJoin from './pages/SellerJoin'
+import SellerDashboard from './pages/SellerDashboard'
+import SellerShop from './pages/SellerShop'
+import Admin from './pages/Admin'
 
 function NotFound() {
   return (
@@ -35,6 +42,7 @@ function ScrollToTop() {
 
 export default function App() {
   return (
+    <MarketProvider>
     <CartProvider>
       <BrowserRouter>
         <ScrollToTop />
@@ -49,6 +57,12 @@ export default function App() {
               <Route path="/cart" element={<Navigate to="/jhuri" replace />} />
               <Route path="/checkout" element={<Navigate to="/jhuri?dhap=thikana" replace />} />
               <Route path="/artisans" element={<Artisans />} />
+              <Route path="/dokan/:id" element={<SellerShop />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/amar" element={<Account />} />
+              <Route path="/bikreta" element={<SellerJoin />} />
+              <Route path="/bikreta/dokan" element={<SellerDashboard />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
@@ -56,5 +70,6 @@ export default function App() {
         </div>
       </BrowserRouter>
     </CartProvider>
+    </MarketProvider>
   )
 }

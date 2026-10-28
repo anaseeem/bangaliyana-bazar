@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { PRODUCTS, type Product } from '../data/products'
+import type { Product } from '../data/products'
+import { readLS } from '../lib/local'
+import { useMarket } from './market'
 
 export interface CartLine { id: string; qty: number }
 
@@ -18,25 +20,17 @@ interface CartCtx {
 
 const Ctx = createContext<CartCtx | null>(null)
 
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : fallback
-  } catch {
-    return fallback
-  }
-}
-
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [lines, setLines] = useState<CartLine[]>(() => read('bb-cart', []))
-  const [wishlist, setWishlist] = useState<string[]>(() => read('bb-wishlist', []))
+  const { catalog } = useMarket()
+  const [lines, setLines] = useState<CartLine[]>(() => readLS('bb-cart', []))
+  const [wishlist, setWishlist] = useState<string[]>(() => readLS('bb-wishlist', []))
   useEffect(() => { localStorage.setItem('bb-cart', JSON.stringify(lines)) }, [lines])
   useEffect(() => { localStorage.setItem('bb-wishlist', JSON.stringify(wishlist)) }, [wishlist])
 
   const value = useMemo<CartCtx>(() => {
     const detailed = lines
       .map((l) => {
-        const product = PRODUCTS.find((p) => p.id === l.id)
+        const product = catalog.find((p) => p.id === l.id)
         return product ? { product, qty: l.qty } : null
       })
       .filter((x): x is { product: Product; qty: number } => x !== null)
@@ -58,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       wishlist,
       toggleWish: (id) => setWishlist((prev) => (prev.includes(id) ? prev.filter((w) => w !== id) : [...prev, id])),
     }
-  }, [lines, wishlist])
+  }, [lines, wishlist, catalog])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

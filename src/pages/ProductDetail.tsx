@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { PRODUCTS, bn, formatBDT } from '../data/products'
+import { bn, formatBDT } from '../data/products'
+import { useMarket } from '../store/market'
+import { sellerIdOf } from '../data/sellers'
+import { whatsappLink } from '../lib/whatsapp'
 import { flyToJhuri } from '../lib/flyToJhuri'
 import { useCart } from '../store/cart'
-import ProductArt from '../components/ProductArt'
+import ProductPicture from '../components/ProductPicture'
 import ProductCard from '../components/ProductCard'
 import QtyStepper from '../components/QtyStepper'
 import { AlpanaCorner } from '../components/Alpana'
@@ -16,7 +19,8 @@ export default function ProductDetailRoute() {
 }
 
 function ProductDetail({ id }: { id?: string }) {
-  const product = PRODUCTS.find((p) => p.id === id)
+  const { catalog, sellers } = useMarket()
+  const product = catalog.find((p) => p.id === id)
   const { add, wishlist, toggleWish } = useCart()
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
@@ -31,7 +35,8 @@ function ProductDetail({ id }: { id?: string }) {
     )
   }
 
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
+  const seller = sellers.find((s) => s.id === sellerIdOf(product))
+  const related = catalog.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
   const wished = wishlist.includes(product.id)
 
   return (
@@ -43,7 +48,7 @@ function ProductDetail({ id }: { id?: string }) {
         <div className="group relative rounded-[10px] bg-paper p-4">
           <StitchFrame />
           <div className="relative overflow-hidden rounded-md">
-            <ProductArt plain art={product.art} palette={product.palette} label={product.nameBn} className="hang-swing block h-80 w-full sm:h-[26rem]" />
+            <ProductPicture product={product} className="hang-swing block h-80 w-full sm:h-[26rem]" />
             <AlpanaCorner corner="tl" className="absolute top-2 left-2 w-16" />
             <AlpanaCorner corner="br" className="absolute right-2 bottom-2 w-16" />
           </div>
@@ -52,8 +57,8 @@ function ProductDetail({ id }: { id?: string }) {
           {product.badge && <span className="badge-flag inline-block bg-rickshaw py-0.5 pr-3 pl-4 text-sm text-white">{product.badge}</span>}
           <h1 className="mt-3 text-4xl sm:text-5xl">{product.nameBn}</h1>
           <p className="mt-2 text-stone-600">
-            {product.artisan}, {product.district}
-            <span className="ml-4" aria-label={`রেটিং ${bn(product.rating.toFixed(1))}`}><span className="text-holud">★</span> {bn(product.rating.toFixed(1))}</span>
+            <Link to={`/dokan/${seller?.id ?? ''}`} className="underline decoration-holud underline-offset-4 hover:text-rickshaw">{product.artisan}</Link>, {product.district}
+            {product.rating > 0 && <span className="ml-4" aria-label={`রেটিং ${bn(product.rating.toFixed(1))}`}><span className="text-holud">★</span> {bn(product.rating.toFixed(1))}</span>}
           </p>
           <p className="mt-4 flex items-baseline gap-3">
             <span className="text-3xl text-rickshaw">{formatBDT(product.price)}</span>
@@ -88,6 +93,14 @@ function ProductDetail({ id }: { id?: string }) {
             <p className="mt-7 text-lg text-stone-600">স্টক শেষ। শিগগিরই আসছে।</p>
           )}
           {product.stock > 0 && product.stock <= 5 && <p className="mt-3 text-sm text-terra">আর মাত্র {bn(product.stock)}টি আছে</p>}
+          <a
+            href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে আপনার "${product.nameBn}" (${formatBDT(product.price)}) দেখলাম। এটা নিয়ে জানতে চাই।`, seller?.phone)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white"
+          >
+            WhatsApp-এ বিক্রেতাকে জিজ্ঞেস করুন
+          </a>
           <p className="mt-6 text-sm text-stone-600">ঢাকায় ডেলিভারি ৳৬০, বাইরে ৳১২০। হাতে পেয়ে টাকা দিন।</p>
         </div>
       </div>

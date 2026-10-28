@@ -68,3 +68,17 @@ export function BoishakhSun({ className = '' }: { className?: string }) {
     </svg>
   )
 }
+
+/** লোগো: হোম পাতার বৈশাখের সূর্য, ছোট মাপে, সাল ছাড়া। favicon.svg-ও এই নকশা। */
+export function SunMark({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <line key={i} x1="100" y1="8" x2="100" y2="34" stroke="#f59e0b" strokeWidth="13" strokeLinecap="round" transform={`rotate(${i * 30} 100 100)`} />
+      ))}
+      <circle cx="100" cy="100" r="54" fill="#f59e0b" />
+      <circle cx="100" cy="100" r="38" fill="#fff7e6" />
+      <circle cx="100" cy="100" r="23" fill="#b91c1c" />
+    </svg>
+  )
+}

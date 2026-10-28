@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CATEGORIES, DISTRICTS, PRODUCTS, bn, type Product } from '../data/products'
+import { CATEGORIES, bn, type Product } from '../data/products'
+import { BD_DISTRICTS } from '../data/districts'
+import { useMarket } from '../store/market'
 import { useCart } from '../store/cart'
 import ProductCard from '../components/ProductCard'
 import { StitchFrame, StitchLine } from '../components/Stitch'
@@ -27,9 +29,12 @@ export default function Shop() {
   const [sort, setSort] = useState<Sort>('featured')
   const [onlyWish, setOnlyWish] = useState(false)
   const { wishlist } = useCart()
+  const { catalog } = useMarket()
+  // যেসব জেলার পণ্য আছে শুধু সেগুলো, দেশের জেলার ক্রমে
+  const districts = useMemo(() => ['সব জেলা', ...BD_DISTRICTS.filter((d) => catalog.some((p) => p.district === d))], [catalog])
 
   const filtered = useMemo(() => {
-    let list: Product[] = [...PRODUCTS]
+    let list: Product[] = [...catalog]
     if (onlyWish) list = list.filter((p) => wishlist.includes(p.id))
     if (cat !== 'সব') list = list.filter((p) => p.category === cat)
     if (district !== 'সব জেলা') list = list.filter((p) => p.district === district)
@@ -43,7 +48,7 @@ export default function Shop() {
     if (sort === 'price-desc') list.sort((a, b) => b.price - a.price)
     if (sort === 'rating') list.sort((a, b) => b.rating - a.rating)
     return list
-  }, [q, cat, district, sort, onlyWish, wishlist])
+  }, [q, cat, district, sort, onlyWish, wishlist, catalog])
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -65,7 +70,7 @@ export default function Shop() {
           </select>
           <label htmlFor="shop-district" className="sr-only">জেলা</label>
           <select id="shop-district" value={district} onChange={(e) => setDistrict(e.target.value)} className={SELECT}>
-            {DISTRICTS.map((d) => <option key={d}>{d}</option>)}
+            {districts.map((d) => <option key={d}>{d}</option>)}
           </select>
           <label htmlFor="shop-sort" className="sr-only">সাজান</label>
           <select id="shop-sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className={SELECT}>

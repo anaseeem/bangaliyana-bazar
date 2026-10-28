@@ -4,6 +4,8 @@ import { bn } from '../data/products'
 import JhuriIcon from './JhuriIcon'
 import { StitchLine } from './Stitch'
 import { useCart } from '../store/cart'
+import { useMarket } from '../store/market'
+import { SunMark } from './Decor'
 
 const LINKS = [
   { to: '/', label: 'হোম' },
@@ -13,6 +15,8 @@ const LINKS = [
 
 export default function Header() {
   const { count } = useCart()
+  const { user } = useMarket()
+  const account = user ? { to: '/amar', label: user.name.split(' ')[0] } : { to: '/login', label: 'ঢুকুন' }
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
@@ -39,11 +43,7 @@ export default function Header() {
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
         <Link to="/" className="flex items-center gap-2.5" aria-label="বাঙালিয়ানা বাজার। হোম">
-          <svg width="42" height="42" viewBox="0 0 64 64" aria-hidden="true">
-            <rect width="64" height="64" rx="14" fill="#b91c1c" />
-            <circle cx="32" cy="32" r="16" fill="#f59e0b" />
-            <circle cx="32" cy="32" r="5" fill="#fff7e6" />
-          </svg>
+          <SunMark className="h-11 w-11" />
           <span className="font-display text-xl leading-tight text-rickshaw sm:text-2xl">বাঙালিয়ানা বাজার</span>
         </Link>
         <form onSubmit={submit} className="order-3 flex w-full min-w-0 flex-1 sm:order-none sm:w-auto" role="search">
@@ -71,6 +71,12 @@ export default function Header() {
               {l.label}
             </NavLink>
           ))}
+          <NavLink
+            to={account.to}
+            className={({ isActive }) => `rounded-full border-2 border-rickshaw px-3 py-1.5 text-sm ${isActive ? 'bg-rickshaw text-white' : 'text-rickshaw hover:bg-holud-soft'}`}
+          >
+            {account.label}
+          </NavLink>
         </nav>
         <Link to="/jhuri" className="relative ml-auto flex items-center gap-2 rounded-full bg-holud py-1.5 pr-4 pl-3 text-sm text-stone-900 hover:bg-amber-500 md:ml-0" aria-label={`ঝুড়ি, ${bn(count)}টি পণ্য`}>
           <span id="jhuri-target" key={bounce} className={bounce ? 'animate-jhuri' : ''}>
@@ -94,7 +100,7 @@ export default function Header() {
       </div>
       {open && (
         <nav className="flex flex-col gap-1 border-t border-amber-200 px-4 py-2 md:hidden" aria-label="মোবাইল নেভিগেশন">
-          {LINKS.map((l) => (
+          {[...LINKS, account, { to: '/bikreta', label: 'বিক্রেতা হোন' }].map((l) => (
             <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-stone-700 hover:bg-holud-soft">
               {l.label}
             </NavLink>

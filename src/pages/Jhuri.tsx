@@ -3,9 +3,13 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { bn, formatBDT } from '../data/products'
 import { BD_DISTRICTS, deliveryFor, normalizePhone } from '../data/districts'
 import { useCart } from '../store/cart'
+import { useMarket } from '../store/market'
+import { newOrderId } from '../lib/local'
+import { sellerIdOf } from '../data/sellers'
+import { whatsappLink } from '../lib/whatsapp'
 import { jhuriFill, type MascotMood } from '../libs/mascot'
 import MascotRoad from '../components/MascotRoad'
-import ProductArt from '../components/ProductArt'
+import ProductPicture from '../components/ProductPicture'
 import QtyStepper from '../components/QtyStepper'
 import { StitchFrame, StitchLine } from '../components/Stitch'
 
@@ -18,7 +22,9 @@ const STEPS = [
 ] as const
 
 interface Address { name: string; phone: string; district: string; address: string }
-interface PlacedOrder { id: string; total: number; days: string }
+/** কোন বিক্রেতার কাছে কী গেল, হয়ে গেল ধাপে দেখানোর জন্য */
+interface Split { shop: string; items: string[] }
+interface PlacedOrder { id: string; total: number; days: string; split?: Split[] }
 type Errors = Partial<Record<keyof Address, string>>
 
 const LAST_ORDER = 'bb-last-order'
@@ -29,16 +35,6 @@ function validate(a: Address): Errors {
   if (!/^01[3-9]\d{8}$/.test(normalizePhone(a.phone))) e.phone = 'মোবাইল নম্বর ঠিক নেই। যেমন ০১৭১২৩৪৫৬৭৮।'
   if (a.address.trim().length < 8) e.address = 'পুরো ঠিকানা লিখুন: বাসা, রাস্তা, এলাকা।'
   return e
-}
-
-/** শুধু নিজের কম্পিউটারে: সার্ভার না চললে ডেমো অর্ডার ব্রাউজারেই রাখা হয়, যাতে পুরো পথটা দেখা যায়। */
-function saveLocalOrder(payload: object, total: number): string {
-  const id = `BB${Date.now().toString().slice(-6)}`
-  try {
-    const prev = JSON.parse(localStorage.getItem('bb-local-orders') ?? '[]') as unknown[]
-    localStorage.setItem('bb-local-orders', JSON.stringify([...prev, { id, ...payload, total, createdAt: new Date().toISOString() }]))
-  } catch { /* ব্রাউজারে জায়গা না পেলেও অর্ডার দেখাই */ }
-  return id
 }
 
 function readLastOrder(): PlacedOrder | null {
@@ -53,7 +49,8 @@ function readLastOrder(): PlacedOrder | null {
 export default function Jhuri() {
   const [params, setParams] = useSearchParams()
   const { detailed, setQty, remove, clear, total, count } = useCart()
-  const [address, setAddress] = useState<Address>({ name: '', phone: '', district: 'ঢাকা', address: '' })
+  const { user, sellers, saveOrder } = useMarket()
+  const [address, setAddress] = useState<Address>({ name: user?.name ?? '', phone: user ? bn(user.phone) : '', district: 'ঢাকা', address: '' })
   const [errors, setErrors] = useState<Errors>({})
   const [order, setOrder] = useState<PlacedOrder | null>(readLastOrder)
   const [placing, setPlacing] = useState(false)
@@ -104,7 +101,10 @@ export default function Jhuri() {
       items: detailed.map((d) => ({ id: d.product.id, qty: d.qty })),
     }
     let placed: PlacedOrder | null = null
+    // নতুন বিক্রেতাদের পণ্য শুধু এই ব্রাউজারে আছে, সার্ভার চেনে না। তাই সেই অর্ডার ব্রাউজারেই রাখি।
+    const localOnly = detailed.some((d) => d.product.sellerId)
     try {
+      if (localOnly) throw new Error('local')
       const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (res.status === 400) {
         // সার্ভার চলছে কিন্তু কিছু ভুল আছে। সেটা দেখাই, অর্ডার হয়নি।
@@ -117,8 +117,9 @@ export default function Jhuri() {
         throw new Error(`HTTP ${res.status}`)
       }
     } catch {
-      if (import.meta.env.DEV) {
-        placed = { id: saveLocalOrder(payload, grand), total: grand, days: delivery.days }
+      if (import.meta.env.DEV || localOnly) {
+        // নিজের কম্পিউটারে সার্ভার না চললে, বা নতুন বিক্রেতার পণ্য থাকলে, ডেমো অর্ডার ব্রাউজারেই থাকে
+        placed = { id: newOrderId(), total: grand, days: delivery.days }
       } else {
         // আসল সাইটে নকল অর্ডার দেখালে ক্রেতা ভাববেন অর্ডার হয়েছে, অথচ আমরা পাইনি। তাই ভুল দেখাই।
         setServerError('অর্ডার পাঠানো গেল না। ইন্টারনেট দেখে একটু পরে আবার চেষ্টা করুন।')
@@ -128,6 +129,11 @@ export default function Jhuri() {
     setSlow(false)
     setPlacing(false)
     if (placed) {
+      const items = detailed.map((d) => ({ id: d.product.id, nameBn: d.product.nameBn, price: d.product.price, qty: d.qty, sellerId: sellerIdOf(d.product) }))
+      saveOrder({ name: payload.name, phone: payload.phone, district: payload.district, address: payload.address, items, deliveryFee: delivery.fee, total: placed.total }, placed.id)
+      const bySeller = new Map<string, string[]>()
+      for (const it of items) bySeller.set(it.sellerId, [...(bySeller.get(it.sellerId) ?? []), `${it.nameBn} × ${bn(it.qty)}`])
+      placed.split = [...bySeller].map(([sid, list]) => ({ shop: sellers.find((x) => x.id === sid)?.shopName ?? 'বিক্রেতা', items: list }))
       try { sessionStorage.setItem(LAST_ORDER, JSON.stringify(placed)) } catch { /* শুধু রিফ্রেশে কাজে লাগে */ }
       setOrder(placed)
       clear()
@@ -154,7 +160,7 @@ export default function Jhuri() {
                 {detailed.map(({ product, qty }) => (
                   <li key={product.id} className="flex gap-4 py-4 first:pt-0">
                     <Link to={`/product/${product.id}`} className="shrink-0">
-                      <ProductArt plain art={product.art} palette={product.palette} label={product.nameBn} className="block h-20 w-24 rounded sm:h-24 sm:w-32" />
+                      <ProductPicture product={product} className="block h-20 w-24 rounded sm:h-24 sm:w-32" />
                     </Link>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline justify-between gap-3">
@@ -184,7 +190,14 @@ export default function Jhuri() {
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button type="button" onClick={() => go(1)} className="rounded-full bg-rickshaw px-8 py-3 text-lg text-white hover:bg-rickshaw-dark">ঠিকানা দিন</button>
-                <Link to="/shop" className="rounded-full border-2 border-rickshaw px-6 py-3 text-rickshaw hover:bg-holud-soft">আরও কিনুন</Link>
+                <a
+                  href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজার থেকে অর্ডার দিতে চাই:\n${detailed.map((d) => `${d.product.nameBn} × ${bn(d.qty)} = ${formatBDT(d.product.price * d.qty)}`).join('\n')}\nমোট ${formatBDT(total)}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border-2 border-kolapata px-6 py-3 text-kolapata hover:bg-kolapata hover:text-white"
+                >
+                  WhatsApp-এ অর্ডার
+                </a>
                 <button type="button" onClick={() => { flash('sad'); clear() }} className="ml-auto text-sm text-stone-500 underline hover:text-rickshaw">ঝুড়ি খালি করুন</button>
               </div>
             </Panel>
@@ -258,6 +271,18 @@ export default function Jhuri() {
             <h1 className="text-4xl">অর্ডার হয়ে গেল</h1>
             <p className="mt-3 text-lg">অর্ডার নম্বর <span className="text-rickshaw">{bn(order.id)}</span></p>
             <p className="mt-1 text-stone-700">{order.days} পৌঁছাবে। হাতে পেয়ে {formatBDT(order.total)} দেবেন।</p>
+            {order.split && order.split.length > 1 && (
+              <div className="mt-5">
+                <p>আপনার অর্ডার {bn(order.split.length)}জন বিক্রেতার কাছে গেছে:</p>
+                <ul className="mt-2 space-y-2">
+                  {order.split.map((g) => (
+                    <li key={g.shop} className="rounded-md bg-holud-soft/60 px-4 py-2">
+                      <span className="text-rickshaw">{g.shop}</span>: {g.items.join(', ')}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">আরও কিনুন</Link>
           </Panel>
         )}
