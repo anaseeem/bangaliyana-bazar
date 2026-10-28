@@ -36,13 +36,16 @@ interface Props {
 export default function Stall({ name, art, palette, awning, photo }: Props) {
   return (
     <Link to={`/shop?cat=${encodeURIComponent(name)}`} className="group block w-40 shrink-0 snap-start sm:w-auto">
-      <Awning colors={awning} />
-      <div className="mx-2 -mt-1 border-x-[5px] border-[#a0702a]">
-        {photo
-          ? <img src={photo} alt="" loading="lazy" className="hang-swing block h-28 w-full object-cover sm:h-32" />
-          : <ProductArt plain art={art} palette={palette} label={name} className="hang-swing block h-28 w-full sm:h-32" />}
+      {/* হোভারে পুরো দোকানটা একসাথে দোলে, ছবি ফ্রেমের ভেতরেই থাকে */}
+      <div className="hang-swing">
+        <div className="relative z-10"><Awning colors={awning} /></div>
+        <div className="mx-2 -mt-1 border-x-[5px] border-[#a0702a]">
+          {photo
+            ? <img src={photo} alt="" loading="lazy" className="block h-28 w-full object-cover sm:h-32" />
+            : <ProductArt plain art={art} palette={palette} label={name} className="block h-28 w-full sm:h-32" />}
+        </div>
+        <p className="mx-2 bg-[#a0702a] py-1 text-center text-cream group-hover:bg-rickshaw-dark">{name}</p>
       </div>
-      <p className="mx-2 bg-[#a0702a] py-1 text-center text-cream group-hover:bg-rickshaw-dark">{name}</p>
     </Link>
   )
 }

@@ -7,7 +7,7 @@ import { StitchFrame, StitchLine } from '../components/Stitch'
 import ProductCard from '../components/ProductCard'
 import ProductPicture from '../components/ProductPicture'
 import Stall from '../components/Stall'
-import { PotBanner, RickshawBanner, SellerBanner } from '../components/Banners'
+import { PotBanner, SellerBanner } from '../components/Banners'
 import { useMarket } from '../store/market'
 
 const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; awning: [string, string]; photo: string }[] = [
@@ -87,10 +87,6 @@ export default function Home() {
         <StitchLine colors={['var(--color-holud)', 'var(--color-alpana)']} />
       </section>
       <Marquee />
-
-      <section className="mx-auto max-w-7xl px-4 pt-12">
-        <RickshawBanner />
-      </section>
 
       {/* মেলার দোকান */}
       <section className="mx-auto max-w-7xl px-4 pt-12 pb-10">

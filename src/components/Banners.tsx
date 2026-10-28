@@ -1,30 +1,6 @@
 import { Link } from 'react-router-dom'
 import { AlpanaCorner } from './Alpana'
 
-/** রিকশার পেছনের টিনের ছবির মতো: কালো এনামেল, ডোরাকাটা কিনারা, জ্বলা-নেভা রিফ্লেক্টর */
-export function RickshawBanner() {
-  return (
-    <Link to={`/shop?cat=${encodeURIComponent('কাঁসা-পিতল')}`} className="group relative block overflow-hidden rounded-[14px] bg-[#141414] text-cream shadow-lg">
-      <div className="rickshaw-trim h-3" aria-hidden="true" />
-      <div className="grid md:grid-cols-[2fr_3fr]">
-        <img src="/art/rickshaw-hood.webp" alt="রিকশার হুডে আঁকা পাখি আর পদ্ম" loading="lazy" className="h-60 w-full object-cover object-[50%_35%] md:h-[24rem]" />
-        <div className="relative flex flex-col justify-center gap-3 p-6 sm:p-10">
-          <div className="flex gap-2" aria-hidden="true">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <span key={i} className="reflector" style={{ animationDelay: `${i * 0.25}s` }} />
-            ))}
-          </div>
-          <p className="text-holud">ধামরাই থেকে</p>
-          <h2 className="text-4xl leading-tight sm:text-5xl">পিতলের নতুন চালান এসেছে</h2>
-          <p className="max-w-md text-lg text-amber-100">ঢোকরার পেঁচা, হরিণ আর লণ্ঠন। হাতে ঢালা, হাতে খোদাই।</p>
-          <span className="mt-2 inline-block w-fit rounded-full bg-holud px-6 py-3 text-stone-900 group-hover:bg-amber-400">পিতলের দোকানে যান</span>
-        </div>
-      </div>
-      <div className="rickshaw-trim h-3" aria-hidden="true" />
-    </Link>
-  )
-}
-
 /** কালীঘাটের পটের মতো কাগজ আর লাল দুই দাগের কিনারা, এক পাশে বাঙালি মেয়ে, অন্য পাশে ময়ূর */
 export function PotBanner() {
   return (
