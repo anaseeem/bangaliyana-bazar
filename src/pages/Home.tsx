@@ -4,16 +4,19 @@ import { AlpanaCorner } from '../components/Alpana'
 import { AlpanaBorder, BoishakhSun, Marquee } from '../components/Decor'
 import { StitchFrame, StitchLine } from '../components/Stitch'
 import ProductCard from '../components/ProductCard'
-import ProductArt from '../components/ProductArt'
+import ProductPicture from '../components/ProductPicture'
 import Stall from '../components/Stall'
 
-const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; awning: [string, string] }[] = [
-  { name: 'শাড়ি', art: 'jamdani', palette: ['#7f1d1d', '#f59e0b', '#fff7e6'], awning: ['#b91c1c', '#f59e0b'] },
-  { name: 'কাঁথা', art: 'kantha', palette: ['#b91c1c', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#fff7e6'] },
-  { name: 'মাটির কাজ', art: 'terracotta', palette: ['#c2410c', '#fff7e6', '#fde68a'], awning: ['#c2410c', '#fde68a'] },
-  { name: 'বাঁশ-বেত', art: 'bamboo', palette: ['#a0702a', '#2f6b3a', '#fff7e6'], awning: ['#1f3b73', '#fff7e6'] },
-  { name: 'পাট', art: 'jute', palette: ['#8a5a1a', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#f59e0b'] },
-  { name: 'লোকশিল্প', art: 'kansa', palette: ['#b45309', '#f59e0b', '#fff7e6'], awning: ['#be185d', '#fff7e6'] },
+const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; awning: [string, string]; photo: string }[] = [
+  { name: 'শাড়ি', art: 'jamdani', palette: ['#7f1d1d', '#f59e0b', '#fff7e6'], awning: ['#b91c1c', '#f59e0b'], photo: '/products/jamdani-shari.webp' },
+  { name: 'কাঁথা', art: 'kantha', palette: ['#b91c1c', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#fff7e6'], photo: '/products/nakshi-kantha.webp' },
+  { name: 'মাটির কাজ', art: 'terracotta', palette: ['#c2410c', '#fff7e6', '#fde68a'], awning: ['#c2410c', '#fde68a'], photo: '/products/matir-ghora.webp' },
+  { name: 'কাঠের কাজ', art: 'pitha', palette: ['#92400e', '#f59e0b', '#fff7e6'], awning: ['#7f1d1d', '#fff7e6'], photo: '/products/kather-ghora.webp' },
+  { name: 'কাঁসা-পিতল', art: 'kansa', palette: ['#b45309', '#f59e0b', '#fff7e6'], awning: ['#b45309', '#fde68a'], photo: '/products/dhokra-pecha.webp' },
+  { name: 'গয়না', art: 'diya', palette: ['#b45309', '#be185d', '#fff7e6'], awning: ['#be185d', '#fff7e6'], photo: '/products/jhumka.webp' },
+  { name: 'বাঁশ-বেত', art: 'bamboo', palette: ['#a0702a', '#2f6b3a', '#fff7e6'], awning: ['#1f3b73', '#fff7e6'], photo: '/products/bet-tray.webp' },
+  { name: 'পাট', art: 'jute', palette: ['#8a5a1a', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#f59e0b'], photo: '/products/jute-bag.webp' },
+  { name: 'লোকশিল্প', art: 'jhapi', palette: ['#be185d', '#f59e0b', '#fff7e6'], awning: ['#1f3b73', '#f59e0b'], photo: '/products/shola-mala.webp' },
 ]
 
 export default function Home() {
@@ -21,6 +24,7 @@ export default function Home() {
   // একজন কারিগরের গল্প, তাঁর নিজের একটা কাজসহ
   const artisan = ARTISANS[0]
   const work = PRODUCTS.find((p) => p.artisan === artisan.name)
+  const hero = PRODUCTS.find((p) => p.id === 'kather-ghora') ?? PRODUCTS[0]
 
   return (
     <div>
@@ -33,7 +37,7 @@ export default function Home() {
               হাতের কাজ,<br />বাংলার গল্প।
             </h1>
             <p className="mt-4 max-w-lg text-lg text-amber-100">
-              জামদানি, নকশি কাঁথা, মাটির বাটি আর হাতে আঁকা ছবি। বাংলাদেশের কারিগরদের হাতে
+              জামদানি, নকশি কাঁথা, পোড়ামাটি, কাঠ আর পিতলের কাজ। বাংলাদেশের কারিগরদের হাতে
               বোনা, গড়া আর আঁকা জিনিস, সরাসরি আপনার ঘরে।
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -48,14 +52,16 @@ export default function Home() {
           <div className="relative mx-auto w-full max-w-md">
             <BoishakhSun className="animate-float mx-auto w-64 sm:w-80" />
             <div className="animate-sway mt-[-30px] overflow-hidden rounded-3xl border-4 border-holud bg-white shadow-2xl">
-              <ProductArt art="rickshaw" palette={['#b91c1c', '#f59e0b', '#0ea5e9']} label="রিকশা আর্ট পেইন্টিং" className="h-56 w-full" />
-              <div className="flex items-center justify-between px-4 py-3 text-stone-800">
-                <div>
-                  <p className="font-display">রিকশা আর্ট পেইন্টিং</p>
-                  <p className="text-xs text-stone-500">সৈয়দ আহমেদ • ঢাকা</p>
+              <Link to={`/product/${hero.id}`} className="block">
+                <ProductPicture product={hero} className="h-56 w-full" />
+                <div className="flex items-center justify-between px-4 py-3 text-stone-800">
+                  <div>
+                    <p className="font-display">{hero.nameBn}</p>
+                    <p className="text-xs text-stone-500">{hero.artisan} • {hero.district}</p>
+                  </div>
+                  <p className="text-rickshaw">{formatBDT(hero.price)}</p>
                 </div>
-                <p className=" text-rickshaw">{formatBDT(2800)}</p>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
@@ -66,7 +72,7 @@ export default function Home() {
       {/* মেলার দোকান */}
       <section className="mx-auto max-w-7xl px-4 pt-12 pb-10">
         <h2 className="text-3xl">কোন দোকানে যাবেন?</h2>
-        <div className="no-scrollbar -mx-4 mt-6 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-6">
+        <div className="no-scrollbar -mx-4 mt-6 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-9 lg:gap-4">
           {STALLS.map((s) => <Stall key={s.name} {...s} />)}
         </div>
       </section>
@@ -92,7 +98,7 @@ export default function Home() {
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 md:grid-cols-[5fr_6fr]">
             <Link to={`/product/${work.id}`} className="group relative block rounded-lg bg-cream p-4">
               <StitchFrame color="var(--color-nil)" />
-              <ProductArt plain art={work.art} palette={work.palette} label={work.nameBn} className="hang-swing block h-64 w-full rounded" />
+              <ProductPicture product={work} className="hang-swing block h-64 w-full rounded" />
             </Link>
             <div>
               <h2 className="text-4xl">{artisan.name}</h2>

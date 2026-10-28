@@ -40,5 +40,8 @@ export const ART_FOR: Record<string, { art: ArtKind; palette: [string, string, s
   'মাটির কাজ': { art: 'terracotta', palette: ['#c2410c', '#fff7e6', '#fde68a'] },
   'বাঁশ-বেত': { art: 'bamboo', palette: ['#a0702a', '#2f6b3a', '#fff7e6'] },
   'পাট': { art: 'jute', palette: ['#8a5a1a', '#2f6b3a', '#fde68a'] },
-  'লোকশিল্প': { art: 'kansa', palette: ['#b45309', '#f59e0b', '#fff7e6'] },
+  'কাঠের কাজ': { art: 'pitha', palette: ['#92400e', '#f59e0b', '#fff7e6'] },
+  'কাঁসা-পিতল': { art: 'kansa', palette: ['#b45309', '#f59e0b', '#fff7e6'] },
+  'গয়না': { art: 'diya', palette: ['#b45309', '#be185d', '#fff7e6'] },
+  'লোকশিল্প': { art: 'jhapi', palette: ['#be185d', '#f59e0b', '#fff7e6'] },
 }
