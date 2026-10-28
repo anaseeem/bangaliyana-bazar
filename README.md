@@ -40,13 +40,13 @@
 ## কীভাবে চালাবেন
 
 ```bash
-npm install
+pnpm install
 
 # টার্মিনাল ১: এপিআই, http://127.0.0.1:3001
-npm run server
+pnpm server
 
 # টার্মিনাল ২: দোকান, http://localhost:5173
-npm run dev
+pnpm dev
 ```
 
 ভাইট ডেভ সার্ভার /api পাঠায় Fastify সার্ভারে। তাই ফ্রন্টএন্ড শুধু
@@ -55,8 +55,8 @@ npm run dev
 বিল্ড:
 
 ```bash
-npm run build   # tsc আর vite build, ফল dist ফোল্ডারে
-npm run preview # বিল্ড করা সাইট দেখায়, http://localhost:4173
+pnpm build   # tsc আর vite build, ফল dist ফোল্ডারে
+pnpm preview # বিল্ড করা সাইট দেখায়, http://localhost:4173
 ```
 
 ## এপিআই

@@ -1,0 +1,71 @@
+# Roadmap
+
+The redesign happens on the `redesign` branch. `snapshot/original` keeps the site as it was before.
+
+Goal: a store that looks and feels Bengali everywhere, not only in the hero. The culture comes through in the materials: kantha running stitch, alpana, handmade paper, craft colours. No literal theme decoration, no filler text, no fade-in delays.
+
+## Decisions
+
+- Cart to confirmation is one page, `/jhuri`, with four tabs: ঝুড়ি → ঠিকানা → হিসাব → হয়ে গেল. হিসাব is the order review step with the "অর্ডার পাকা করুন" button.
+- The mascot is clean, sharp, layered SVG with medium detail. For now he only appears on `/jhuri`.
+- Mascot moods for now: walking, happy and sad. Sad is enough; no big drama.
+- Ratings stay, shown in Bengali digits.
+- Headings and logo use Galada. Everything else uses Baloo Da 2.
+- The announcement bar stays, made shorter and better.
+- No scroll-reveal fade-ins. Animations must be quick, visible and fun.
+- Defaults the owner can still change:
+  - The artisans page shows craft emblems instead of drawn faces.
+  - Visual work (phases 0–2) comes before the Jhuri flow.
+  - One commit per phase.
+
+## Phase 0: Cleanup
+- [ ] Add a `bn()` digit helper and remove every English digit from the UI.
+- [ ] Remove the scroll-reveal hook and its CSS.
+- [ ] Remove rickshaw art written as text (hero card, scrolling strip, category blurb).
+- [ ] Cut filler text: hero stats, second hero sub-line, logo tagline, "কেন হাতে তৈরি", stock line on cards, art note on the product page, browser storage note, duplicate ঝুড়ি link in the header.
+- [ ] Make the announcement bar short and evergreen, and stop the footer repeating it.
+
+## Phase 1: Visual language
+- [ ] Palette: keep maroon, red and turmeric yellow; add indigo, kantha green, terracotta and a little magenta; remove the mint.
+- [ ] Load Galada for headings and the logo.
+- [ ] Make the kantha stitch divider look like real thread: uneven stitches, thread colour, sometimes two colours.
+- [ ] Alpana corner motif as a reusable component.
+- [ ] New product card: handmade-paper surface, inset stitch border, alpana corners, price tag, rating, one main button plus a heart.
+- [ ] Remove the label text above section headings.
+- [ ] Motion: card art sways on hover, stitch sews itself on hover, item drops into the header ঝুড়ি when added. Respect reduced motion.
+
+## Phase 2: Page passes
+- [ ] Home: keep the hero; then a row of category stalls, popular products, one artisan story, footer.
+- [ ] Shop: cut the intro text and restyle the filters to match (keep dropdowns for now).
+- [ ] Product: fix the art frame and make the info side read like the artisan talking.
+- [ ] Artisans: stitched cards with name, district, craft and years of work, with their products under them.
+- [ ] 404 page restyle.
+
+## Phase 3: Jhuri flow
+- [ ] One `/jhuri` route with tabs. The current step goes in the URL (`?dhap=`), so phone back works. Redirect `/cart` and `/checkout` to it.
+- [ ] ঝুড়ি: items and quantities.
+- [ ] ঠিকানা: name, phone, district, address, delivery area.
+- [ ] হিসাব: review, totals, the cash-on-delivery note, the order button.
+- [ ] হয়ে গেল: order number and total.
+- [ ] Bottom progress road with the mascot.
+  - He walks forward on next and back on previous.
+  - Jhuri fill: 0 empty, 1–2 a little, 3–5 half, 6+ almost full.
+  - Sad on remove, lowering a quantity, going back or emptying the jhuri.
+  - Happy on হয়ে গেল.
+
+## Phase 4: Mascot library
+- [ ] `src/libs/mascot/`: `<Mascot mood fill walking direction />`, built as layered SVG from `public/uncle-inspiration.png`.
+- [ ] Only the rigging he needs: walk cycle, head droop, arm holding the jhuri.
+- [ ] Reduced motion support.
+
+## Each phase ends with
+- [ ] `pnpm build` and `pnpm lint` pass.
+- [ ] Playwright check at 1366px and 390px, including the full jhuri flow once it exists.
+- [ ] Screenshots shown to the owner, then a commit.
+
+## Later
+- Seasonal themes (Boishakh, Nobanno, Eid, Puja).
+- Shop filter chips.
+- Mascot on other pages (empty states, 404).
+- Bargaining modal ("দাঁড়ান ভাই, কত হইলে নিবেন") with similar products, voices, and a soft haat bazar sound.
+- A district map on the artisans page.
