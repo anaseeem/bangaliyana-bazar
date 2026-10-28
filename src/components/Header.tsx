@@ -53,7 +53,7 @@ export default function Header() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="জামদানি, কাঁথা, মাটির বাটি… খুঁজুন"
-            className="min-w-0 flex-1 rounded-l-full border-2 border-r-0 border-rickshaw bg-white px-4 py-2 text-sm focus:outline-none"
+            className="min-w-0 flex-1 rounded-l-full border-2 border-r-0 border-rickshaw bg-paper px-4 py-2 text-sm focus:outline-none"
           />
           <button type="submit" className="rounded-r-full bg-rickshaw px-4 py-2 text-sm text-white hover:bg-rickshaw-dark">
             খুঁজুন

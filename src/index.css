@@ -9,7 +9,6 @@
   --color-holud: #f59e0b;
   --color-holud-soft: #fde68a;
   --color-leaf: #166534;
-  --color-leaf-soft: #dcfce7;
   --color-cream: #fff7e6;
   --color-cream-deep: #fdeecb;
   --color-terra: #c2410c;
@@ -55,12 +54,14 @@ legend {
   hyphens: none;
 }
 
-/* বড় শিরোনাম পুরোনো বইয়ের ছাপার মতো (Tiro Bangla)। ছোট শিরোনাম পড়ার ফন্টেই থাকে। */
-h1,
-h2,
-.font-display {
-  font-family: var(--font-display);
-  line-height: 1.25;
+/* বড় শিরোনাম পুরোনো বইয়ের ছাপার মতো (Tiro Bangla)। ছোট শিরোনাম পড়ার ফন্টেই থাকে।
+   base লেয়ারে, যাতে font-sans-bn এর মতো ক্লাস দিয়ে বদলানো যায়। font-display ক্লাস @theme থেকে আসে। */
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    line-height: 1.25;
+  }
 }
 
 /* সেলাই: হোভার করলে সুতো একটু এগোয় */
@@ -162,4 +163,12 @@ h2,
 /* ফিতের মতো ব্যাজ, বাঁ দিকে কাটা লেজ */
 .badge-flag {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 50%);
+}
+
+/* পাশে সরানো সারিতে স্ক্রলবার লুকানো থাকে, কেটে যাওয়া শেষ জিনিসটাই ইশারা দেয় */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

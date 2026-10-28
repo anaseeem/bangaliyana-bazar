@@ -35,11 +35,11 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 - [x] Motion: card art swings on hover, stitch moves on hover, an item flies into the header ঝুড়ি and it bounces. Respects reduced motion.
 
 ## Phase 2: Page passes
-- [ ] Home: keep the hero; then a row of category stalls, popular products, one artisan story, footer.
-- [ ] Shop: restyle the filters to match (keep dropdowns for now). On phones they take a whole screen now; make them compact.
-- [ ] Product: fix the art frame and make the info side read like the artisan talking.
-- [ ] Artisans: stitched cards with name, district, craft and years of work, with their products under them.
-- [ ] 404 page restyle.
+- [x] Home: hero unchanged (headline pinned to Baloo Da 2); mela stalls with striped awnings; popular products; one artisan story on indigo; the mint festival section is gone.
+- [x] Shop: one slim filter row, scrolls sideways on phones. Search and category live in the URL, so header search works on the shop page too.
+- [x] Product: stitched art frame, the story as the artisan's quote, a Bengali-digit quantity stepper, a short low-stock note.
+- [x] Artisans: stitched cards with a round craft medallion and their products as small tiles. The "how artisans join" box is cut (not for shoppers, and it pointed to a Facebook page that doesn't exist).
+- [x] 404 page restyle. Also fixed: scroll to top on page change, and the product page resets when you open another product.
 
 ## Phase 3: Jhuri flow
 - [ ] One `/jhuri` route with tabs. The current step goes in the URL (`?dhap=`), so phone back works. Redirect `/cart` and `/checkout` to it.

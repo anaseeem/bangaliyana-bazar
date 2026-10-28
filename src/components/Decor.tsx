@@ -2,13 +2,14 @@
 import { AlpanaFlower } from './Alpana'
 import { StitchLine } from './Stitch'
 
-/** দুই সারি সেলাই, মাঝখানে একটা আলপনা ফুল। */
-export function AlpanaBorder() {
+/** দুই সারি সেলাই, মাঝখানে একটা আলপনা ফুল। গাঢ় জমিনে হলুদ আর সাদা সুতো। */
+export function AlpanaBorder({ onDark = false }: { onDark?: boolean }) {
+  const colors: [string, string] = onDark ? ['var(--color-holud)', 'var(--color-alpana)'] : ['var(--color-rickshaw)', 'var(--color-holud)']
   return (
     <div aria-hidden="true" className="flex items-center gap-3 py-1">
-      <StitchLine className="flex-1" />
-      <AlpanaFlower className="h-10 w-10 shrink-0" />
-      <StitchLine className="flex-1" />
+      <StitchLine colors={colors} className="flex-1" />
+      <AlpanaFlower petal={onDark ? 'var(--color-holud)' : undefined} className="h-10 w-10 shrink-0" />
+      <StitchLine colors={colors} className="flex-1" />
     </div>
   )
 }

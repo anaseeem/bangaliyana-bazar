@@ -1,20 +1,26 @@
 import { Link } from 'react-router-dom'
-import { ARTISANS, PRODUCTS, bn, formatBDT } from '../data/products'
+import { ARTISANS, PRODUCTS, bn, formatBDT, type ArtKind } from '../data/products'
+import { AlpanaCorner } from '../components/Alpana'
 import { AlpanaBorder, BoishakhSun, Marquee } from '../components/Decor'
-import { StitchLine } from '../components/Stitch'
+import { StitchFrame, StitchLine } from '../components/Stitch'
 import ProductCard from '../components/ProductCard'
 import ProductArt from '../components/ProductArt'
+import Stall from '../components/Stall'
 
-const COLLECTIONS = [
-  { name: 'শাড়ি', art: 'jamdani' as const, note: 'জামদানি, মণিপুরি। তাঁতের গল্প' },
-  { name: 'কাঁথা', art: 'kantha' as const, note: 'সেলাইয়ে সেলাইয়ে গল্প' },
-  { name: 'মাটির কাজ', art: 'terracotta' as const, note: 'কুমোরের চাকার মাটি' },
-  { name: 'লোকশিল্প', art: 'rickshaw' as const, note: 'হাতে আঁকা ছবি আর কাঁসা' },
+const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; awning: [string, string] }[] = [
+  { name: 'শাড়ি', art: 'jamdani', palette: ['#7f1d1d', '#f59e0b', '#fff7e6'], awning: ['#b91c1c', '#f59e0b'] },
+  { name: 'কাঁথা', art: 'kantha', palette: ['#b91c1c', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#fff7e6'] },
+  { name: 'মাটির কাজ', art: 'terracotta', palette: ['#c2410c', '#fff7e6', '#fde68a'], awning: ['#c2410c', '#fde68a'] },
+  { name: 'বাঁশ-বেত', art: 'bamboo', palette: ['#a0702a', '#2f6b3a', '#fff7e6'], awning: ['#1f3b73', '#fff7e6'] },
+  { name: 'পাট', art: 'jute', palette: ['#8a5a1a', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#f59e0b'] },
+  { name: 'লোকশিল্প', art: 'kansa', palette: ['#b45309', '#f59e0b', '#fff7e6'], awning: ['#be185d', '#fff7e6'] },
 ]
 
 export default function Home() {
   const best = [...PRODUCTS].sort((a, b) => b.rating - a.rating).slice(0, 4)
-  const featured = PRODUCTS.filter((p) => p.badge).slice(0, 4)
+  // একজন কারিগরের গল্প, তাঁর নিজের একটা কাজসহ
+  const artisan = ARTISANS[0]
+  const work = PRODUCTS.find((p) => p.artisan === artisan.name)
 
   return (
     <div>
@@ -23,7 +29,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-14 sm:py-20 lg:grid-cols-2">
           <div className="animate-fade-up">
             <p className="inline-block rounded-full bg-holud px-4 py-1 text-sm text-stone-900">শুভ নববর্ষ • পহেলা বৈশাখের মেলা</p>
-            <h1 className="mt-4 text-4xl leading-tight sm:text-6xl">
+            <h1 className="mt-4 font-sans-bn text-4xl leading-tight sm:text-6xl">
               হাতের কাজ,<br />বাংলার গল্প।
             </h1>
             <p className="mt-4 max-w-lg text-lg text-amber-100">
@@ -57,33 +63,19 @@ export default function Home() {
       </section>
       <Marquee />
 
-      {/* Collections */}
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div>
-          <h2 className="text-3xl">মেলার মতো করে সাজানো বাজার</h2>
-          <p className="mt-2 max-w-2xl text-stone-600">যেমন বৈশাখী মেলায় এক দোকান থেকে আরেক দোকানে ঘোরা যায়, তেমনই এখানে প্রতিটি সংগ্রহ একেকটা গল্প।</p>
-        </div>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {COLLECTIONS.map((c) => (
-            <Link key={c.name} to={`/shop?cat=${encodeURIComponent(c.name)}`} className="group overflow-hidden rounded-3xl border-2 border-amber-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-              <ProductArt art={c.art} palette={['#b91c1c', '#f59e0b', '#fff7e6']} label={c.name} className="h-40 w-full transition group-hover:scale-105" />
-              <div className="p-4">
-                <h3 className="font-display text-xl">{c.name}</h3>
-                <p className="mt-1 text-sm text-stone-600">{c.note}</p>
-                <p className="mt-2 text-sm text-rickshaw">দেখুন</p>
-              </div>
-            </Link>
-          ))}
+      {/* মেলার দোকান */}
+      <section className="mx-auto max-w-7xl px-4 pt-12 pb-10">
+        <h2 className="text-3xl">কোন দোকানে যাবেন?</h2>
+        <div className="no-scrollbar -mx-4 mt-6 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-6">
+          {STALLS.map((s) => <Stall key={s.name} {...s} />)}
         </div>
       </section>
       <AlpanaBorder />
 
-      {/* Bestsellers */}
+      {/* সবাই যা নিচ্ছে */}
       <section className="mx-auto max-w-7xl px-4 py-12">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-3xl">সবাই যা পছন্দ করছে</h2>
-          </div>
+          <h2 className="text-3xl">সবাই যা নিচ্ছে</h2>
           <Link to="/shop" className="rounded-full border-2 border-rickshaw px-4 py-2 text-sm text-rickshaw hover:bg-holud-soft">সব পণ্য দেখুন</Link>
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,54 +83,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured / festival */}
-      <section className="bg-leaf-soft">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-2">
-          <div>
-            <h2 className="text-3xl">বৈশাখ মানেই নতুন কিছু</h2>
-            <p className="mt-3 text-stone-700">
-              পহেলা বৈশাখে নতুন শাড়ি, নতুন কাঁথা, ঘরে নতুন মাটির বাটি। এই অভ্যাসটা
-              আমাদের দাদা-নানাদের আমলের। বাঙালিয়ানা বাজার সেই অভ্যাসটাই ধরে রাখতে চায়,
-              কারিগরদের ন্যায্য দাম দিয়ে।
-            </p>
-            <ul className="mt-4 space-y-2 text-stone-700">
-              <li>✦ প্রতিটি পণ্যে কারিগরের নাম আর জেলা লেখা থাকে।</li>
-              <li>✦ পণ্য হাতে পেয়ে দেখে, তারপর ক্যাশে টাকা দিন।</li>
-              <li>✦ ঢাকায় ২ দিন, ঢাকার বাইরে ৪ দিনের মধ্যে ডেলিভারি।</li>
-            </ul>
-            <Link to="/shop" className="mt-6 inline-block rounded-full bg-leaf px-6 py-3 text-white hover:bg-green-800">বৈশাখের সংগ্রহ দেখুন</Link>
+      {/* একজন কারিগরের গল্প */}
+      {work && (
+        <section className="relative bg-nil text-cream">
+          <StitchLine colors={['var(--color-holud)', 'var(--color-alpana)']} />
+          <AlpanaCorner corner="tl" className="absolute top-5 left-3 w-20 sm:w-28" />
+          <AlpanaCorner corner="br" className="absolute right-3 bottom-3 w-20 sm:w-28" />
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 md:grid-cols-[5fr_6fr]">
+            <Link to={`/product/${work.id}`} className="group relative block rounded-lg bg-cream p-4">
+              <StitchFrame color="var(--color-nil)" />
+              <ProductArt plain art={work.art} palette={work.palette} label={work.nameBn} className="hang-swing block h-64 w-full rounded" />
+            </Link>
+            <div>
+              <h2 className="text-4xl">{artisan.name}</h2>
+              <p className="mt-1 text-amber-200">{artisan.craft}, {artisan.district}। {bn(artisan.years)} বছর ধরে এই কাজ করছেন।</p>
+              <blockquote className="mt-5 max-w-xl border-l-4 border-holud pl-4 text-xl leading-relaxed">“{work.story}”</blockquote>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link to={`/product/${work.id}`} className="rounded-full bg-holud px-6 py-3 text-stone-900 hover:bg-amber-400">
+                  {work.nameBn}, {formatBDT(work.price)}
+                </Link>
+                <Link to="/artisans" className="rounded-full border-2 border-cream px-6 py-3 hover:bg-white/10">সব কারিগর</Link>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {featured.map((p) => (
-              <Link key={p.id} to={`/product/${p.id}`} className="overflow-hidden rounded-3xl border-2 border-white bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                <ProductArt art={p.art} palette={p.palette} label={p.nameBn} className="h-36 w-full" />
-                <div className="p-3">
-                  <p className="font-display">{p.nameBn}</p>
-                  <p className="text-sm text-rickshaw">{formatBDT(p.price)}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Artisan strip */}
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div>
-          <h2 className="text-3xl">যাদের হাতে এই বাজার</h2>
-        </div>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {ARTISANS.slice(0, 3).map((a) => (
-            <article key={a.name} className="rounded-3xl border-2 border-amber-200 bg-white p-5 shadow-sm">
-              <p className="font-display text-xl">{a.name}</p>
-              <p className="text-sm text-rickshaw">{a.craft} • {a.district} • {bn(a.years)} বছরের অভিজ্ঞতা</p>
-              <p className="mt-2 text-sm text-stone-600">{a.note}</p>
-            </article>
-          ))}
-        </div>
-        <Link to="/artisans" className="mt-6 inline-block text-rickshaw underline">সব কারিগরের গল্প পড়ুন</Link>
-      </section>
-
+        </section>
+      )}
     </div>
   )
 }

@@ -3,13 +3,26 @@ import { useSearchParams } from 'react-router-dom'
 import { CATEGORIES, DISTRICTS, PRODUCTS, bn, type Product } from '../data/products'
 import { useCart } from '../store/cart'
 import ProductCard from '../components/ProductCard'
+import { StitchFrame, StitchLine } from '../components/Stitch'
 
 type Sort = 'featured' | 'price-asc' | 'price-desc' | 'rating'
 
+const SELECT = 'shrink-0 rounded-full border-2 border-amber-300 bg-paper px-4 py-2 focus:border-rickshaw focus:outline-none'
+
 export default function Shop() {
   const [params, setParams] = useSearchParams()
-  const [q, setQ] = useState(params.get('q') ?? '')
-  const [cat, setCat] = useState(params.get('cat') ?? 'সব')
+  // খোঁজ আর ধরন ঠিকানায় থাকে, তাই হেডারের খোঁজ আর দোকানের লিংক সরাসরি কাজ করে
+  const q = params.get('q') ?? ''
+  const cat = params.get('cat') ?? 'সব'
+  const setParam = (key: 'q' | 'cat', value: string, empty: string) =>
+    setParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (value === empty) next.delete(key)
+      else next.set(key, value)
+      return next
+    }, { replace: true })
+  const setQ = (v: string) => setParam('q', v, '')
+  const setCat = (v: string) => setParam('cat', v, 'সব')
   const [district, setDistrict] = useState('সব জেলা')
   const [sort, setSort] = useState<Sort>('featured')
   const [onlyWish, setOnlyWish] = useState(false)
@@ -36,50 +49,46 @@ export default function Shop() {
     <div className="mx-auto max-w-7xl px-4 py-10">
       <h1 className="text-4xl">সব পণ্য, এক মেলায়</h1>
 
-      <div className="mt-6 flex flex-col gap-3 rounded-3xl border-2 border-amber-200 bg-white p-4 shadow-sm lg:flex-row lg:items-end">
-        <div className="flex-1">
-          <label htmlFor="shop-search" className="text-sm">খুঁজুন</label>
-          <input
-            id="shop-search"
-            value={q}
-            onChange={(e) => { setQ(e.target.value); setParams(e.target.value ? { q: e.target.value } : {}, { replace: true }) }}
-            placeholder="যেমন: জামদানি, কাঁথা, মাটি…"
-            className="mt-1 w-full rounded-full border-2 border-amber-300 px-4 py-2 text-sm focus:outline-none"
-          />
-        </div>
-        <div>
-          <label htmlFor="shop-cat" className="text-sm">ধরন</label>
-          <select id="shop-cat" value={cat} onChange={(e) => setCat(e.target.value)} className="mt-1 block w-full rounded-full border-2 border-amber-300 bg-white px-4 py-2 text-sm">
-            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+      <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+        <label htmlFor="shop-search" className="sr-only">খুঁজুন</label>
+        <input
+          id="shop-search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="খুঁজুন, যেমন: জামদানি, কাঁথা, মাটি"
+          className="w-full rounded-full border-2 border-amber-300 bg-paper px-5 py-2.5 focus:border-rickshaw focus:outline-none lg:flex-1"
+        />
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:overflow-visible lg:px-0">
+          <label htmlFor="shop-cat" className="sr-only">ধরন</label>
+          <select id="shop-cat" value={cat} onChange={(e) => setCat(e.target.value)} className={SELECT}>
+            {CATEGORIES.map((c) => <option key={c} value={c}>{c === 'সব' ? 'সব ধরন' : c}</option>)}
           </select>
-        </div>
-        <div>
-          <label htmlFor="shop-district" className="text-sm">জেলা</label>
-          <select id="shop-district" value={district} onChange={(e) => setDistrict(e.target.value)} className="mt-1 block w-full rounded-full border-2 border-amber-300 bg-white px-4 py-2 text-sm">
+          <label htmlFor="shop-district" className="sr-only">জেলা</label>
+          <select id="shop-district" value={district} onChange={(e) => setDistrict(e.target.value)} className={SELECT}>
             {DISTRICTS.map((d) => <option key={d}>{d}</option>)}
           </select>
-        </div>
-        <div>
-          <label htmlFor="shop-sort" className="text-sm">সাজান</label>
-          <select id="shop-sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="mt-1 block w-full rounded-full border-2 border-amber-300 bg-white px-4 py-2 text-sm">
+          <label htmlFor="shop-sort" className="sr-only">সাজান</label>
+          <select id="shop-sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className={SELECT}>
             <option value="featured">সাজানো ক্রম</option>
-            <option value="price-asc">দাম: কম থেকে বেশি</option>
-            <option value="price-desc">দাম: বেশি থেকে কম</option>
-            <option value="rating">রেটিং</option>
+            <option value="price-asc">দাম কম থেকে বেশি</option>
+            <option value="price-desc">দাম বেশি থেকে কম</option>
+            <option value="rating">রেটিং বেশি আগে</option>
           </select>
+          <button type="button" onClick={() => setOnlyWish((v) => !v)} aria-pressed={onlyWish} className={`shrink-0 rounded-full border-2 px-4 py-2 ${onlyWish ? 'border-shapla bg-shapla text-white' : 'border-amber-300 bg-paper text-shapla'}`}>
+            ♥ পছন্দেরগুলো
+          </button>
         </div>
-        <button type="button" onClick={() => setOnlyWish((v) => !v)} aria-pressed={onlyWish} className={`rounded-full border-2 px-4 py-2 text-sm ${onlyWish ? 'border-rickshaw bg-rickshaw text-white' : 'border-amber-300 text-rickshaw'}`}>
-          ♥ পছন্দেরগুলো
-        </button>
       </div>
+      <StitchLine className="mt-5" />
 
-      <p className="mt-5 text-sm text-stone-600" role="status">{bn(filtered.length)}টি পণ্য পাওয়া গেছে।</p>
+      <p className="mt-4 text-sm text-stone-600" role="status">{bn(filtered.length)}টি পণ্য পাওয়া গেছে।</p>
 
       {filtered.length === 0 ? (
-        <div className="mt-8 rounded-3xl border-2 border-dashed border-amber-300 bg-white p-10 text-center">
+        <div className="relative mt-8 rounded-[10px] bg-paper p-10 text-center">
+          <StitchFrame />
           <p className="font-display text-2xl">কিছু মিলল না</p>
-          <p className="mt-2 text-stone-600">অন্য নামে খুঁজে দেখুন, বা ছাঁকনি বদলে নিন। যেমন। “কাঁথা” বা “মাটি”।</p>
-          <button type="button" onClick={() => { setQ(''); setCat('সব'); setDistrict('সব জেলা'); setOnlyWish(false) }} className="mt-4 rounded-full bg-rickshaw px-5 py-2 text-white">
+          <p className="mt-2 text-stone-600">অন্য নামে খুঁজুন, যেমন কাঁথা বা মাটি।</p>
+          <button type="button" onClick={() => { setParams({}, { replace: true }); setDistrict('সব জেলা'); setOnlyWish(false) }} className="mt-4 rounded-full bg-rickshaw px-5 py-2 text-white">
             ছাঁকনি মুছে ফেলুন
           </button>
         </div>

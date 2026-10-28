@@ -5,9 +5,17 @@ import { flyToJhuri } from '../lib/flyToJhuri'
 import { useCart } from '../store/cart'
 import ProductArt from '../components/ProductArt'
 import ProductCard from '../components/ProductCard'
+import QtyStepper from '../components/QtyStepper'
+import { AlpanaCorner } from '../components/Alpana'
+import { StitchFrame } from '../components/Stitch'
 
-export default function ProductDetail() {
+// পণ্য বদলালে পাতা নতুন করে শুরু হয়, যাতে আগের পণ্যের পরিমাণ থেকে না যায়
+export default function ProductDetailRoute() {
   const { id } = useParams()
+  return <ProductDetail key={id} id={id} />
+}
+
+function ProductDetail({ id }: { id?: string }) {
   const product = PRODUCTS.find((p) => p.id === id)
   const { add, wishlist, toggleWish } = useCart()
   const [qty, setQty] = useState(1)
@@ -31,65 +39,61 @@ export default function ProductDetail() {
       <p className="text-sm text-stone-500">
         <Link to="/" className="hover:underline">হোম</Link> / <Link to="/shop" className="hover:underline">বাজার</Link> / {product.nameBn}
       </p>
-      <div className="mt-4 grid gap-8 lg:grid-cols-2">
-        <div className="animate-fade-up overflow-hidden rounded-3xl border-2 border-amber-200 bg-white shadow-sm">
-          <ProductArt art={product.art} palette={product.palette} label={product.nameBn} className="h-80 w-full sm:h-96" />
+      <div className="mt-4 grid items-start gap-10 lg:grid-cols-2">
+        <div className="group relative rounded-[10px] bg-paper p-4">
+          <StitchFrame />
+          <div className="relative overflow-hidden rounded-md">
+            <ProductArt plain art={product.art} palette={product.palette} label={product.nameBn} className="hang-swing block h-80 w-full sm:h-[26rem]" />
+            <AlpanaCorner corner="tl" className="absolute top-2 left-2 w-16" />
+            <AlpanaCorner corner="br" className="absolute right-2 bottom-2 w-16" />
+          </div>
         </div>
-        <div className="animate-fade-up">
-          {product.badge && <span className="rounded-full bg-rickshaw px-3 py-1 text-xs text-white">{product.badge}</span>}
-          <h1 className="mt-3 text-4xl">{product.nameBn}</h1>
-          <p className="mt-2 text-sm">★ {bn(product.rating.toFixed(1))} রেটিং • {product.category} • {product.district}</p>
+        <div>
+          {product.badge && <span className="badge-flag inline-block bg-rickshaw py-0.5 pr-3 pl-4 text-sm text-white">{product.badge}</span>}
+          <h1 className="mt-3 text-4xl sm:text-5xl">{product.nameBn}</h1>
+          <p className="mt-2 text-stone-600">
+            {product.artisan}, {product.district}
+            <span className="ml-4" aria-label={`রেটিং ${bn(product.rating.toFixed(1))}`}><span className="text-holud">★</span> {bn(product.rating.toFixed(1))}</span>
+          </p>
           <p className="mt-4 flex items-baseline gap-3">
             <span className="text-3xl text-rickshaw">{formatBDT(product.price)}</span>
             {product.oldPrice && <s className="text-stone-400">{formatBDT(product.oldPrice)}</s>}
           </p>
-          <p className="mt-4 text-stone-700">{product.description}</p>
-          <div className="mt-5 rounded-3xl bg-cream-deep p-4">
-            <p className="font-display text-lg">কারিগরের গল্প</p>
-            <p className="mt-1 text-sm text-stone-700">{product.story}</p>
-            <p className="mt-2 text-sm"> {product.artisan}, {product.district}</p>
-          </div>
-          <p className="mt-4 text-sm">{product.stock > 0 ? `স্টকে আছে ${bn(product.stock)}টি` : 'স্টক শেষ। শীঘ্রই আসছে'}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 text-sm" htmlFor="qty">
-              পরিমাণ
-              <input
-                id="qty"
-                type="number"
-                min={1}
-                max={product.stock}
-                value={qty}
-                onChange={(e) => setQty(Math.max(1, Math.min(product.stock, Number(e.target.value) || 1)))}
-                className="w-20 rounded-full border-2 border-amber-300 px-3 py-2 text-center"
-              />
-            </label>
-            <button
-              type="button"
-              disabled={product.stock <= 0}
-              onClick={(e) => { add(product.id, qty); flyToJhuri(e.currentTarget, product.palette[1]); setAdded(true); window.setTimeout(() => setAdded(false), 2000) }}
-              className="rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark disabled:opacity-40"
-            >
-              {added ? '✓ ঝুড়িতে গেছে' : 'ঝুড়িতে নিন'}
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleWish(product.id)}
-              aria-pressed={wished}
-              className={`rounded-full border-2 px-5 py-3 ${wished ? 'border-rickshaw bg-rickshaw text-white' : 'border-amber-300 text-rickshaw'}`}
-            >
-              {wished ? '♥ পছন্দে আছে' : '♡ পছন্দে রাখুন'}
-            </button>
-          </div>
-          <div className="mt-5 space-y-1 text-sm text-stone-600">
-            <p>• পেমেন্ট: ক্যাশ অন ডেলিভারি (ডেমো)। পণ্য হাতে পেয়ে টাকা দিন। কোনো অনলাইন পেমেন্ট নেই।</p>
-            <p>• ডেলিভারি: ঢাকায় ৳৬০, ঢাকার বাইরে ৳১২০। সময় ২ থেকে ৪ দিন।</p>
-            <p>• হাতে তৈরি পণ্য বলে রং আর নকশায় সামান্য পার্থক্য থাকতে পারে। সেটাই এর আসল সৌন্দর্য।</p>
-          </div>
+          <p className="mt-4 max-w-xl text-lg text-stone-700">{product.description}</p>
+          <figure className="mt-6 max-w-xl border-l-4 border-holud pl-4">
+            <blockquote className="text-stone-800">“{product.story}”</blockquote>
+            <figcaption className="mt-1 text-sm text-stone-500">{product.artisan}</figcaption>
+          </figure>
+          {product.stock > 0 ? (
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <QtyStepper value={qty} onChange={setQty} max={product.stock} label="পরিমাণ" />
+              <button
+                type="button"
+                onClick={(e) => { add(product.id, qty); flyToJhuri(e.currentTarget, product.palette[1]); setAdded(true); window.setTimeout(() => setAdded(false), 2000) }}
+                className="rounded-full bg-rickshaw px-8 py-3 text-lg text-white hover:bg-rickshaw-dark"
+              >
+                {added ? 'ঝুড়িতে গেছে' : 'ঝুড়িতে নিন'}
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleWish(product.id)}
+                aria-pressed={wished}
+                aria-label={wished ? 'পছন্দ থেকে সরান' : 'পছন্দে রাখুন'}
+                className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-xl ${wished ? 'border-shapla bg-shapla text-white' : 'border-amber-300 text-shapla hover:bg-holud-soft'}`}
+              >
+                {wished ? '♥' : '♡'}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-7 text-lg text-stone-600">স্টক শেষ। শিগগিরই আসছে।</p>
+          )}
+          {product.stock > 0 && product.stock <= 5 && <p className="mt-3 text-sm text-terra">আর মাত্র {bn(product.stock)}টি আছে</p>}
+          <p className="mt-6 text-sm text-stone-600">ঢাকায় ডেলিভারি ৳৬০, বাইরে ৳১২০। হাতে পেয়ে টাকা দিন।</p>
         </div>
       </div>
       {related.length > 0 && (
         <section className="mt-14">
-          <h2 className="text-2xl">একই ধরনের আরও পণ্য</h2>
+          <h2 className="text-3xl">একই ধরনের আরও</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {related.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>

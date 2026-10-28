@@ -3,8 +3,8 @@ import { AlpanaBorder } from './Decor'
 
 export default function Footer() {
   return (
-    <footer className="mt-16 bg-rickshaw-dark text-cream">
-      <AlpanaBorder />
+    <footer className="bg-rickshaw-dark text-cream">
+      <AlpanaBorder onDark />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-3">
         <div>
           <p className="font-display text-2xl">বাঙালিয়ানা বাজার</p>

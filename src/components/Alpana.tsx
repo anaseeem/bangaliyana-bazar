@@ -26,12 +26,12 @@ export function AlpanaCorner({ corner = 'tl', className = '', color = '#fffaf0' 
 }
 
 /** গোল আলপনা ফুল। ভাগের মাঝখানে বসে। */
-export function AlpanaFlower({ className = '' }: { className?: string }) {
+export function AlpanaFlower({ className = '', petal = 'var(--color-rickshaw)' }: { className?: string; petal?: string }) {
   return (
     <svg viewBox="0 0 48 48" aria-hidden="true" className={className}>
       <g transform="translate(24 24)">
         {Array.from({ length: 8 }).map((_, i) => (
-          <path key={i} d="M0,-4 C5,-9 4,-17 0,-21 C-4,-17 -5,-9 0,-4 Z" fill="var(--color-rickshaw)" transform={`rotate(${i * 45})`} />
+          <path key={i} d="M0,-4 C5,-9 4,-17 0,-21 C-4,-17 -5,-9 0,-4 Z" fill={petal} transform={`rotate(${i * 45})`} />
         ))}
         {Array.from({ length: 8 }).map((_, i) => (
           <circle key={i} cx="0" cy="-14" r="1.6" fill="var(--color-alpana)" transform={`rotate(${i * 45 + 22.5})`} />
