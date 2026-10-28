@@ -140,20 +140,20 @@ const icon = async (name, color) => {
   T(s, 'স্থানীয় পণ্যের ডিজিটাল বাজার', { x: 1.0, y: 3.4, w: 7.2, h: 0.6, fontSize: 26, color: K.holudSoft })
   stitchLine(s, 1.0, 4.3, 6.8)
   T(s, 'দলের সদস্য', { x: 1.0, y: 4.65, w: 3.6, h: 0.4, fontSize: 15, color: K.holud })
+  const team = [['Nusrat Jahan', '22500831'], ['Zahir Sheikh', '22500039'], ['Shanzida Nishat', '22500709'], ['Nasim', '22501283']]
+  T(s, team.flatMap(([n, r], i) => [
+    { text: n, options: {} },
+    { text: `  ${r}`, options: { fontSize: 13, color: K.holudSoft, breakLine: i < team.length - 1 } },
+  ]), { x: 1.0, y: 5.05, w: 3.9, h: 1.65, fontSize: 18, color: K.cream, paraSpaceAfter: 2, objectName: 'Team names' })
+  T(s, 'শিক্ষক', { x: 5.1, y: 4.65, w: 3.0, h: 0.4, fontSize: 15, color: K.holud })
   T(s, [
-    { text: 'সদস্যের নাম ১', options: { breakLine: true } },
-    { text: 'সদস্যের নাম ২', options: { breakLine: true } },
-    { text: 'সদস্যের নাম ৩', options: { breakLine: true } },
-    { text: 'সদস্যের নাম ৪' },
-  ], { x: 1.0, y: 5.05, w: 3.6, h: 1.65, fontSize: 18, color: K.cream, paraSpaceAfter: 2, objectName: 'Team names' })
-  T(s, 'শিক্ষক', { x: 4.9, y: 4.65, w: 3.2, h: 0.4, fontSize: 15, color: K.holud })
-  T(s, [
-    { text: 'শিক্ষকের নাম ১', options: { breakLine: true } },
-    { text: 'শিক্ষকের নাম ২' },
-  ], { x: 4.9, y: 5.05, w: 3.2, h: 0.9, fontSize: 18, color: K.cream, paraSpaceAfter: 2, objectName: 'Instructor names' })
+    { text: 'Md Nahid Hasan', options: { breakLine: true } },
+    { text: 'dydaiproject', options: { fontSize: 13, color: K.holudSoft } },
+  ], { x: 5.1, y: 5.05, w: 3.0, h: 0.8, fontSize: 18, color: K.cream, paraSpaceAfter: 2, objectName: 'Instructor names' })
+  T(s, '২৯ অক্টোবর ২০২৬', { x: 5.1, y: 6.2, w: 3.0, h: 0.45, fontSize: 15, color: K.holud, objectName: 'Date' })
   s.addImage({ data: A.sun, x: 8.25, y: 0.7, w: 3.9, h: 3.9, transparency: 10 })
   s.addImage({ path: SHOT('mascot.png'), x: 9.15, y: 1.55, w: 5.6 * mascotAR, h: 5.6 })
-  s.addNotes('সবাইকে শুভেচ্ছা। আমাদের প্রজেক্টের নাম বাঙালিয়ানা বাজার, স্থানীয় পণ্যের ডিজিটাল বাজার। আমাদের দলে আছেন ... আর আমাদের শিক্ষক ...')
+  s.addNotes('সবাইকে শুভেচ্ছা। আমাদের প্রজেক্টের নাম বাঙালিয়ানা বাজার, স্থানীয় পণ্যের ডিজিটাল বাজার। আমাদের দলে আছেন নুসরাত জাহান, জাহির শেখ, শানজিদা নিশাত আর নাসিম। আমাদের শিক্ষক মোঃ নাহিদ হাসান।')
 
   // =========== ২. বাঙালিয়ানা বাজার কী ===========
   pres.addSection({ title: 'ভূমিকা' })
