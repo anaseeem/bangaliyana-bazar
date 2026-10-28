@@ -64,11 +64,9 @@ export default function SellerShop() {
 
           <p className="mt-5 max-w-3xl text-lg text-stone-700">{seller.story}</p>
           <div className="mt-5 flex flex-wrap gap-3">
-            {seller.phone && (
-              <a href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে আপনার দোকান দেখলাম।`, seller.phone)} target="_blank" rel="noreferrer" className="inline-block rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white">
-                WhatsApp-এ কথা বলুন
-              </a>
-            )}
+            <a href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে ${seller.shopName} দোকান দেখলাম।`, seller.phone)} target="_blank" rel="noreferrer" className="inline-block rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white">
+              WhatsApp-এ কথা বলুন
+            </a>
             {own && <Link to="/bikreta/dokan" className="inline-block rounded-full border-2 border-rickshaw px-5 py-2 text-rickshaw hover:bg-holud-soft">দোকান সামলান</Link>}
           </div>
         </div>
