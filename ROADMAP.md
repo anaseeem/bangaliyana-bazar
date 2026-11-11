@@ -58,6 +58,58 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 - [x] Only the rigging he needs: walk cycle, head droop, arm holding the jhuri.
 - [x] Reduced motion support.
 
+## Production flow (branch `production-flow`)
+
+Goal: the shop works for real. Accounts, sellers, orders and content live on the server, the owner controls everything from `/admin`, the uncle shows up beyond the jhuri, and there is a blog. The look does not change. Full design: `docs/production-plan.md`. Day-by-day notes: `JOURNAL.md`.
+
+### Phase 5: Server that remembers
+- [ ] Storage with two drivers: Postgres when `DATABASE_URL` is set, a JSON file on the laptop.
+- [ ] First-boot seed: products, the nine artisans as sellers, settings, three stories, three pages.
+- [ ] Accounts: scrypt passwords, JWT in an httpOnly cookie, admin from env, login rate limit.
+- [ ] Orders: stock check and reduce, cancel restores, per-seller sent, delivered, tracking by number and phone.
+- [ ] Seller API: register, shop, products, orders, photo upload, earnings.
+- [ ] Admin API: summary, orders, products, sellers, users, posts, pages, messages, reviews, payouts, settings.
+- [ ] `pnpm test:api`.
+
+### Phase 6: Shop on the API
+- [ ] `src/lib/api.ts` and an API-backed `market` store with the same shape.
+- [ ] Shop opens instantly from the saved or bundled catalog, then refreshes from `/api/boot`.
+- [ ] Login, signup, forgotten password help, `/amar`, seller join and dashboard use the server.
+- [ ] `/jhuri` always orders through the server; fees and WhatsApp number come from settings.
+- [ ] Seller photos upload to the server.
+
+### Phase 7: Admin panel
+- [ ] `/admin/*` behind admin login, phone first.
+- [ ] সারাংশ, অর্ডার, পণ্য, বিক্রেতা, ক্রেতা.
+- [ ] বার্তা, মতামত, টাকা, সাজানো.
+- [ ] গল্প and পাতা editors (with Phase 10).
+
+### Phase 8: The uncle everywhere
+- [ ] `pose` prop: jhuri, haat, machi, khoj, dekhano, haat-nara.
+- [ ] `MamaLoader` (walks, then sits and swats flies), `MamaLost`, `MamaEmpty`.
+- [ ] Route fallback, error screen, 404, empty jhuri, empty orders and wishlist, empty search.
+
+### Phase 9: Missing shopper pages
+- [ ] `/khoj` order tracking with the road.
+- [ ] `/amader-kotha`, `/sahajjo`, `/niyom`, `/jogajog`.
+- [ ] Reviews on the product page; cancel an order from `/amar`.
+- [ ] Footer and menu links.
+
+### Phase 10: Blog
+- [ ] Art themes: moyur, nouka, pakhi, shapla, jhalor (cut-paper SVG, slow motion, never over text).
+- [ ] `/golpo` list and `/golpo/:slug` reading page.
+- [ ] Editor with small markup, live preview and photo upload.
+- [ ] Three seeded stories.
+
+### Phase 11: Brand and reach
+- [ ] Home: how-it-comes strip with the uncle, reviews row, newest stories.
+- [ ] Share buttons, page titles, Open Graph image, robots and sitemap.
+
+### Phase 12: Wrap up
+- [ ] Postgres driver checked against a real Postgres.
+- [ ] README, CLAUDE.md, render.yaml updated.
+- [ ] Full Playwright pass at 1366px and 390px.
+
 ## Each phase ends with
 - [ ] `pnpm build` and `pnpm lint` pass.
 - [ ] Playwright check at 1366px and 390px, including the full jhuri flow once it exists.
