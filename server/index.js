@@ -34,7 +34,7 @@ async function ensureAdmin(store, log) {
     if (u.role !== 'admin') await store.put('users', { ...u, role: 'admin' })
     return
   }
-  await store.put('users', { id: newId('u'), name: 'অ্যাডমিন', phone, passHash: await hashPassword(password), role: 'admin', createdAt: new Date().toISOString() })
+  await store.put('users', { id: newId('u'), name: 'মালিক', phone, passHash: await hashPassword(password), role: 'admin', createdAt: new Date().toISOString() })
 }
 
 export async function buildApp(opts = {}) {
