@@ -2,19 +2,21 @@ import { useState } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { normalizePhone } from '../data/districts'
 import { useMarket } from '../store/market'
+import { whatsappLink } from '../lib/whatsapp'
 import { BTN, Field, INPUT, Panel } from '../components/Form'
 
 /** ঢোকা আর নতুন অ্যাকাউন্ট এক পাতায়। ?next= থাকলে কাজ শেষে সেখানে ফেরে। */
 export default function Login() {
   const [params] = useSearchParams()
   const next = params.get('next') ?? '/amar'
-  const { user, login, signup } = useMarket()
+  const { user, settings, login, signup } = useMarket()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [forgot, setForgot] = useState(false)
 
   if (user) return <Navigate to={next} replace />
 
@@ -64,6 +66,26 @@ export default function Login() {
           {error && <p role="alert" className="rounded-md bg-red-50 px-4 py-3 text-rickshaw">{error}</p>}
           <button type="submit" disabled={busy} className={BTN}>{mode === 'login' ? 'ঢুকুন' : 'অ্যাকাউন্ট খুলুন'}</button>
         </form>
+        {mode === 'login' && (
+          <div className="mt-5">
+            <button type="button" onClick={() => setForgot((v) => !v)} aria-expanded={forgot} className="text-sm text-stone-600 underline hover:text-rickshaw">
+              পাসওয়ার্ড ভুলে গেছেন?
+            </button>
+            {forgot && (
+              <div className="mt-3 rounded-md bg-holud-soft/60 p-4">
+                <p>আপনার অ্যাকাউন্টের নম্বর থেকে দোকানকে WhatsApp-এ লিখুন। দোকান একটা নতুন পাসওয়ার্ড দেবে।</p>
+                <a
+                  href={whatsappLink('আসসালামু আলাইকুম। আমি বাঙালিয়ানা বাজারে আমার পাসওয়ার্ড ভুলে গেছি। একটা নতুন পাসওয়ার্ড দিন।', undefined, settings.whatsapp)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white"
+                >
+                  WhatsApp-এ লিখুন
+                </a>
+              </div>
+            )}
+          </div>
+        )}
       </Panel>
     </div>
   )

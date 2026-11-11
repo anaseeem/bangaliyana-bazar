@@ -19,7 +19,7 @@ export default function ProductDetailRoute() {
 }
 
 function ProductDetail({ id }: { id?: string }) {
-  const { catalog, sellers } = useMarket()
+  const { catalog, sellers, settings } = useMarket()
   const product = catalog.find((p) => p.id === id)
   const { add, wishlist, toggleWish } = useCart()
   const [qty, setQty] = useState(1)
@@ -94,14 +94,14 @@ function ProductDetail({ id }: { id?: string }) {
           )}
           {product.stock > 0 && product.stock <= 5 && <p className="mt-3 text-sm text-terra">আর মাত্র {bn(product.stock)}টি আছে</p>}
           <a
-            href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে আপনার "${product.nameBn}" (${formatBDT(product.price)}) দেখলাম। এটা নিয়ে জানতে চাই।`, seller?.phone)}
+            href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে আপনার "${product.nameBn}" (${formatBDT(product.price)}) দেখলাম। এটা নিয়ে জানতে চাই।`, seller?.phone, settings.whatsapp)}
             target="_blank"
             rel="noreferrer"
             className="mt-5 inline-flex items-center gap-2 rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white"
           >
             WhatsApp-এ বিক্রেতাকে জিজ্ঞেস করুন
           </a>
-          <p className="mt-6 text-sm text-stone-600">ঢাকায় ডেলিভারি ৳৬০, বাইরে ৳১২০। হাতে পেয়ে টাকা দিন।</p>
+          <p className="mt-6 text-sm text-stone-600">ঢাকায় ডেলিভারি {formatBDT(settings.feeDhaka)}, বাইরে {formatBDT(settings.feeOutside)}। হাতে পেয়ে টাকা দিন।</p>
         </div>
       </div>
       {related.length > 0 && (

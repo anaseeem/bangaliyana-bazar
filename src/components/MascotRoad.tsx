@@ -8,6 +8,8 @@ interface Props {
   /** বাইরে থেকে আসা মেজাজ, যেমন জিনিস সরালে দুঃখ */
   mood: MascotMood
   fill: JhuriFill
+  /** পাতার ভেতরে বসে, নিচে আটকে থাকে না। অর্ডার খোঁজার পাতার জন্য। */
+  inline?: boolean
 }
 
 const WALK_MS = { forward: 1300, back: 1900 }
@@ -19,7 +21,7 @@ const spot = (step: number, steps: number) => `calc(5.5rem + (100% - 11rem) * ${
  * হাট থেকে বাড়ির রাস্তা। মামা ঝুড়ি মাথায় হেঁটে যান।
  * সামনে এগোলে খুশি মনে হাঁটেন, পেছনে গেলে ঘুরে মন খারাপ করে ধীরে ফেরেন।
  */
-export default function MascotRoad({ step, steps, mood, fill }: Props) {
+export default function MascotRoad({ step, steps, mood, fill, inline = false }: Props) {
   // ধাপ বদলালে হাঁটা শুরু। আগের ধাপ মনে রেখে দিক ঠিক হয়।
   const [prev, setPrev] = useState(step)
   const [walk, setWalk] = useState<{ dir: 'forward' | 'back'; n: number; arrived: boolean } | null>(null)
@@ -44,7 +46,7 @@ export default function MascotRoad({ step, steps, mood, fill }: Props) {
   const shownMood: MascotMood = goingBack ? 'sad' : done ? 'happy' : mood
 
   return (
-    <div className="jhuri-road sticky bottom-0 z-30 border-t-2 border-amber-200 bg-cream/95 backdrop-blur">
+    <div className={inline ? 'rounded-[10px] bg-cream-deep/60' : 'jhuri-road sticky bottom-0 z-30 border-t-2 border-amber-200 bg-cream/95 backdrop-blur'}>
       <div className="relative mx-auto h-28 max-w-5xl px-4 sm:h-36">
         {/* রাস্তা */}
         <div className="absolute right-4 bottom-4 left-4 h-3 rounded-full bg-[#dcc08f]">

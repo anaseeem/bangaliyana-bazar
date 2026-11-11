@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ARTISANS, PRODUCTS, bn, formatBDT, type ArtKind } from '../data/products'
+import { bn, formatBDT } from '../data/products'
+import { ART_FOR, sellerIdOf } from '../data/sellers'
 import { AlpanaCorner } from '../components/Alpana'
 import { AlpanaBorder, BoishakhSun, Marquee } from '../components/Decor'
 import { StitchFrame, StitchLine } from '../components/Stitch'
@@ -10,22 +11,19 @@ import Stall from '../components/Stall'
 import { PotBanner, SellerBanner } from '../components/Banners'
 import { useMarket } from '../store/market'
 
-const STALLS: { name: string; art: ArtKind; palette: [string, string, string]; awning: [string, string]; photo: string }[] = [
-  { name: 'শাড়ি', art: 'jamdani', palette: ['#7f1d1d', '#f59e0b', '#fff7e6'], awning: ['#b91c1c', '#f59e0b'], photo: '/products/jamdani-shari.webp' },
-  { name: 'কাঁথা', art: 'kantha', palette: ['#b91c1c', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#fff7e6'], photo: '/products/nakshi-kantha.webp' },
-  { name: 'মাটির কাজ', art: 'terracotta', palette: ['#c2410c', '#fff7e6', '#fde68a'], awning: ['#c2410c', '#fde68a'], photo: '/products/matir-ghora.webp' },
-  { name: 'কাঠের কাজ', art: 'pitha', palette: ['#92400e', '#f59e0b', '#fff7e6'], awning: ['#7f1d1d', '#fff7e6'], photo: '/products/kather-ghora.webp' },
-  { name: 'কাঁসা-পিতল', art: 'kansa', palette: ['#b45309', '#f59e0b', '#fff7e6'], awning: ['#b45309', '#fde68a'], photo: '/products/dhokra-pecha.webp' },
-  { name: 'গয়না', art: 'diya', palette: ['#b45309', '#be185d', '#fff7e6'], awning: ['#be185d', '#fff7e6'], photo: '/products/jhumka.webp' },
-  { name: 'বাঁশ-বেত', art: 'bamboo', palette: ['#a0702a', '#2f6b3a', '#fff7e6'], awning: ['#1f3b73', '#fff7e6'], photo: '/products/bet-tray.webp' },
-  { name: 'পাট', art: 'jute', palette: ['#8a5a1a', '#2f6b3a', '#fde68a'], awning: ['#2f6b3a', '#f59e0b'], photo: '/products/jute-bag.webp' },
-  { name: 'লোকশিল্প', art: 'jhapi', palette: ['#be185d', '#f59e0b', '#fff7e6'], awning: ['#1f3b73', '#f59e0b'], photo: '/products/shola-mala.webp' },
-]
-
-// নতুন বিক্রেতার পণ্য না থাকলে এগুলো "নতুন এসেছে"-তে থাকে
-const NEW_IDS = ['dhokra-lonthon', 'hans-nouka', 'shola-mala', 'pot-thala']
-// ঘর সাজানোর ছবি: প্রথমটা বড়
-const ROOM_IDS = ['pitoler-tob', 'matir-pakhi', 'alor-kulungi', 'bet-tray', 'kather-hati']
+// শামিয়ানার রং, ধরন ধরে। নতুন ধরন হলে পাশের ছয় জোড়া থেকে ঘুরে ঘুরে নেয়।
+const AWNING: Record<string, [string, string]> = {
+  'শাড়ি': ['#b91c1c', '#f59e0b'],
+  'কাঁথা': ['#2f6b3a', '#fff7e6'],
+  'মাটির কাজ': ['#c2410c', '#fde68a'],
+  'কাঠের কাজ': ['#7f1d1d', '#fff7e6'],
+  'কাঁসা-পিতল': ['#b45309', '#fde68a'],
+  'গয়না': ['#be185d', '#fff7e6'],
+  'বাঁশ-বেত': ['#1f3b73', '#fff7e6'],
+  'পাট': ['#2f6b3a', '#f59e0b'],
+  'লোকশিল্প': ['#1f3b73', '#f59e0b'],
+}
+const AWNING_SPARE: [string, string][] = [['#b91c1c', '#fff7e6'], ['#2f6b3a', '#f59e0b'], ['#1f3b73', '#fde68a'], ['#c2410c', '#fff7e6'], ['#be185d', '#fde68a'], ['#7f1d1d', '#f59e0b']]
 const GIFT_BANDS: { label: string; fits: (price: number) => boolean }[] = [
   { label: '৳১,০০০-এর নিচে', fits: (p) => p < 1000 },
   { label: '৳১,০০০ থেকে ৳৩,০০০', fits: (p) => p >= 1000 && p <= 3000 },
@@ -33,17 +31,23 @@ const GIFT_BANDS: { label: string; fits: (price: number) => boolean }[] = [
 ]
 
 export default function Home() {
-  const { catalog } = useMarket()
+  const { catalog, sellers, settings } = useMarket()
   const [band, setBand] = useState(0)
   const byId = (id: string) => catalog.find((p) => p.id === id)
-  const fresh = [...catalog.filter((p) => p.sellerId).reverse(), ...NEW_IDS.map(byId).filter((p) => p !== undefined)].slice(0, 4)
+  const fresh = settings.newIds.map(byId).filter((p) => p !== undefined).slice(0, 4)
   const gifts = catalog.filter((p) => GIFT_BANDS[band].fits(p.price)).sort((a, b) => b.rating - a.rating).slice(0, 4)
-  const room = ROOM_IDS.map(byId).filter((p) => p !== undefined)
-  const best = [...PRODUCTS].sort((a, b) => b.rating - a.rating).slice(0, 4)
+  const room = settings.roomIds.map(byId).filter((p) => p !== undefined)
+  const best = [...catalog].sort((a, b) => b.rating - a.rating).slice(0, 4)
   // একজন কারিগরের গল্প, তাঁর নিজের একটা কাজসহ
-  const artisan = ARTISANS[0]
-  const work = PRODUCTS.find((p) => p.artisan === artisan.name)
-  const hero = PRODUCTS.find((p) => p.id === 'kather-ghora') ?? PRODUCTS[0]
+  const artisan = sellers.find((s) => s.id === settings.featuredSellerId) ?? sellers[0]
+  const work = artisan ? catalog.find((p) => sellerIdOf(p) === artisan.id) : undefined
+  const hero = byId(settings.heroProductId) ?? catalog[0]
+  const titleLines = settings.heroTitle.split('\n')
+  // ধরন ধরে একটা করে দোকান; ছবি সেই ধরনের প্রথম পণ্যের
+  const stalls = settings.categories.map((name, i) => {
+    const look = ART_FOR[name] ?? ART_FOR['লোকশিল্প']
+    return { name, ...look, awning: AWNING[name] ?? AWNING_SPARE[i % AWNING_SPARE.length], photo: catalog.find((p) => p.category === name && p.photo)?.photo }
+  })
 
   return (
     <div>
@@ -51,13 +55,12 @@ export default function Home() {
       <section className="jamdani-bg relative overflow-hidden text-cream">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-14 sm:py-20 lg:grid-cols-2">
           <div className="animate-fade-up">
-            <p className="inline-block rounded-full bg-holud px-4 py-1 text-sm text-stone-900">শুভ নববর্ষ • পহেলা বৈশাখের মেলা</p>
+            <p className="inline-block rounded-full bg-holud px-4 py-1 text-sm text-stone-900">{settings.heroBadge}</p>
             <h1 className="mt-4 font-sans-bn text-4xl leading-tight sm:text-6xl">
-              হাতের কাজ,<br />বাংলার গল্প।
+              {titleLines.map((line, i) => (i === 0 ? line : <span key={i}><br />{line}</span>))}
             </h1>
             <p className="mt-4 max-w-lg text-lg text-amber-100">
-              জামদানি, নকশি কাঁথা, পোড়ামাটি, কাঠ আর পিতলের কাজ। বাংলাদেশের কারিগরদের হাতে
-              বোনা, গড়া আর আঁকা জিনিস, সরাসরি আপনার ঘরে।
+              {settings.heroText}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/shop" className="rounded-full bg-holud px-6 py-3 text-stone-900 shadow hover:bg-amber-400">
@@ -70,7 +73,7 @@ export default function Home() {
           </div>
           <div className="relative mx-auto w-full max-w-md">
             <BoishakhSun className="animate-float mx-auto w-64 sm:w-80" />
-            <div className="animate-sway mt-[-30px] overflow-hidden rounded-3xl border-4 border-holud bg-white shadow-2xl">
+            {hero && <div className="animate-sway mt-[-30px] overflow-hidden rounded-3xl border-4 border-holud bg-white shadow-2xl">
               <Link to={`/product/${hero.id}`} className="block">
                 <ProductPicture product={hero} className="h-56 w-full" />
                 <div className="flex items-center justify-between px-4 py-3 text-stone-800">
@@ -81,7 +84,7 @@ export default function Home() {
                   <p className="text-rickshaw">{formatBDT(hero.price)}</p>
                 </div>
               </Link>
-            </div>
+            </div>}
           </div>
         </div>
         <StitchLine colors={['var(--color-holud)', 'var(--color-alpana)']} />
@@ -92,7 +95,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 pt-12 pb-10">
         <h2 className="text-3xl">কোন দোকানে যাবেন?</h2>
         <div className="no-scrollbar -mx-4 mt-6 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-9 lg:gap-4">
-          {STALLS.map((s) => <Stall key={s.name} {...s} />)}
+          {stalls.map((s) => <Stall key={s.name} {...s} />)}
         </div>
       </section>
       <AlpanaBorder />
@@ -157,7 +160,7 @@ export default function Home() {
       </section>
 
       {/* একজন কারিগরের গল্প */}
-      {work && (
+      {artisan && work && (
         <section className="relative bg-nil text-cream">
           <StitchLine colors={['var(--color-holud)', 'var(--color-alpana)']} />
           <AlpanaCorner corner="tl" className="absolute top-5 left-3 w-20 sm:w-28" />
@@ -168,8 +171,8 @@ export default function Home() {
               <ProductPicture product={work} className="hang-swing block h-64 w-full rounded" />
             </Link>
             <div>
-              <h2 className="text-4xl">{artisan.name}</h2>
-              <p className="mt-1 text-amber-200">{artisan.craft}, {artisan.district}। {bn(artisan.years)} বছর ধরে এই কাজ করছেন।</p>
+              <h2 className="text-4xl">{artisan.shopName}</h2>
+              <p className="mt-1 text-amber-200">{artisan.craft}, {artisan.district}।{artisan.years ? ` ${bn(artisan.years)} বছর ধরে এই কাজ করছেন।` : ''}</p>
               <blockquote className="mt-5 max-w-xl border-l-4 border-holud pl-4 text-xl leading-relaxed">“{work.story}”</blockquote>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link to={`/product/${work.id}`} className="rounded-full bg-holud px-6 py-3 text-stone-900 hover:bg-amber-400">

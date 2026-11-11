@@ -4,27 +4,16 @@ import { bn } from '../data/products'
 import { BD_DISTRICTS, normalizePhone } from '../data/districts'
 import { useMarket } from '../store/market'
 import { BTN, Field, INPUT, Panel } from '../components/Form'
+import { MamaLoader } from '../components/MamaScenes'
 
 const STEPS = ['নিবন্ধন', 'অনুমোদন', 'পণ্য তোলা', 'অর্ডার পাওয়া']
 
 /** বিক্রেতা হওয়ার পাতা। আগে অ্যাকাউন্ট লাগে, তারপর দোকানের তথ্য। */
 export default function SellerJoin() {
-  const { user, mySeller, registerSeller } = useMarket()
-  const navigate = useNavigate()
-  const [form, setForm] = useState({ shopName: '', craft: '', district: 'ঢাকা', story: '', phone: user ? bn(user.phone) : '' })
-  const [error, setError] = useState('')
+  const { user, mySeller, ready } = useMarket()
 
+  if (!ready) return <MamaLoader full />
   if (mySeller) return <Navigate to="/bikreta/dokan" replace />
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (form.shopName.trim().length < 3) return setError('দোকানের নাম লিখুন।')
-    if (form.craft.trim().length < 2) return setError('কী বানান, লিখুন। যেমন নকশি কাঁথা।')
-    if (form.story.trim().length < 20) return setError('নিজের কাজের কথা দুই-এক লাইনে লিখুন।')
-    if (!/^01[3-9]\d{8}$/.test(normalizePhone(form.phone))) return setError('WhatsApp নম্বর ঠিক নেই।')
-    registerSeller({ shopName: form.shopName.trim(), craft: form.craft.trim(), district: form.district, story: form.story.trim(), phone: normalizePhone(form.phone) })
-    navigate('/bikreta/dokan')
-  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -46,7 +35,34 @@ export default function SellerJoin() {
           <Link to="/login?next=/bikreta" className="mt-4 inline-block rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">ঢুকুন</Link>
         </Panel>
       ) : (
-        <Panel className="mt-8">
+        <JoinForm />
+      )}
+    </div>
+  )
+}
+
+function JoinForm() {
+  const { user, registerSeller } = useMarket()
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ shopName: '', craft: '', district: 'ঢাকা', story: '', phone: user ? bn(user.phone) : '' })
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (form.shopName.trim().length < 3) return setError('দোকানের নাম লিখুন।')
+    if (form.craft.trim().length < 2) return setError('কী বানান, লিখুন। যেমন নকশি কাঁথা।')
+    if (form.story.trim().length < 20) return setError('নিজের কাজের কথা দুই-এক লাইনে লিখুন।')
+    if (!/^01[3-9]\d{8}$/.test(normalizePhone(form.phone))) return setError('WhatsApp নম্বর ঠিক নেই।')
+    setBusy(true)
+    const err = await registerSeller({ shopName: form.shopName.trim(), craft: form.craft.trim(), district: form.district, story: form.story.trim(), phone: normalizePhone(form.phone) })
+    setBusy(false)
+    if (err) return setError(err)
+    navigate('/bikreta/dokan')
+  }
+
+  return (
+    <Panel className="mt-8">
           <h2 className="text-2xl">আপনার দোকান</h2>
           <form className="mt-5 grid gap-4 sm:grid-cols-2" noValidate onSubmit={submit}>
             <Field id="shop" label="দোকানের নাম">
@@ -70,11 +86,9 @@ export default function SellerJoin() {
             </div>
             {error && <p role="alert" className="rounded-md bg-red-50 px-4 py-3 text-rickshaw sm:col-span-2">{error}</p>}
             <div className="sm:col-span-2">
-              <button type="submit" className={BTN}>নিবন্ধন করুন</button>
+              <button type="submit" disabled={busy} className={BTN}>নিবন্ধন করুন</button>
             </div>
           </form>
         </Panel>
-      )}
-    </div>
   )
 }

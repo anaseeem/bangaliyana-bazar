@@ -5,18 +5,24 @@ import { CartProvider } from './store/cart'
 import { MarketProvider } from './store/market'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ErrorScreen from './components/ErrorScreen'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Jhuri from './pages/Jhuri'
 import Artisans from './pages/Artisans'
 import Login from './pages/Login'
-import Account from './pages/Account'
-import SellerJoin from './pages/SellerJoin'
-import SellerDashboard from './pages/SellerDashboard'
 import SellerShop from './pages/SellerShop'
-import Admin from './pages/Admin'
 
+const Account = lazy(() => import('./pages/Account'))
+const SellerJoin = lazy(() => import('./pages/SellerJoin'))
+const SellerDashboard = lazy(() => import('./pages/SellerDashboard'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Golpo = lazy(() => import('./pages/Golpo'))
+const GolpoPost = lazy(() => import('./pages/GolpoPost'))
+const Pata = lazy(() => import('./pages/Pata'))
+const Khoj = lazy(() => import('./pages/Khoj'))
+const Jogajog = lazy(() => import('./pages/Jogajog'))
 const MamaPreview = lazy(() => import('./pages/MamaPreview'))
 
 function NotFound() {
@@ -46,6 +52,8 @@ export default function App() {
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">
+            <ErrorScreen>
+            <Suspense fallback={<MamaLoader full />}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
@@ -59,10 +67,19 @@ export default function App() {
               <Route path="/amar" element={<Account />} />
               <Route path="/bikreta" element={<SellerJoin />} />
               <Route path="/bikreta/dokan" element={<SellerDashboard />} />
-              <Route path="/admin" element={<Admin />} />
-              {import.meta.env.DEV && <Route path="/mama" element={<Suspense fallback={<MamaLoader full />}><MamaPreview /></Suspense>} />}
+              <Route path="/admin/*" element={<Admin />} />
+              <Route path="/golpo" element={<Golpo />} />
+              <Route path="/golpo/:slug" element={<GolpoPost />} />
+              <Route path="/khoj" element={<Khoj />} />
+              <Route path="/jogajog" element={<Jogajog />} />
+              <Route path="/amader-kotha" element={<Pata key="amader-kotha" id="amader-kotha" />} />
+              <Route path="/sahajjo" element={<Pata key="sahajjo" id="sahajjo" />} />
+              <Route path="/niyom" element={<Pata key="niyom" id="niyom" />} />
+              {import.meta.env.DEV && <Route path="/mama" element={<MamaPreview />} />}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
+            </ErrorScreen>
           </main>
           <Footer />
         </div>

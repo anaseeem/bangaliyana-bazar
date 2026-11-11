@@ -4,12 +4,12 @@ import { bn, formatBDT } from '../data/products'
 import { BD_DISTRICTS, deliveryFor, normalizePhone } from '../data/districts'
 import { useCart } from '../store/cart'
 import { useMarket } from '../store/market'
-import { newOrderId } from '../lib/local'
+import { api, errorText } from '../lib/api'
 import { sellerIdOf } from '../data/sellers'
 import { whatsappLink } from '../lib/whatsapp'
 import { jhuriFill, type MascotMood } from '../libs/mascot'
 import MascotRoad from '../components/MascotRoad'
-import { MamaScene } from '../components/MamaScenes'
+import { MamaLoader, MamaScene } from '../components/MamaScenes'
 import ProductPicture from '../components/ProductPicture'
 import QtyStepper from '../components/QtyStepper'
 import { StitchFrame, StitchLine } from '../components/Stitch'
@@ -50,13 +50,19 @@ function readLastOrder(): PlacedOrder | null {
 export default function Jhuri() {
   const [params, setParams] = useSearchParams()
   const { detailed, setQty, remove, clear, total, count } = useCart()
-  const { user, sellers, saveOrder, updateProfile } = useMarket()
-  const [address, setAddress] = useState<Address>({ name: user?.name ?? '', phone: user ? bn(user.phone) : '', district: user?.district ?? 'ঢাকা', address: user?.address ?? '' })
+  const { user, sellers, settings, refresh } = useMarket()
+  // ঠিকানা: নিজে যা লিখেছেন তা আগে, না হলে অ্যাকাউন্টের। অ্যাকাউন্ট দেরিতে এলেও লেখা হারায় না।
+  const [edits, setEdits] = useState<Partial<Address>>({})
+  const address: Address = {
+    name: edits.name ?? user?.name ?? '',
+    phone: edits.phone ?? (user ? bn(user.phone) : ''),
+    district: edits.district ?? user?.district ?? 'ঢাকা',
+    address: edits.address ?? user?.address ?? '',
+  }
+  const setField = (k: keyof Address, v: string) => setEdits((e) => ({ ...e, [k]: v }))
   const [errors, setErrors] = useState<Errors>({})
   const [order, setOrder] = useState<PlacedOrder | null>(readLastOrder)
   const [placing, setPlacing] = useState(false)
-  // Render এর ফ্রি সার্ভার ঘুমিয়ে থাকলে জাগতে এক মিনিট পর্যন্ত লাগে, তখন একটা কথা দেখাই
-  const [slow, setSlow] = useState(false)
   const [serverError, setServerError] = useState('')
 
   // মামার মেজাজ: কিছু সরালে বা কমালে একটু মন খারাপ, যোগ করলে একটু খুশি
@@ -78,7 +84,7 @@ export default function Jhuri() {
     return <Navigate to={reachable === 0 ? '/jhuri' : `/jhuri?dhap=${STEPS[reachable].id}`} replace />
   }
   const step = requested
-  const delivery = deliveryFor(address.district)
+  const delivery = deliveryFor(address.district, settings)
   const fill = jhuriFill(step === 3 ? 6 : count)
 
   const toAddress = () => {
@@ -90,50 +96,24 @@ export default function Jhuri() {
   const placeOrder = async () => {
     setServerError('')
     setPlacing(true)
-    const slowTimer = window.setTimeout(() => setSlow(true), 4000)
-    const grand = total + delivery.fee
     const payload = {
       name: address.name.trim(),
       phone: normalizePhone(address.phone),
       district: address.district,
       address: address.address.trim(),
-      delivery: delivery.key,
       paymentMethod: 'ক্যাশ অন ডেলিভারি',
       items: detailed.map((d) => ({ id: d.product.id, qty: d.qty })),
     }
     let placed: PlacedOrder | null = null
-    // নতুন বিক্রেতাদের পণ্য শুধু এই ব্রাউজারে আছে, সার্ভার চেনে না। তাই সেই অর্ডার ব্রাউজারেই রাখি।
-    const localOnly = detailed.some((d) => d.product.sellerId)
     try {
-      if (localOnly) throw new Error('local')
-      const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      if (res.status === 400) {
-        // সার্ভার চলছে কিন্তু কিছু ভুল আছে। সেটা দেখাই, অর্ডার হয়নি।
-        const body = (await res.json().catch(() => ({}))) as { error?: string }
-        setServerError(body.error ?? 'অর্ডারে কিছু ভুল আছে। ঠিকানা আবার দেখুন।')
-      } else if (res.ok) {
-        const data = (await res.json()) as { id: string; total: number }
-        placed = { id: data.id, total: data.total, days: delivery.days }
-      } else {
-        throw new Error(`HTTP ${res.status}`)
-      }
-    } catch {
-      if (import.meta.env.DEV || localOnly) {
-        // নিজের কম্পিউটারে সার্ভার না চললে, বা নতুন বিক্রেতার পণ্য থাকলে, ডেমো অর্ডার ব্রাউজারেই থাকে
-        placed = { id: newOrderId(), total: grand, days: delivery.days }
-      } else {
-        // আসল সাইটে নকল অর্ডার দেখালে ক্রেতা ভাববেন অর্ডার হয়েছে, অথচ আমরা পাইনি। তাই ভুল দেখাই।
-        setServerError('অর্ডার পাঠানো গেল না। ইন্টারনেট দেখে একটু পরে আবার চেষ্টা করুন।')
-      }
+      const data = await api.post<{ id: string; total: number }>('/orders', payload)
+      placed = { id: data.id, total: data.total, days: delivery.days }
+    } catch (e) {
+      setServerError(errorText(e))
     }
-    window.clearTimeout(slowTimer)
-    setSlow(false)
     setPlacing(false)
     if (placed) {
-      const items = detailed.map((d) => ({ id: d.product.id, nameBn: d.product.nameBn, price: d.product.price, qty: d.qty, sellerId: sellerIdOf(d.product) }))
-      saveOrder({ name: payload.name, phone: payload.phone, district: payload.district, address: payload.address, items, deliveryFee: delivery.fee, total: placed.total }, placed.id)
-      // পরের বার ঠিকানা আবার লিখতে হবে না
-      if (user) updateProfile({ district: payload.district, address: payload.address })
+      const items = detailed.map((d) => ({ nameBn: d.product.nameBn, qty: d.qty, sellerId: sellerIdOf(d.product) }))
       const bySeller = new Map<string, string[]>()
       for (const it of items) bySeller.set(it.sellerId, [...(bySeller.get(it.sellerId) ?? []), `${it.nameBn} × ${bn(it.qty)}`])
       placed.split = [...bySeller].map(([sid, list]) => ({ shop: sellers.find((x) => x.id === sid)?.shopName ?? 'বিক্রেতা', items: list }))
@@ -141,6 +121,8 @@ export default function Jhuri() {
       setOrder(placed)
       clear()
       go(3)
+      // স্টক বদলেছে, ঠিকানাও সার্ভারে রাখা হয়েছে
+      void refresh()
     }
   }
 
@@ -194,7 +176,7 @@ export default function Jhuri() {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button type="button" onClick={() => go(1)} className="rounded-full bg-rickshaw px-8 py-3 text-lg text-white hover:bg-rickshaw-dark">ঠিকানা দিন</button>
                 <a
-                  href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজার থেকে অর্ডার দিতে চাই:\n${detailed.map((d) => `${d.product.nameBn} × ${bn(d.qty)} = ${formatBDT(d.product.price * d.qty)}`).join('\n')}\nমোট ${formatBDT(total)}`)}
+                  href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজার থেকে অর্ডার দিতে চাই:\n${detailed.map((d) => `${d.product.nameBn} × ${bn(d.qty)} = ${formatBDT(d.product.price * d.qty)}`).join('\n')}\nমোট ${formatBDT(total)}`, undefined, settings.whatsapp)}
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-full border-2 border-kolapata px-6 py-3 text-kolapata hover:bg-kolapata hover:text-white"
@@ -212,20 +194,20 @@ export default function Jhuri() {
             <h1 className="text-3xl">কোথায় পাঠাব?</h1>
             <form className="mt-5 grid gap-4 sm:grid-cols-2" noValidate onSubmit={(e) => { e.preventDefault(); toAddress() }}>
               <Field id="name" label="নাম" error={errors.name}>
-                <input id="name" autoComplete="name" value={address.name} onChange={(e) => setAddress({ ...address, name: e.target.value })} className={INPUT} aria-invalid={!!errors.name} aria-describedby={errors.name ? 'name-err' : undefined} />
+                <input id="name" autoComplete="name" value={address.name} onChange={(e) => setField('name', e.target.value)} className={INPUT} aria-invalid={!!errors.name} aria-describedby={errors.name ? 'name-err' : undefined} />
               </Field>
               <Field id="phone" label="মোবাইল নম্বর" error={errors.phone}>
-                <input id="phone" inputMode="tel" autoComplete="tel" placeholder="০১৭১২৩৪৫৬৭৮" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} className={INPUT} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-err' : undefined} />
+                <input id="phone" inputMode="tel" autoComplete="tel" placeholder="০১৭১২৩৪৫৬৭৮" value={address.phone} onChange={(e) => setField('phone', e.target.value)} className={INPUT} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'phone-err' : undefined} />
               </Field>
               <Field id="district" label="জেলা">
-                <select id="district" value={address.district} onChange={(e) => setAddress({ ...address, district: e.target.value })} className={INPUT}>
+                <select id="district" value={address.district} onChange={(e) => setField('district', e.target.value)} className={INPUT}>
                   {BD_DISTRICTS.map((d) => <option key={d}>{d}</option>)}
                 </select>
               </Field>
               <div className="self-end pb-3 text-stone-600">ডেলিভারি {formatBDT(delivery.fee)}, {delivery.days}</div>
               <div className="sm:col-span-2">
                 <Field id="address" label="ঠিকানা" error={errors.address}>
-                  <textarea id="address" rows={2} autoComplete="street-address" placeholder="বাসা, রাস্তা, এলাকা" value={address.address} onChange={(e) => setAddress({ ...address, address: e.target.value })} className={`${INPUT} rounded-2xl`} aria-invalid={!!errors.address} aria-describedby={errors.address ? 'address-err' : undefined} />
+                  <textarea id="address" rows={2} autoComplete="street-address" placeholder="বাসা, রাস্তা, এলাকা" value={address.address} onChange={(e) => setField('address', e.target.value)} className={`${INPUT} rounded-2xl`} aria-invalid={!!errors.address} aria-describedby={errors.address ? 'address-err' : undefined} />
                 </Field>
               </div>
               <div className="flex flex-wrap gap-3 sm:col-span-2">
@@ -258,14 +240,15 @@ export default function Jhuri() {
               <p className="text-stone-700">{address.address.trim()}, {address.district}</p>
               <p className="mt-2 text-stone-700">পণ্য হাতে পেয়ে টাকা দেবেন। অনলাইনে কিছু দিতে হবে না।</p>
             </div>
-            {slow && <p role="status" className="mt-4 text-stone-600">একটু সময় লাগছে, সার্ভার জেগে উঠছে। পাতা বন্ধ করবেন না।</p>}
             {serverError && <p role="alert" className="mt-4 rounded-md bg-red-50 px-4 py-3 text-rickshaw">{serverError}</p>}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button type="button" disabled={placing} onClick={placeOrder} className="rounded-full bg-rickshaw px-8 py-3 text-lg text-white hover:bg-rickshaw-dark disabled:opacity-60">
-                {placing ? 'পাকা হচ্ছে…' : 'অর্ডার পাকা করুন'}
-              </button>
-              <button type="button" onClick={() => go(1)} className="rounded-full border-2 border-rickshaw px-6 py-3 text-rickshaw hover:bg-holud-soft">ঠিকানা বদলান</button>
-            </div>
+            {placing ? (
+              <MamaLoader label="অর্ডার পাকা হচ্ছে…" slowLabel="সার্ভার জেগে উঠছে, মামা একটু জিরিয়ে নিচ্ছেন। পাতা বন্ধ করবেন না।" />
+            ) : (
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button type="button" onClick={placeOrder} className="rounded-full bg-rickshaw px-8 py-3 text-lg text-white hover:bg-rickshaw-dark">অর্ডার পাকা করুন</button>
+                <button type="button" onClick={() => go(1)} className="rounded-full border-2 border-rickshaw px-6 py-3 text-rickshaw hover:bg-holud-soft">ঠিকানা বদলান</button>
+              </div>
+            )}
           </Panel>
         )}
 

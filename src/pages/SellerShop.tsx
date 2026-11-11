@@ -13,7 +13,7 @@ const monthBn = (iso: string) => new Date(iso).toLocaleDateString('bn-BD', { mon
 /** একজন বিক্রেতার দোকান: পরিচয়, গল্প আর সব পণ্য */
 export default function SellerShop() {
   const { id } = useParams()
-  const { sellers, catalog, orders, mySeller } = useMarket()
+  const { sellers, catalog, mySeller, settings } = useMarket()
   const [cat, setCat] = useState('সব')
   const seller = sellers.find((s) => s.id === id && s.status === 'approved')
 
@@ -28,7 +28,6 @@ export default function SellerShop() {
   const works = catalog.filter((p) => sellerIdOf(p) === seller.id)
   const cats = ['সব', ...new Set(works.map((p) => p.category))]
   const shown = cat === 'সব' ? works : works.filter((p) => p.category === cat)
-  const orderCount = orders.filter((o) => o.items.some((it) => it.sellerId === seller.id)).length
   const emblem = works[0]
   const own = mySeller?.id === seller.id
 
@@ -54,7 +53,7 @@ export default function SellerShop() {
           </div>
 
           <dl className="mt-6 grid max-w-xl grid-cols-3 gap-3">
-            {[['পণ্য', `${bn(works.length)}টি`], ['অর্ডার', `${bn(orderCount)}টি`], ['যোগ দিয়েছেন', monthBn(seller.createdAt)]].map(([k, v]) => (
+            {[['পণ্য', `${bn(works.length)}টি`], ['জেলা', seller.district], ['যোগ দিয়েছেন', monthBn(seller.createdAt)]].map(([k, v]) => (
               <div key={k} className="flex flex-col-reverse rounded-[10px] bg-cream-deep/60 p-3 text-center">
                 <dt className="text-sm text-stone-600">{k}</dt>
                 <dd className="font-display text-lg text-rickshaw sm:text-xl">{v}</dd>
@@ -64,7 +63,7 @@ export default function SellerShop() {
 
           <p className="mt-5 max-w-3xl text-lg text-stone-700">{seller.story}</p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে ${seller.shopName} দোকান দেখলাম।`, seller.phone)} target="_blank" rel="noreferrer" className="inline-block rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white">
+            <a href={whatsappLink(`আসসালামু আলাইকুম। বাঙালিয়ানা বাজারে ${seller.shopName} দোকান দেখলাম।`, seller.phone, settings.whatsapp)} target="_blank" rel="noreferrer" className="inline-block rounded-full border-2 border-kolapata px-5 py-2 text-kolapata hover:bg-kolapata hover:text-white">
               WhatsApp-এ কথা বলুন
             </a>
             {own && <Link to="/bikreta/dokan" className="inline-block rounded-full border-2 border-rickshaw px-5 py-2 text-rickshaw hover:bg-holud-soft">দোকান সামলান</Link>}

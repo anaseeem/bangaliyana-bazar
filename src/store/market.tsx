@@ -1,21 +1,24 @@
 /**
- * বাজারের ডেমো তথ্য: অ্যাকাউন্ট, বিক্রেতা, বিক্রেতার পণ্য আর অর্ডার।
- * সব ব্রাউজারের localStorage-এ থাকে, কোনো সার্ভার বা ডাটাবেস নেই। তাই অন্য ব্রাউজারে দেখা যায় না।
+ * বাজারের তথ্য: দোকানের সেটিংস, পণ্য, বিক্রেতা আর ঢোকা মানুষ। সব সার্ভার (/api/boot) থেকে আসে।
+ * প্রথমবার দেখানোর জন্য শেষ বারের তথ্য localStorage-এ থাকে, সার্ভার ঘুমিয়ে থাকলেও দোকান খোলে।
  */
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { PRODUCTS, type Product } from '../data/products'
-import { ART_FOR, SEED_SELLERS, type Seller } from '../data/sellers'
-import { newOrderId, readLS, writeLS } from '../lib/local'
+import { SEED_SELLERS, type Seller } from '../data/sellers'
+import { DEFAULT_SETTINGS, type Settings } from '../data/settings'
+import { api, errorText } from '../lib/api'
+import { readLS, writeLS } from '../lib/local'
 
 export interface User {
   id: string
   name: string
   phone: string
-  passHash: string
+  role: 'customer' | 'admin'
   createdAt: string
   /** শেষ অর্ডারের ঠিকানা, ঝুড়িতে আগে থেকে বসে যায় */
   district?: string
   address?: string
+  blocked?: boolean
 }
 
 export interface OrderItem { id: string; nameBn: string; price: number; qty: number; sellerId: string }
@@ -28,135 +31,109 @@ export interface Order {
   district: string
   address: string
   items: OrderItem[]
+  subtotal: number
   deliveryFee: number
   total: number
-  createdAt: string
+  paymentMethod: string
+  status: 'placed' | 'sent' | 'delivered' | 'cancelled'
   /** যেসব বিক্রেতা নিজের অংশ পাঠিয়ে দিয়েছেন */
-  sentBy?: string[]
-  /** ক্রেতা হাতে পেয়েছেন */
-  received?: boolean
+  sentBy: string[]
+  confirmed?: boolean
+  courier?: string
+  cancelReason?: string
+  createdAt: string
+  deliveredAt?: string
 }
 
-type ShopInfo = Pick<Seller, 'shopName' | 'craft' | 'district' | 'story' | 'phone'>
-type NewProduct = Omit<Product, 'id' | 'sellerId' | 'artisan' | 'district' | 'rating' | 'art' | 'palette'>
+export type ShopInfo = Pick<Seller, 'shopName' | 'craft' | 'district' | 'story' | 'phone'>
+type Me = { user: User; seller: Seller | null }
+interface Boot { settings: Settings; products: Product[]; sellers: Seller[]; me: Me | null }
 
-/** ডেমো পাসওয়ার্ড হ্যাশ। আসল সাইটে এটা সার্ভারে হবে। */
-async function hash(text: string) {
-  const data = new TextEncoder().encode(`bb:${text}`)
-  const buf = await crypto.subtle.digest('SHA-256', data)
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
-}
-
-const newId = (prefix: string) => `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+const BOOT_KEY = 'bb-boot'
+const OLD_KEYS = ['bb-users', 'bb-session', 'bb-sellers', 'bb-seller-products', 'bb-orders']
 
 interface MarketCtx {
+  /** সার্ভার অন্তত একবার উত্তর দিয়েছে। তার আগে user আর mySeller অজানা। */
+  ready: boolean
+  settings: Settings
+  /** সবার জন্য দেখানো পণ্য */
+  catalog: Product[]
+  /** অনুমোদিত বিক্রেতা */
+  sellers: Seller[]
   user: User | null
+  mySeller: Seller | null
+  refresh: () => Promise<void>
   signup: (name: string, phone: string, password: string) => Promise<string | null>
   login: (phone: string, password: string) => Promise<string | null>
-  logout: () => void
-  updateProfile: (p: Partial<Pick<User, 'name' | 'district' | 'address'>>) => void
+  logout: () => Promise<string | null>
+  updateProfile: (p: Partial<Pick<User, 'name' | 'district' | 'address'>>) => Promise<string | null>
   changePassword: (oldPass: string, newPass: string) => Promise<string | null>
-  sellers: Seller[]
-  mySeller: Seller | null
-  registerSeller: (s: ShopInfo) => void
-  updateShop: (s: ShopInfo) => void
-  approveSeller: (id: string) => void
-  /** সব পণ্য: আগের পণ্য আর অনুমোদিত বিক্রেতাদের নতুন পণ্য */
-  catalog: Product[]
-  sellerProducts: Product[]
-  addProduct: (p: NewProduct) => void
-  updateProduct: (id: string, p: NewProduct) => void
-  removeProduct: (id: string) => void
-  orders: Order[]
-  saveOrder: (o: Omit<Order, 'id' | 'createdAt' | 'userId'>, id?: string) => Order
-  /** বিক্রেতা নিজের অংশ পাঠালেন */
-  markSent: (orderId: string) => void
-  markReceived: (orderId: string) => void
+  registerSeller: (s: ShopInfo) => Promise<string | null>
+  updateShop: (s: ShopInfo) => Promise<string | null>
 }
 
 const Ctx = createContext<MarketCtx | null>(null)
 
+function firstPaint(): Pick<Boot, 'settings' | 'products' | 'sellers'> {
+  const saved = readLS<Partial<Boot> | null>(BOOT_KEY, null)
+  if (saved?.settings && saved.products && saved.sellers) {
+    return { settings: { ...DEFAULT_SETTINGS, ...saved.settings }, products: saved.products, sellers: saved.sellers }
+  }
+  return { settings: DEFAULT_SETTINGS, products: PRODUCTS, sellers: SEED_SELLERS }
+}
+
 export function MarketProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>(() => readLS('bb-users', []))
-  const [sessionId, setSessionId] = useState<string | null>(() => readLS('bb-session', null))
-  const [newSellers, setNewSellers] = useState<Seller[]>(() => readLS('bb-sellers', []))
-  const [sellerProducts, setSellerProducts] = useState<Product[]>(() => readLS('bb-seller-products', []))
-  const [orders, setOrders] = useState<Order[]>(() => readLS('bb-orders', []))
-  useEffect(() => writeLS('bb-users', users), [users])
-  useEffect(() => writeLS('bb-session', sessionId), [sessionId])
-  useEffect(() => writeLS('bb-sellers', newSellers), [newSellers])
-  useEffect(() => writeLS('bb-seller-products', sellerProducts), [sellerProducts])
-  useEffect(() => writeLS('bb-orders', orders), [orders])
+  const [shop, setShop] = useState(firstPaint)
+  const [me, setMe] = useState<Me | null>(null)
+  const [ready, setReady] = useState(false)
+
+  const apply = useCallback((b: Boot) => {
+    setShop({ settings: { ...DEFAULT_SETTINGS, ...b.settings }, products: b.products, sellers: b.sellers })
+    setMe(b.me)
+    writeLS(BOOT_KEY, { settings: b.settings, products: b.products, sellers: b.sellers })
+  }, [])
+
+  // সার্ভার না পেলে যা দেখানো হচ্ছে তাই থাকে
+  const refresh = useCallback(async () => {
+    await api.get<Boot>('/boot').then(apply, () => {})
+    setReady(true)
+  }, [apply])
+
+  useEffect(() => {
+    try { for (const k of OLD_KEYS) localStorage.removeItem(k) } catch { /* ঠিক আছে */ }
+    api.get<Boot>('/boot').then(apply, () => {}).finally(() => setReady(true))
+  }, [apply])
 
   const value = useMemo<MarketCtx>(() => {
-    const user = users.find((u) => u.id === sessionId) ?? null
-    const sellers = [...SEED_SELLERS, ...newSellers]
-    const mySeller = user ? newSellers.find((s) => s.userId === user.id) ?? null : null
-    const approved = new Set(sellers.filter((s) => s.status === 'approved').map((s) => s.id))
-    return {
-      user,
-      signup: async (name, phone, password) => {
-        if (users.some((u) => u.phone === phone)) return 'এই নম্বরে আগেই অ্যাকাউন্ট আছে। ঢুকুন।'
-        const u: User = { id: newId('u'), name, phone, passHash: await hash(password), createdAt: new Date().toISOString() }
-        setUsers((prev) => [...prev, u])
-        setSessionId(u.id)
-        return null
-      },
-      login: async (phone, password) => {
-        const u = users.find((x) => x.phone === phone)
-        if (!u || u.passHash !== (await hash(password))) return 'নম্বর বা পাসওয়ার্ড মিলছে না।'
-        setSessionId(u.id)
-        return null
-      },
-      logout: () => setSessionId(null),
-      updateProfile: (p) => setUsers((prev) => prev.map((u) => (u.id === sessionId ? { ...u, ...p } : u))),
-      changePassword: async (oldPass, newPass) => {
-        if (!user || user.passHash !== (await hash(oldPass))) return 'আগের পাসওয়ার্ড মিলছে না।'
-        const passHash = await hash(newPass)
-        setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, passHash } : u)))
-        return null
-      },
-      sellers,
-      mySeller,
-      registerSeller: (s) => {
-        if (!user || mySeller) return
-        setNewSellers((prev) => [...prev, { ...s, id: newId('s'), userId: user.id, ownerName: user.name, status: 'pending', createdAt: new Date().toISOString() }])
-      },
-      updateShop: (s) => {
-        if (!mySeller) return
-        setNewSellers((prev) => prev.map((x) => (x.id === mySeller.id ? { ...x, ...s } : x)))
-        // পণ্যের পাতায় জেলা দোকানের সাথে মেলে
-        setSellerProducts((prev) => prev.map((p) => (p.sellerId === mySeller.id ? { ...p, district: s.district } : p)))
-      },
-      approveSeller: (id) => setNewSellers((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'approved' } : s))),
-      catalog: [...PRODUCTS, ...sellerProducts.filter((p) => p.sellerId && approved.has(p.sellerId))],
-      sellerProducts,
-      addProduct: (p) => {
-        if (!mySeller || mySeller.status !== 'approved') return
-        const look = ART_FOR[p.category] ?? ART_FOR['লোকশিল্প']
-        setSellerProducts((prev) => [
-          ...prev,
-          { ...p, ...look, id: newId('p'), sellerId: mySeller.id, artisan: mySeller.ownerName, district: mySeller.district, rating: 0 },
-        ])
-      },
-      updateProduct: (id, p) => {
-        const look = ART_FOR[p.category] ?? ART_FOR['লোকশিল্প']
-        setSellerProducts((prev) => prev.map((x) => (x.id === id && x.sellerId === mySeller?.id ? { ...x, ...p, ...look } : x)))
-      },
-      removeProduct: (id) => setSellerProducts((prev) => prev.filter((p) => !(p.id === id && p.sellerId === mySeller?.id))),
-      orders,
-      saveOrder: (o, id) => {
-        const order: Order = { ...o, id: id ?? newOrderId(), userId: user?.id ?? null, createdAt: new Date().toISOString() }
-        setOrders((prev) => [...prev, order])
-        return order
-      },
-      markSent: (orderId) => {
-        if (!mySeller) return
-        setOrders((prev) => prev.map((o) => (o.id === orderId && !o.sentBy?.includes(mySeller.id) ? { ...o, sentBy: [...(o.sentBy ?? []), mySeller.id] } : o)))
-      },
-      markReceived: (orderId) => setOrders((prev) => prev.map((o) => (o.id === orderId && o.userId === user?.id ? { ...o, received: true } : o))),
+    /** কাজ চালিয়ে ভুল হলে বাংলা বাক্য ফেরায় */
+    const act = async (fn: () => Promise<void>) => {
+      try { await fn(); return null } catch (e) { return errorText(e) }
     }
-  }, [users, sessionId, newSellers, sellerProducts, orders])
+    return {
+      ready,
+      settings: shop.settings,
+      catalog: shop.products,
+      sellers: shop.sellers,
+      user: me?.user ?? null,
+      mySeller: me?.seller ?? null,
+      refresh,
+      signup: (name, phone, password) => act(async () => { setMe(await api.post<Me>('/auth/signup', { name, phone, password })) }),
+      login: (phone, password) => act(async () => { setMe(await api.post<Me>('/auth/login', { phone, password })) }),
+      logout: () => act(async () => { await api.post('/auth/logout'); setMe(null) }),
+      updateProfile: (p) => act(async () => { setMe(await api.patch<Me>('/me', p)) }),
+      changePassword: (current, password) => act(async () => { await api.post('/me/password', { current, password }) }),
+      registerSeller: (s) => act(async () => {
+        const seller = await api.post<Seller>('/seller', s)
+        setMe((m) => (m ? { ...m, seller } : m))
+        await refresh()
+      }),
+      updateShop: (s) => act(async () => {
+        const seller = await api.patch<Seller>('/seller', s)
+        setMe((m) => (m ? { ...m, seller } : m))
+        await refresh()
+      }),
+    }
+  }, [ready, shop, me, refresh])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

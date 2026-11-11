@@ -9,7 +9,7 @@ export interface Seller {
   district: string
   story: string
   phone: string
-  status: 'pending' | 'approved'
+  status: 'pending' | 'approved' | 'rejected' | 'paused'
   years?: number
   createdAt: string
 }

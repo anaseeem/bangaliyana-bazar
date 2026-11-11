@@ -1,3 +1,5 @@
+import type { Settings } from './settings'
+
 /** বাংলাদেশের ৬৪ জেলা, বিভাগ অনুযায়ী সাজানো। ডেলিভারির ঠিকানার জন্য। */
 export const BD_DISTRICTS = [
   // ঢাকা বিভাগ
@@ -18,9 +20,9 @@ export const BD_DISTRICTS = [
   'রংপুর', 'দিনাজপুর', 'ঠাকুরগাঁও', 'পঞ্চগড়', 'নীলফামারী', 'লালমনিরহাট', 'কুড়িগ্রাম', 'গাইবান্ধা',
 ] as const
 
-/** ঢাকা জেলায় ৳৬০, বাকি সব জেলায় ৳১২০। সার্ভারও একই হিসাব করে। */
-export const deliveryFor = (district: string) =>
-  district === 'ঢাকা' ? { key: 'Dhaka' as const, fee: 60, days: 'দুই দিনে' } : { key: 'Outside Dhaka' as const, fee: 120, days: 'দুই থেকে চার দিনে' }
+/** ঢাকা জেলায় এক দাম, বাকি সব জেলায় আরেক দাম। দাম আর সময় সেটিংস থেকে আসে, সার্ভারও একই হিসাব করে। */
+export const deliveryFor = (district: string, s: Pick<Settings, 'feeDhaka' | 'feeOutside' | 'daysDhaka' | 'daysOutside'>) =>
+  district === 'ঢাকা' ? { key: 'Dhaka' as const, fee: s.feeDhaka, days: s.daysDhaka } : { key: 'Outside Dhaka' as const, fee: s.feeOutside, days: s.daysOutside }
 
 /** বাংলা অঙ্কে লেখা ফোন নম্বর ইংরেজি অঙ্কে বদলায়, ফাঁকা আর ড্যাশ বাদ দেয়। */
 export const normalizePhone = (v: string) =>

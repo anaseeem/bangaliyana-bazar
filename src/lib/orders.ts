@@ -1,10 +1,11 @@
 import type { Order } from '../store/market'
 
-export type OrderStatus = 'নেওয়া হয়েছে' | 'পাঠানো হয়েছে' | 'পৌঁছেছে'
+export type OrderStatus = 'নেওয়া হয়েছে' | 'পাঠানো হয়েছে' | 'পৌঁছেছে' | 'বাতিল হয়েছে'
 
-/** অর্ডার এখন কোথায়। সব বিক্রেতা পাঠালে তবেই পাঠানো। */
-export function orderStatus(o: Order): OrderStatus {
-  if (o.received) return 'পৌঁছেছে'
-  const sellers = new Set(o.items.map((it) => it.sellerId))
-  return sellers.size > 0 && [...sellers].every((id) => o.sentBy?.includes(id)) ? 'পাঠানো হয়েছে' : 'নেওয়া হয়েছে'
+/** সার্ভারের অবস্থা থেকে ক্রেতাকে দেখানোর নাম */
+export function orderStatus(o: Pick<Order, 'status'>): OrderStatus {
+  if (o.status === 'delivered') return 'পৌঁছেছে'
+  if (o.status === 'sent') return 'পাঠানো হয়েছে'
+  if (o.status === 'cancelled') return 'বাতিল হয়েছে'
+  return 'নেওয়া হয়েছে'
 }

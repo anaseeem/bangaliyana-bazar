@@ -11,12 +11,14 @@ const LINKS = [
   { to: '/', label: 'হোম' },
   { to: '/shop', label: 'বাজার' },
   { to: '/artisans', label: 'কারিগর' },
+  { to: '/golpo', label: 'গল্প' },
 ]
 
 export default function Header() {
   const { count } = useCart()
-  const { user } = useMarket()
+  const { user, settings } = useMarket()
   const account = user ? { to: '/amar', label: user.name.split(' ')[0] } : { to: '/login', label: 'ঢুকুন' }
+  const admin = user?.role === 'admin' ? [{ to: '/admin', label: 'অ্যাডমিন' }] : []
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
@@ -38,7 +40,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-cream/95 shadow-sm backdrop-blur">
       <div className="bg-rickshaw text-cream">
         <p className="mx-auto max-w-7xl px-4 py-1.5 text-center text-xs sm:text-sm">
-          সারা দেশে ডেলিভারি • পণ্য হাতে পেয়ে টাকা দিন
+          {settings.announcement}
         </p>
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
@@ -60,7 +62,7 @@ export default function Header() {
           </button>
         </form>
         <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="প্রধান নেভিগেশন">
-          {LINKS.map((l) => (
+          {[...LINKS, ...admin].map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
@@ -100,7 +102,7 @@ export default function Header() {
       </div>
       {open && (
         <nav className="flex flex-col gap-1 border-t border-amber-200 px-4 py-2 md:hidden" aria-label="মোবাইল নেভিগেশন">
-          {[...LINKS, account, { to: '/bikreta', label: 'বিক্রেতা হোন' }].map((l) => (
+          {[...LINKS, ...admin, account, { to: '/khoj', label: 'অর্ডার খুঁজুন' }, { to: '/bikreta', label: 'বিক্রেতা হোন' }].map((l) => (
             <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-stone-700 hover:bg-holud-soft">
               {l.label}
             </NavLink>

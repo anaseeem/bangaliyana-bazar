@@ -33,6 +33,10 @@ export interface Product {
   sellerId?: string
   /** পণ্যের ছবি: আগের পণ্যে /products/ এর ফাইল, নতুন বিক্রেতার পণ্যে তাঁর তোলা ছবি (data URL)। না থাকলে আঁকা নকশা। */
   photo?: string
+  /** সার্ভারে লুকানো পণ্য (শুধু বিক্রেতা দেখেন) */
+  hidden?: boolean
+  /** কয়টা মতামতের গড় রেটিং */
+  ratingCount?: number
 }
 
 export const CATEGORIES = [

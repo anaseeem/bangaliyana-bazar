@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CATEGORIES, bn, type Product } from '../data/products'
+import { bn, type Product } from '../data/products'
 import { BD_DISTRICTS } from '../data/districts'
 import { useMarket } from '../store/market'
 import { useCart } from '../store/cart'
@@ -30,7 +30,7 @@ export default function Shop() {
   const [sort, setSort] = useState<Sort>('featured')
   const [onlyWish, setOnlyWish] = useState(false)
   const { wishlist } = useCart()
-  const { catalog } = useMarket()
+  const { catalog, settings } = useMarket()
   // যেসব জেলার পণ্য আছে শুধু সেগুলো, দেশের জেলার ক্রমে
   const districts = useMemo(() => ['সব জেলা', ...BD_DISTRICTS.filter((d) => catalog.some((p) => p.district === d))], [catalog])
 
@@ -67,7 +67,7 @@ export default function Shop() {
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:overflow-visible lg:px-0">
           <label htmlFor="shop-cat" className="sr-only">ধরন</label>
           <select id="shop-cat" value={cat} onChange={(e) => setCat(e.target.value)} className={SELECT}>
-            {CATEGORIES.map((c) => <option key={c} value={c}>{c === 'সব' ? 'সব ধরন' : c}</option>)}
+            {['সব', ...settings.categories].map((c) => <option key={c} value={c}>{c === 'সব' ? 'সব ধরন' : c}</option>)}
           </select>
           <label htmlFor="shop-district" className="sr-only">জেলা</label>
           <select id="shop-district" value={district} onChange={(e) => setDistrict(e.target.value)} className={SELECT}>
