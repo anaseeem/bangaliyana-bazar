@@ -9,6 +9,7 @@ import { sellerIdOf } from '../data/sellers'
 import { whatsappLink } from '../lib/whatsapp'
 import { jhuriFill, type MascotMood } from '../libs/mascot'
 import MascotRoad from '../components/MascotRoad'
+import { MamaScene } from '../components/MamaScenes'
 import ProductPicture from '../components/ProductPicture'
 import QtyStepper from '../components/QtyStepper'
 import { StitchFrame, StitchLine } from '../components/Stitch'
@@ -151,9 +152,9 @@ export default function Jhuri() {
         {step === 0 && (
           detailed.length === 0 ? (
             <Panel>
-              <h1 className="text-3xl">ঝুড়ি খালি</h1>
-              <p className="mt-2 text-stone-600">বাজার থেকে কিছু নিলে মামা মাথায় করে বাড়ি পৌঁছে দেবেন।</p>
-              <Link to="/shop" className="mt-6 inline-block rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">বাজারে যান</Link>
+              <MamaScene kind="khali" as="h1" title="ঝুড়ি খালি" text="মামা বসে বসে মাছি তাড়াচ্ছেন। কিছু নিলে মাথায় করে বাড়ি পৌঁছে দেবেন।">
+                <Link to="/shop" className="rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">বাজারে যান</Link>
+              </MamaScene>
             </Panel>
           ) : (
             <Panel>

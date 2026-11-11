@@ -82,7 +82,7 @@ export default function MascotRoad({ step, steps, mood, fill }: Props) {
 }
 
 /** হাটের ছোট্ট দোকান: ডোরাকাটা শামিয়ানা আর মাচা। */
-function Haat({ className = '' }: { className?: string }) {
+export function Haat({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 60 60" aria-hidden="true" className={className}>
       {[0, 1, 2, 3, 4].map((i) => <rect key={i} x={6 + i * 10} y="10" width="10" height="12" fill={i % 2 ? '#fff7e6' : '#b91c1c'} />)}
@@ -98,7 +98,7 @@ function Haat({ className = '' }: { className?: string }) {
 }
 
 /** গ্রামের বাড়ি: খড়ের চাল, মাটির দেয়াল। */
-function Home({ className = '' }: { className?: string }) {
+export function Home({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 60 60" aria-hidden="true" className={className}>
       <rect x="12" y="30" width="36" height="26" fill="#c8835a" />

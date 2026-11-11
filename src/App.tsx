@@ -1,7 +1,6 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { AlpanaFlower } from './components/Alpana'
-import { StitchLine } from './components/Stitch'
+import { MamaLoader, MamaScene } from './components/MamaScenes'
 import { CartProvider } from './store/cart'
 import { MarketProvider } from './store/market'
 import Header from './components/Header'
@@ -18,17 +17,15 @@ import SellerDashboard from './pages/SellerDashboard'
 import SellerShop from './pages/SellerShop'
 import Admin from './pages/Admin'
 
+const MamaPreview = lazy(() => import('./pages/MamaPreview'))
+
 function NotFound() {
   return (
-    <div className="mx-auto max-w-xl px-4 py-20 text-center">
-      <AlpanaFlower className="mx-auto h-20 w-20" />
-      <h1 className="mt-4 text-4xl">এই পাতাটা নেই</h1>
-      <p className="mt-2 text-stone-600">মেলায় পথ হারালেন? বাজারে ফিরে আবার খুঁজুন।</p>
-      <StitchLine className="mx-auto mt-6 max-w-xs" />
-      <div className="mt-6 flex justify-center gap-3">
+    <div className="mx-auto max-w-xl px-4 py-16">
+      <MamaScene kind="khoj" as="h1" title="এই পাতাটা নেই" text="মামাও খুঁজে পাচ্ছেন না। বাজারে ফিরে আবার দেখুন।">
         <Link to="/shop" className="rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">বাজারে যান</Link>
         <Link to="/" className="rounded-full border-2 border-rickshaw px-6 py-3 text-rickshaw hover:bg-holud-soft">হোমে ফিরুন</Link>
-      </div>
+      </MamaScene>
     </div>
   )
 }
@@ -63,6 +60,7 @@ export default function App() {
               <Route path="/bikreta" element={<SellerJoin />} />
               <Route path="/bikreta/dokan" element={<SellerDashboard />} />
               <Route path="/admin" element={<Admin />} />
+              {import.meta.env.DEV && <Route path="/mama" element={<Suspense fallback={<MamaLoader full />}><MamaPreview /></Suspense>} />}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

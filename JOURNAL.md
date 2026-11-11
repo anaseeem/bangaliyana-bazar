@@ -20,3 +20,9 @@ Decisions (the owner can overturn any of these)
 - The shop still opens instantly from bundled or saved data, because Render's free server takes up to a minute to wake.
 - Nothing is pushed or merged. `redesign` is what Vercel deploys, so it stays untouched until the owner has looked.
 - Commits are made as the owner, with no co-author line, as asked.
+
+Later the same day
+- Phase 8: the uncle has poses now (`pose` prop). No new drawings: the arms are the same cut parts at new angles, sitting is the body lowered onto a mora with a shorter lungi. Sitting and swatting flies doubles as the empty state, since "বসে বসে মাছি তাড়ানো" already means a shop with no customers.
+- `/mama` (dev only) shows every pose and scene on one page.
+- The owner wrote in: keep going, make it deployable on a VPS they will buy, SEO and speed matter, and they want to talk about Next.js or SvelteKit afterwards without it being built yet. VPS deploy is added to Phase 12. The framework question is left for the owner; notes for that talk go at the end of this journal.
+- The server (Phase 5) is being built by a helper agent from the plan while the mascot work happens here.

@@ -5,6 +5,7 @@ import { BD_DISTRICTS } from '../data/districts'
 import { useMarket } from '../store/market'
 import { useCart } from '../store/cart'
 import ProductCard from '../components/ProductCard'
+import { MamaScene } from '../components/MamaScenes'
 import { StitchFrame, StitchLine } from '../components/Stitch'
 
 type Sort = 'featured' | 'price-asc' | 'price-desc' | 'rating'
@@ -91,11 +92,11 @@ export default function Shop() {
       {filtered.length === 0 ? (
         <div className="relative mt-8 rounded-[10px] bg-paper p-10 text-center">
           <StitchFrame />
-          <p className="font-display text-2xl">কিছু মিলল না</p>
-          <p className="mt-2 text-stone-600">অন্য নামে খুঁজুন, যেমন কাঁথা বা মাটি।</p>
-          <button type="button" onClick={() => { setParams({}, { replace: true }); setDistrict('সব জেলা'); setOnlyWish(false) }} className="mt-4 rounded-full bg-rickshaw px-5 py-2 text-white">
-            ছাঁকনি মুছে ফেলুন
-          </button>
+          <MamaScene kind="khoj" title="কিছু মিলল না" text="অন্য নামে খুঁজুন, যেমন কাঁথা বা মাটি।">
+            <button type="button" onClick={() => { setParams({}, { replace: true }); setDistrict('সব জেলা'); setOnlyWish(false) }} className="rounded-full bg-rickshaw px-5 py-2 text-white">
+              ছাঁকনি মুছে ফেলুন
+            </button>
+          </MamaScene>
         </div>
       ) : (
         <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

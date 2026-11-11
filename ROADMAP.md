@@ -85,9 +85,10 @@ Goal: the shop works for real. Accounts, sellers, orders and content live on the
 - [ ] গল্প and পাতা editors (with Phase 10).
 
 ### Phase 8: The uncle everywhere
-- [ ] `pose` prop: jhuri, haat, machi, khoj, dekhano, haat-nara.
-- [ ] `MamaLoader` (walks, then sits and swats flies), `MamaLost`, `MamaEmpty`.
-- [ ] Route fallback, error screen, 404, empty jhuri, empty orders and wishlist, empty search.
+- [x] `pose` prop: jhuri, haat, machi, khoj, dekhano, haat-nara.
+- [x] `MamaLoader` (walks, then sits and swats flies) and `MamaScene` (khoj, khali, swagoto).
+- [x] 404, empty jhuri, empty orders, empty search.
+- [ ] Route fallback and error screen (with Phase 6, when pages start waiting for the server).
 
 ### Phase 9: Missing shopper pages
 - [ ] `/khoj` order tracking with the road.
@@ -106,6 +107,7 @@ Goal: the shop works for real. Accounts, sellers, orders and content live on the
 - [ ] Share buttons, page titles, Open Graph image, robots and sitemap.
 
 ### Phase 12: Wrap up
+- [ ] VPS deploy: one Node process serves the built site and the API, Dockerfile and compose with Postgres, Caddy for HTTPS, a short guide.
 - [ ] Postgres driver checked against a real Postgres.
 - [ ] README, CLAUDE.md, render.yaml updated.
 - [ ] Full Playwright pass at 1366px and 390px.

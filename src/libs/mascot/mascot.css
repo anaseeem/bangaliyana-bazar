@@ -72,3 +72,89 @@
     animation: none !important;
   }
 }
+
+/* ---- ভঙ্গি ---- */
+.mascot .m-arm,
+.mascot .m-fore,
+.mascot .m-hand,
+.mascot .m-upper,
+.mascot .m-cloth {
+  transform-box: view-box;
+}
+
+/* হাত নামানো অবস্থায় হাঁটলে দুই হাত উল্টো তালে দোলে */
+@keyframes m-swing-a {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(9deg); }
+}
+@keyframes m-swing-b {
+  0%, 100% { transform: rotate(9deg); }
+  50% { transform: rotate(-9deg); }
+}
+.mascot[data-pose='haat'][data-walking='true'] .m-arm-l { animation: m-swing-a 0.7s ease-in-out infinite; }
+.mascot[data-pose='haat'][data-walking='true'] .m-arm-r { animation: m-swing-b 0.7s ease-in-out infinite; }
+
+/* মাছি তাড়ানো: কনুই থেকে হাত ঝাপটায়, গামছা পেছন পেছন দোলে, শরীর একটু দোলে */
+@keyframes m-swat {
+  0%, 100% { transform: rotate(-26deg); }
+  45% { transform: rotate(38deg); }
+  60% { transform: rotate(30deg); }
+}
+@keyframes m-cloth {
+  0%, 100% { transform: rotate(34deg) scaleY(0.92); }
+  45% { transform: rotate(-40deg) scaleY(1.08); }
+  70% { transform: rotate(-8deg) scaleY(1); }
+}
+@keyframes m-rock {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes m-look {
+  0%, 12%, 100% { transform: rotate(-7deg); }
+  45%, 62% { transform: rotate(9deg); }
+}
+.mascot[data-pose='machi'] .m-fore-r { animation: m-swat 0.95s ease-in-out infinite; }
+.mascot[data-pose='machi'] .m-cloth { animation: m-cloth 0.95s ease-in-out infinite; }
+.mascot[data-pose='machi'] .m-upper { animation: m-rock 1.9s ease-in-out infinite; }
+.mascot[data-pose='machi'] .m-head { animation: m-look 3.8s ease-in-out infinite; }
+
+/* মাছি: যার যার পথে ঘোরে */
+.mascot .m-fly {
+  offset-rotate: 0deg;
+  animation: m-fly 2.6s linear infinite;
+}
+.mascot .m-fly-0 { offset-path: path('M150,-10 C210,-50 250,10 200,50 C150,90 110,30 150,-10 Z'); }
+.mascot .m-fly-1 { offset-path: path('M40,-20 C-20,-60 -50,10 0,30 C60,50 90,10 40,-20 Z'); animation-duration: 3.4s; animation-direction: reverse; }
+.mascot .m-fly-2 { offset-path: path('M230,110 C290,80 300,160 250,170 C190,180 180,130 230,110 Z'); animation-duration: 2.1s; }
+@keyframes m-fly {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+/* খোঁজা: মাথা এদিক-ওদিক ঘোরে */
+.mascot[data-pose='khoj'] .m-upper { animation: m-rock 2.6s ease-in-out infinite; }
+
+/* হাত নাড়া: কনুই থেকে */
+@keyframes m-wave {
+  0%, 100% { transform: rotate(-16deg); }
+  50% { transform: rotate(20deg); }
+}
+.mascot[data-pose='haat-nara'] .m-fore-r { animation: m-wave 0.6s ease-in-out infinite; }
+
+/* দেখানো: হাতটা একটু ওঠানামা করে */
+@keyframes m-offer {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-6deg); }
+}
+.mascot[data-pose='dekhano'] .m-arm-r { animation: m-offer 1.8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot .m-arm,
+  .mascot .m-fore,
+  .mascot .m-upper,
+  .mascot .m-head,
+  .mascot .m-cloth {
+    animation: none !important;
+  }
+  .mascot .m-flies { display: none; }
+}

@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from 'react'
 import './mascot.css'
-import type { JhuriFill, MascotMood } from './types'
+import type { JhuriFill, MascotMood, MascotPose } from './types'
 import torso from './parts/torso.webp'
 import lungi from './parts/lungi.webp'
 import gamchha from './parts/gamchha.webp'
@@ -22,6 +22,10 @@ export interface MascotProps {
   fill?: JhuriFill
   walking?: boolean
   facing?: 'right' | 'left'
+  /** ভঙ্গি। না দিলে মাথায় ঝুড়ি ধরা। */
+  pose?: MascotPose
+  /** ঝুড়ি কোথায়: মাথায়, পাশে মাটিতে, নাকি নেই। না দিলে ভঙ্গি দেখে ঠিক হয়। */
+  jhuri?: 'head' | 'ground' | 'none'
   className?: string
   /** স্ক্রিন রিডারের জন্য। না দিলে ছবিটা সাজ হিসেবে লুকানো থাকে। */
   label?: string
@@ -45,28 +49,45 @@ const HEADS: Record<MascotMood, { src: string; w: number; h: number; ax: number;
   sad: { src: headSad, w: 177, h: 182, ax: 80, ay: 172, scale: 0.8 },
 }
 
-/** একটা অংশ: জোড়ার বিন্দু (px, py) বসে (x, y) তে, সেখান থেকে angle ডিগ্রি ঘোরে। ভেতরের children পরের জোড়া। */
-function Limb({ src, w, h, px, py, x, y, angle, children }: { src: string; w: number; h: number; px: number; py: number; x: number; y: number; angle: number; children?: ReactNode }) {
+/**
+ * একটা অংশ: জোড়ার বিন্দু (px, py) বসে (x, y) তে, সেখান থেকে angle ডিগ্রি ঘোরে। ভেতরের children পরের জোড়া।
+ * cls দিলে ভেতরে আরেকটা স্তর থাকে, যেটা CSS দিয়ে একই জোড়া থেকে দোলানো যায়।
+ */
+function Limb({ src, w, h, px, py, x, y, angle, cls, children }: { src: string; w: number; h: number; px: number; py: number; x: number; y: number; angle: number; cls?: string; children?: ReactNode }) {
   return (
     <g transform={`rotate(${angle} ${x} ${y})`}>
-      <image href={src} x={x - px} y={y - py} width={w} height={h} />
-      {children}
+      <g className={cls} style={{ transformOrigin: `${x}px ${y}px` }}>
+        <image href={src} x={x - px} y={y - py} width={w} height={h} />
+        {children}
+      </g>
     </g>
   )
 }
 
-/** একটা হাত: কাঁধ থেকে ওপরে উঠে ঝুড়ির কিনারা ধরে আছে। side = -1 বাঁ, 1 ডান। */
-function Arm({ side }: { side: -1 | 1 }) {
+/** প্রতিটি ভঙ্গিতে দুই হাতের কোণ: [কাঁধ, কনুই, কবজি]। ০ মানে সোজা নিচে ঝোলানো, ধনাত্মক মানে ঘড়ির কাঁটার দিকে। */
+const ARMS: Record<MascotPose, { l: [number, number, number]; r: [number, number, number] }> = {
+  jhuri: { l: [150, 48, -14], r: [-150, -48, 14] },
+  haat: { l: [7, 5, 0], r: [-7, -5, 0] },
+  machi: { l: [14, -62, -10], r: [-104, -30, 0] },
+  khoj: { l: [9, 6, 0], r: [-165, -35, -75] },
+  dekhano: { l: [7, 5, 0], r: [-58, -30, -8] },
+  'haat-nara': { l: [7, 5, 0], r: [-142, -26, 0] },
+}
+
+/** একটা হাত: কাঁধ, কনুই, কবজি। side = -1 বাঁ, 1 ডান। hold = হাতে ধরা জিনিস। */
+function Arm({ side, angles, hold }: { side: -1 | 1; angles: [number, number, number]; hold?: ReactNode }) {
   const s = side === 1 ? SHOULDER_R : SHOULDER_L
+  const k = side === 1 ? 'r' : 'l'
   const sleeve = side === 1 ? { src: sleeveR, w: 43, h: 84, reach: 49 } : { src: sleeveL, w: 45, h: 88, reach: 53 }
   const fore = side === 1 ? { src: forearmR, w: 36, h: 96, reach: 76 } : { src: forearmL, w: 34, h: 91, reach: 71 }
   const hand = side === 1 ? { src: handR, w: 42, h: 78 } : { src: handL, w: 41, h: 73 }
   const elbow = { x: s.x, y: s.y + sleeve.reach }
   const wrist = { x: s.x, y: elbow.y + fore.reach }
   return (
-    <Limb src={sleeve.src} w={sleeve.w} h={sleeve.h} px={sleeve.w / 2} py={13} x={s.x} y={s.y} angle={-150 * side}>
-      <Limb src={fore.src} w={fore.w} h={fore.h} px={fore.w / 2} py={12} x={elbow.x} y={elbow.y} angle={-48 * side}>
-        <Limb src={hand.src} w={hand.w} h={hand.h} px={hand.w / 2} py={5} x={wrist.x} y={wrist.y} angle={14 * side} />
+    <Limb src={sleeve.src} w={sleeve.w} h={sleeve.h} px={sleeve.w / 2} py={13} x={s.x} y={s.y} angle={angles[0]} cls={`m-arm m-arm-${k}`}>
+      <Limb src={fore.src} w={fore.w} h={fore.h} px={fore.w / 2} py={12} x={elbow.x} y={elbow.y} angle={angles[1]} cls={`m-fore m-fore-${k}`}>
+        {hold && <g transform={`translate(${wrist.x} ${wrist.y + 34})`}>{hold}</g>}
+        <Limb src={hand.src} w={hand.w} h={hand.h} px={hand.w / 2} py={5} x={wrist.x} y={wrist.y} angle={angles[2]} cls={`m-hand m-hand-${k}`} />
       </Limb>
     </Limb>
   )
@@ -83,53 +104,134 @@ function Leg({ knee, src, className }: { knee: { x: number; y: number }; src: st
   )
 }
 
+/** ভঙ্গি অনুযায়ী ছবির জানালা। ঝুড়ি মাথায় থাকলে ওপরে জায়গা লাগে, বসলে কম উচ্চতা আর হাত নাড়ার জায়গা। */
+const VIEW: Record<MascotPose, string> = {
+  jhuri: '-62 -205 300 625',
+  haat: '-62 -112 300 532',
+  machi: '-110 -40 420 462',
+  khoj: '-62 -112 300 532',
+  dekhano: '-62 -112 380 532',
+  'haat-nara': '-62 -150 320 570',
+}
+/** বসলে ধড় এতটা নামে, লুঙ্গি এতটা খাটো হয় */
+const SIT_DROP = 92
+const SIT_LUNGI = 0.5
+
 /**
- * মামা: শার্ট, লুঙ্গি, কাঁধে গামছা, মাথায় ঝুড়ি। ডান দিকে মুখ করে হাঁটেন।
+ * মামা: শার্ট, লুঙ্গি, কাঁধে গামছা। ডান দিকে মুখ করে হাঁটেন।
  * মেজাজ বদলালে মাথা বদলায়: নকশার পাতার খুশি আর মন খারাপের মুখ।
+ * ভঙ্গি বদলালে শুধু জোড়ার কোণ বদলায়, নতুন ছবি লাগে না।
  */
-export default function Mascot({ mood = 'neutral', fill = 0, walking = false, facing = 'right', className = '', label }: MascotProps) {
+export default function Mascot({ mood = 'neutral', fill = 0, walking = false, facing = 'right', pose = 'jhuri', jhuri, className = '', label }: MascotProps) {
   const head = HEADS[mood]
+  const arms = ARMS[pose]
+  const sitting = pose === 'machi'
+  const jhuriAt = jhuri ?? (pose === 'jhuri' ? 'head' : 'none')
+  const view = jhuriAt === 'head' ? VIEW.jhuri : jhuriAt === 'ground' && !sitting ? '-62 -112 400 532' : VIEW[pose]
 
   return (
     <svg
-      viewBox="-62 -205 300 625"
+      viewBox={view}
       className={`mascot ${className}`}
       data-mood={mood}
       data-walking={walking}
       data-facing={facing}
+      data-pose={pose}
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
     >
-      <ellipse cx="88" cy="414" rx="78" ry="9" fill="#000" opacity="0.12" />
+      <ellipse cx="88" cy="414" rx={sitting ? 112 : 78} ry="9" fill="#000" opacity="0.12" />
+      {jhuriAt === 'ground' && (
+        <g transform={sitting ? 'translate(196 548) scale(0.92)' : 'translate(170 548) scale(0.92)'}>
+          <Jhuri fill={fill} />
+        </g>
+      )}
       <g className="m-flip" style={{ transformOrigin: '88px 100px' }}>
         <g className="m-body">
+          {sitting && <Mora />}
           <Leg knee={KNEE_BACK} src={shinL} className="m-leg-back" />
           <Leg knee={KNEE_FRONT} src={shinR} className="m-leg-front" />
 
-          {/* লুঙ্গি: শার্টের নিচ থেকে, পাতার চেয়ে একটু চওড়া করে */}
-          <g className="m-lungi" style={{ transformOrigin: '88px 150px' }}>
-            <image href={lungi} x={88 - 61} y={150} width={122} height={189} preserveAspectRatio="none" />
+          <g transform={sitting ? `translate(0 ${SIT_DROP})` : undefined}>
+            {/* লুঙ্গি: শার্টের নিচ থেকে, পাতার চেয়ে একটু চওড়া করে। বসলে খাটো আর আরও চওড়া। */}
+            <g className="m-lungi" style={{ transformOrigin: '88px 150px' }}>
+              {sitting
+                ? <image href={lungi} x={88 - 74} y={150} width={148} height={189 * SIT_LUNGI + 8} preserveAspectRatio="none" />
+                : <image href={lungi} x={88 - 61} y={150} width={122} height={189} preserveAspectRatio="none" />}
+            </g>
+
+            <g className="m-upper" style={{ transformOrigin: '88px 170px' }}>
+              {/* মাথা: গলা কলারের পেছনে ঢোকে */}
+              <g className="m-head" style={{ transformOrigin: `${NECK.x}px ${NECK.y}px` }}>
+                <image href={head.src} x={NECK.x - head.ax * head.scale} y={NECK.y - head.ay * head.scale} width={head.w * head.scale} height={head.h * head.scale} />
+              </g>
+
+              {jhuriAt === 'head' && (
+                <g className="m-jhuri" style={{ transformOrigin: '92px -100px' }}>
+                  <Jhuri fill={fill} />
+                </g>
+              )}
+
+              <image href={torso} x={0} y={0} width={172} height={179} />
+              {/* গামছা ডান কাঁধে, বুকের ওপর ঝুলে। মাছি তাড়ানোর সময় হাতে থাকে। */}
+              {!sitting && <image href={gamchha} x={22} y={8} width={46} height={132} />}
+
+              <Arm side={-1} angles={arms.l} />
+              <Arm side={1} angles={arms.r} hold={sitting ? <GamchhaInHand /> : undefined} />
+            </g>
           </g>
-
-          {/* মাথা: গলা কলারের পেছনে ঢোকে */}
-          <g className="m-head" style={{ transformOrigin: `${NECK.x}px ${NECK.y}px` }}>
-            <image href={head.src} x={NECK.x - head.ax * head.scale} y={NECK.y - head.ay * head.scale} width={head.w * head.scale} height={head.h * head.scale} />
-          </g>
-
-          <g className="m-jhuri" style={{ transformOrigin: '92px -100px' }}>
-            <Jhuri fill={fill} />
-          </g>
-
-          <image href={torso} x={0} y={0} width={172} height={179} />
-          {/* গামছা ডান কাঁধে, বুকের ওপর ঝুলে */}
-          <image href={gamchha} x={22} y={8} width={46} height={132} />
-
-          <Arm side={-1} />
-          <Arm side={1} />
         </g>
       </g>
+      {sitting && <Flies />}
     </svg>
+  )
+}
+
+/** মোড়া: বেতের নিচু টুল, মাঝখানে সরু। */
+function Mora() {
+  return (
+    <g>
+      <path d="M-6,322 Q88,306 182,322 L156,366 Q172,390 186,410 L-10,410 Q4,390 20,366 Z" fill="#b98236" />
+      <g stroke="#7d5220" strokeWidth="2.4" fill="none" strokeLinecap="round" opacity="0.75">
+        {[-66, -44, -22, 0, 22, 44, 66].map((d) => (
+          <path key={d} d={`M${88 + d * 1.3},324 Q${88 + d * 0.8},366 ${88 + d * 1.36},408`} />
+        ))}
+        <path d="M20,366 Q88,378 156,366" />
+      </g>
+      <ellipse cx="88" cy="321" rx="95" ry="12" fill="#e9bd6e" stroke="#7d5220" strokeWidth="2.5" />
+      <path d="M-10,410 Q88,424 186,410" stroke="#7d5220" strokeWidth="3" fill="none" />
+    </g>
+  )
+}
+
+/** হাতে ধরা গামছা: লাল চেক কাপড়, মুঠো থেকে ঝুলে দোলে। (০,০) মুঠোর মাঝখান, কাপড় হাতের দিকেই লম্বা। */
+function GamchhaInHand() {
+  return (
+    <g transform="rotate(128) scale(1.3)"><g className="m-cloth">
+      <path d="M-9,-4 Q-26,40 -20,84 Q-8,96 4,88 Q14,98 26,86 Q24,40 9,-4 Z" fill="#c0283a" />
+      <g stroke="#f2d38a" strokeWidth="2.2" fill="none" opacity="0.85">
+        <path d="M-17,34 Q2,42 18,34" />
+        <path d="M-21,62 Q2,72 24,62" />
+        <path d="M-2,0 Q-6,46 -2,90" />
+      </g>
+      <path d="M-20,84 l-3,12 M-8,92 l-1,12 M4,88 l1,13 M16,92 l3,11 M26,86 l5,10" stroke="#8f1c2a" strokeWidth="2.2" strokeLinecap="round" />
+    </g></g>
+  )
+}
+
+/** তিনটা মাছি, মাথার চারপাশে ঘোরে */
+function Flies() {
+  return (
+    <g className="m-flies" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <g key={i} className={`m-fly m-fly-${i}`}><g transform="scale(1.7)">
+          <ellipse cx="-3" cy="-3" rx="4" ry="2.4" fill="#fff" stroke="#57534e" strokeWidth="0.8" opacity="0.9" transform="rotate(-30)" />
+          <ellipse cx="3" cy="-3" rx="4" ry="2.4" fill="#fff" stroke="#57534e" strokeWidth="0.8" opacity="0.9" transform="rotate(30)" />
+          <circle r="3.2" fill="#292524" />
+        </g></g>
+      ))}
+    </g>
   )
 }
 

@@ -7,6 +7,7 @@ import { useMarket, type Order } from '../store/market'
 import { orderStatus, type OrderStatus } from '../lib/orders'
 import { BTN, BTN_LINE, Field, INPUT, Panel } from '../components/Form'
 import ProductCard from '../components/ProductCard'
+import { MamaScene } from '../components/MamaScenes'
 import { StitchLine } from '../components/Stitch'
 
 const dateBn = (iso: string) => new Date(iso).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -93,8 +94,9 @@ function Orders({ list }: { list: Order[] }) {
   if (list.length === 0) {
     return (
       <Panel>
-        <p>এখনো কোনো অর্ডার নেই।</p>
-        <Link to="/shop" className="mt-4 inline-block rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">বাজারে যান</Link>
+        <MamaScene kind="khali" title="এখনো কোনো অর্ডার নেই" text="মামা ঝুড়ি নিয়ে বসে আছেন।">
+          <Link to="/shop" className="rounded-full bg-rickshaw px-6 py-3 text-white hover:bg-rickshaw-dark">বাজারে যান</Link>
+        </MamaScene>
       </Panel>
     )
   }

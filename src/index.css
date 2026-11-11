@@ -141,6 +141,18 @@ legend {
 .animate-jhuri { animation: jhuri-bounce 0.45s ease-out; }
 .animate-stitch { stroke-dasharray: 8 6; animation: stitch-move 1.6s linear infinite; }
 
+/* অপেক্ষার ছবি: পথের ধার বাঁ দিকে সরে যায়, পথের দাগও */
+@keyframes mama-scenery {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes mama-road {
+  to { stroke-dashoffset: 38; }
+}
+.mama-scenery { animation: mama-scenery 9s linear infinite; }
+.mama-scenery.is-paused { animation-play-state: paused; }
+.mama-road-dash { animation: mama-road 0.7s linear infinite; }
+
 /* পটের ছবির মতো লাল দুই দাগের কিনারা */
 .pot-border {
   border: 3px solid #7f1d1d;
@@ -154,6 +166,8 @@ legend {
   .animate-sway,
   .animate-sun,
   .animate-jhuri,
+  .mama-scenery,
+  .mama-road-dash,
   .group:hover .hang-swing {
     animation: none;
   }
