@@ -1,0 +1,103 @@
+/* গল্পের পাতার বড় নকশা। কাটা কাগজের মতো: সমান রং, নিচে শক্ত ছায়া, ধীরে নড়ে। */
+.art { display: block; overflow: hidden; }
+.art * { transform-box: fill-box; }
+
+/* ময়ূর: পেখম একটু খোলে আর গোটায়, চোখগুলো ঝিলমিল করে, গলা দোলে */
+.art .art-feather {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transform: rotate(var(--a));
+  animation: art-fan 7s ease-in-out infinite;
+}
+@keyframes art-fan {
+  0%, 100% { transform: rotate(calc(var(--a) * 0.8)); }
+  50% { transform: rotate(var(--a)); }
+}
+.art .art-eye { transform-origin: center; animation: art-shimmer 3.5s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes art-shimmer {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.14); }
+}
+.art .art-neck { transform-box: view-box; transform-origin: 300px 275px; animation: art-neck 5s ease-in-out infinite; }
+@keyframes art-neck {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(5deg); }
+}
+
+/* নৌকা: ঢেউ পাশে সরে, নৌকা দোলে, সূর্যের রশ্মি ঘোরে */
+.art .art-wave { animation: art-wave var(--t, 9s) linear infinite; }
+@keyframes art-wave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-160px); }
+}
+.art .art-boat { transform-origin: center bottom; animation: art-rock 4.5s ease-in-out infinite; }
+@keyframes art-rock {
+  0%, 100% { transform: rotate(-2.5deg) translateY(0); }
+  50% { transform: rotate(2.5deg) translateY(-5px); }
+}
+.art .art-rays { transform-origin: center; animation: spin-slow 60s linear infinite; }
+.art .art-drift { animation: art-drift var(--t, 26s) linear infinite; animation-delay: var(--d, 0s); }
+@keyframes art-drift {
+  from { transform: translateX(-340px); }
+  to { transform: translateX(1160px); }
+}
+.art .art-flap { transform-origin: center; animation: art-flap 0.9s ease-in-out infinite; }
+@keyframes art-flap {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.45); }
+}
+
+/* ঘুড়ি: সুতোয় বাঁধা, হাওয়ায় হেলে */
+.art .art-kite { transform-origin: 50% 100%; animation: art-kite var(--t, 5s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes art-kite {
+  0%, 100% { transform: rotate(-5deg) translateY(0); }
+  50% { transform: rotate(6deg) translateY(-8px); }
+}
+.art .art-tail { transform-origin: 50% 0; animation: art-tail 1.6s ease-in-out infinite; }
+@keyframes art-tail {
+  0%, 100% { transform: skewX(-12deg); }
+  50% { transform: skewX(12deg); }
+}
+
+/* শাপলা: ফুল আর পাতা ভাসে, মাছ লাফায়, ফড়িং কাঁপে */
+.art .art-bob { animation: art-bob var(--t, 4s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes art-bob {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-5px) rotate(1.5deg); }
+}
+.art .art-fish {
+  transform-box: view-box;
+  offset-path: path('M470,250 C500,90 590,90 630,250');
+  offset-rotate: auto;
+  animation: art-fish 7s ease-in infinite;
+}
+@keyframes art-fish {
+  0%, 62% { offset-distance: 0%; opacity: 0; }
+  66% { opacity: 1; }
+  92% { opacity: 1; }
+  96%, 100% { offset-distance: 100%; opacity: 0; }
+}
+.art .art-ring { transform-origin: center; animation: art-ring 7s ease-out infinite; animation-delay: var(--d, 0s); }
+@keyframes art-ring {
+  0%, 60% { transform: scale(0.2); opacity: 0; }
+  66% { opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.art .art-hover { animation: art-hover 3s ease-in-out infinite; }
+@keyframes art-hover {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(14px, -8px); }
+  60% { transform: translate(-10px, 6px); }
+}
+
+/* ঝালর: দড়িতে ঝোলানো কাটা কাগজ, হাওয়ায় দোলে */
+.art .art-flag { transform-origin: 50% 0; animation: art-flag var(--t, 3.2s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes art-flag {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art * { animation: none !important; }
+  .art .art-fish, .art .art-ring { opacity: 0; }
+}

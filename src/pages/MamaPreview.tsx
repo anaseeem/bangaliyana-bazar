@@ -1,5 +1,6 @@
 import { Mascot, type MascotPose } from '../libs/mascot'
 import { MamaLoader, MamaScene } from '../components/MamaScenes'
+import { ART_THEMES, ART_TONE, Art } from '../components/art'
 
 const POSES: MascotPose[] = ['jhuri', 'haat', 'machi', 'khoj', 'dekhano', 'haat-nara']
 
@@ -21,6 +22,13 @@ export default function MamaPreview() {
         <div className="rounded-[10px] bg-paper"><MamaLoader patience={0} /></div>
         <div className="rounded-[10px] bg-paper p-6"><MamaScene kind="khoj" title="এই পাতাটা নেই" text="মেলায় পথ হারালেন? বাজারে ফিরে আবার খুঁজুন।" /></div>
         <div className="rounded-[10px] bg-paper p-6"><MamaScene kind="khali" title="ঝুড়ি খালি" text="মামা বসে বসে মাছি তাড়াচ্ছেন।" /></div>
+      </div>
+      <div className="mt-8 grid gap-6">
+        {ART_THEMES.map((t) => (
+          <div key={t.id} className="overflow-hidden rounded-[10px]" style={{ background: ART_TONE[t.id].bg }}>
+            <Art theme={t.id} className={t.id === 'moyur' ? 'mx-auto h-96 w-auto' : 'h-48 w-full sm:aspect-[4/1] sm:h-auto'} />
+          </div>
+        ))}
       </div>
     </div>
   )
