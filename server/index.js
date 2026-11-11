@@ -11,7 +11,7 @@ import accountRoutes from './routes/account.js'
 import orderRoutes from './routes/orders.js'
 import sellerRoutes from './routes/seller.js'
 import adminRoutes from './routes/admin.js'
-import { serveSite } from './static.js'
+import { siteHandler } from './static.js'
 
 const PORT = Number(process.env.PORT ?? 3001)
 // Render এ বাইরে থেকে ডাকতে হয়, তাই সব ঠিকানায় শোনে। নিজের কম্পিউটারে শুধু 127.0.0.1।
@@ -74,7 +74,6 @@ export async function buildApp(opts = {}) {
     req.log.error(err)
     return reply.code(500).send({ error: 'সার্ভারে সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করুন।' })
   })
-  app.setNotFoundHandler((_req, reply) => reply.code(404).send({ error: 'পাওয়া যায়নি।' }))
 
   publicRoutes(app, ctx)
   accountRoutes(app, ctx)
@@ -82,11 +81,13 @@ export async function buildApp(opts = {}) {
   sellerRoutes(app, ctx)
   adminRoutes(app, ctx)
   // SERVE_DIST=1 হলে বানানো দোকানও এখান থেকে যায় (নিজের সার্ভারে এক প্রসেসেই সব)
+  let site = null
   if (opts.distDir ?? process.env.SERVE_DIST) {
     const siteUrl = (process.env.SITE_URL ?? 'https://bangaliyana-bazar.vercel.app').replace(/\/$/, '')
-    await serveSite(app, ctx, { distDir: opts.distDir ?? fileURLToPath(new URL('../dist', import.meta.url)), siteUrl })
+    site = await siteHandler(app, ctx, { distDir: opts.distDir ?? fileURLToPath(new URL('../dist', import.meta.url)), siteUrl })
     app.get('/sitemap.xml', async (_req, reply) => reply.redirect('/api/sitemap.xml'))
   }
+  app.setNotFoundHandler(site ?? ((_req, reply) => reply.code(404).send({ error: 'পাওয়া যায়নি।' })))
   await app.ready()
   return app
 }

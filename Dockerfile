@@ -16,6 +16,8 @@ RUN pnpm install --frozen-lockfile --prod
 COPY server ./server
 COPY data/products.json data/seed.json data/content-seed.json ./data/
 COPY --from=build /app/dist ./dist
+# ফাইল-স্টোর আর ছবির ফোল্ডার, node ব্যবহারকারী যাতে লিখতে পারে
+RUN mkdir -p /data && chown node:node /data
 VOLUME /data
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://127.0.0.1:3001/api/health || exit 1

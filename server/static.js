@@ -78,13 +78,14 @@ export function injectMeta(html, meta, url) {
   return out
 }
 
-export async function serveSite(app, ctx, { distDir, siteUrl }) {
+/** বানানো দোকান দেওয়ার হ্যান্ডলার ফেরত দেয়। dist না থাকলে null। */
+export async function siteHandler(app, ctx, { distDir, siteUrl }) {
   let index
   try { index = await readFile(join(distDir, 'index.html'), 'utf-8') } catch {
     app.log.warn(`dist পাওয়া যায়নি (${distDir})। আগে pnpm build চালান।`)
-    return false
+    return null
   }
-  app.setNotFoundHandler(async (req, reply) => {
+  return async (req, reply) => {
     const path = req.url.split('?')[0]
     if (path.startsWith('/api/') || (req.method !== 'GET' && req.method !== 'HEAD')) return reply.code(404).send({ error: 'পাওয়া যায়নি।' })
     // বানানো ফাইল: নামের ভেতরে হ্যাশ থাকে, তাই এক বছর রাখা যায়
@@ -104,6 +105,5 @@ export async function serveSite(app, ctx, { distDir, siteUrl }) {
     const meta = pageMeta(path, ctx, siteUrl)
     reply.header('Cache-Control', 'no-cache')
     return reply.code(meta.found ? 200 : 404).type(TYPES['.html']).send(injectMeta(index, meta, `${siteUrl}${path === '/' ? '' : path}`))
-  })
-  return true
+  }
 }
