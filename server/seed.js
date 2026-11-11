@@ -33,19 +33,22 @@ export async function seed(store) {
   if (!cur) await store.put('settings', { ...DEFAULT_SETTINGS })
   else if (Object.keys(DEFAULT_SETTINGS).some((k) => !(k in cur))) await store.put('settings', { ...DEFAULT_SETTINGS, ...cur })
 
+  // গল্প আর পাতা আলাদা করে বসে, যাতে পরে যোগ করা লেখাও প্রথমবার উঠে যায়
+  const content = await readJson('content-seed.json')
+  const now = new Date().toISOString()
+  if (store.all('posts').length === 0) {
+    await store.putMany((content?.posts ?? []).map((p) => ['posts', { status: 'published', ...p, id: p.id ?? newId('g'), createdAt: p.createdAt ?? p.publishedAt ?? now, updatedAt: p.updatedAt ?? p.publishedAt ?? now, publishedAt: p.publishedAt ?? now }]))
+  }
+  if (store.all('pages').length === 0) {
+    await store.putMany((content?.pages ?? []).map((pg) => ['pages', { ...pg, updatedAt: pg.updatedAt ?? now }]))
+  }
+
   if (store.all('products').length > 0) return
   const products = (await readJson('products.json')) ?? []
   const sellers = (await readJson('seed.json'))?.sellers ?? []
   const byName = new Map(sellers.map((s) => [s.ownerName, s.id]))
-  const pairs = [
+  await store.putMany([
     ...sellers.map((s) => ['sellers', s]),
     ...products.map((p) => ['products', { ...p, sellerId: p.sellerId ?? byName.get(p.artisan) ?? 'k1', createdAt: SEED_DATE }]),
-  ]
-  const content = await readJson('content-seed.json')
-  const now = new Date().toISOString()
-  for (const p of content?.posts ?? []) {
-    pairs.push(['posts', { status: 'published', ...p, id: p.id ?? newId('g'), createdAt: p.createdAt ?? now, updatedAt: p.updatedAt ?? p.createdAt ?? now, publishedAt: p.publishedAt ?? p.createdAt ?? now }])
-  }
-  for (const pg of content?.pages ?? []) pairs.push(['pages', { ...pg, updatedAt: pg.updatedAt ?? now }])
-  await store.putMany(pairs)
+  ])
 }

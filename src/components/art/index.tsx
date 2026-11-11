@@ -329,6 +329,20 @@ export function Jhalor({ className }: ArtProps) {
   )
 }
 
+/** লম্বা সুতোয় ঝোলানো কাটা কাগজ। পাতার পাশের ফাঁকা জায়গার জন্য। */
+export function Jhuli({ className }: ArtProps) {
+  const f = `jl-${useId().replace(/:/g, '')}`
+  return (
+    <Svg viewBox="-50 0 100 560" className={className}>
+      <defs><Paper id={f} /></defs>
+      <path d="M0,0 V520" stroke="#b8945a" strokeWidth="2" />
+      <g filter={`url(#${f})`}>
+        {[0, 1, 2, 3, 4].map((i) => <Flag key={i} x={0} y={14 + i * 104} c={['#b91c1c', '#f59e0b', '#1f3b73', '#be185d', '#2f6b3a'][i]} i={i} />)}
+      </g>
+    </Svg>
+  )
+}
+
 /** নাম ধরে নকশা */
 export function Art({ theme, className }: { theme: ArtTheme; className?: string }) {
   if (theme === 'nouka') return <Nouka className={className} />

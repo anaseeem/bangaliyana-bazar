@@ -187,6 +187,8 @@ export default function adminRoutes(app, { store, auth, d }) {
     if (has('lang')) { if (!['bn', 'en'].includes(b.lang)) throw httpError(400, 'ভাষা ঠিক নেই।'); f.lang = b.lang }
     if (has('art')) { if (!POST_ART.includes(b.art)) throw httpError(400, 'নকশা ঠিক নেই।'); f.art = b.art }
     if (has('status')) { if (!['draft', 'published'].includes(b.status)) throw httpError(400, 'অবস্থা ঠিক নেই।'); f.status = b.status }
+    // গল্পটা কোনো কারিগরকে নিয়ে হলে তাঁর দোকানের লিংক দেখায়
+    if (has('sellerId')) { if (b.sellerId && !store.get('sellers', b.sellerId)) throw httpError(400, 'বিক্রেতা ঠিক নেই।'); f.sellerId = b.sellerId || '' }
     return f
   }
   const stamp = (p) => (p.status === 'published' && !p.publishedAt ? { ...p, publishedAt: p.updatedAt } : p)

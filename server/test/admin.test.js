@@ -49,17 +49,19 @@ test('admin cancel restores stock once; users and reset password', async () => {
 
 test('posts: draft hidden from the public, published shows, slug unique', async () => {
   const adm = await admin()
+  // শুরুতে বীজের গল্পগুলো থাকে
+  const before = (await call('GET', '/api/posts')).json.length
   const made = await call('POST', '/api/admin/posts', { as: adm, body: { title: 'একটি গল্প', body: 'গল্প শুরু।', slug: 'ekti-golpo' } })
   assert.equal(made.status, 201)
   assert.equal(made.json.status, 'draft')
-  assert.equal((await call('GET', '/api/posts')).json.length, 0)
+  assert.equal((await call('GET', '/api/posts')).json.length, before)
   assert.equal((await call('GET', '/api/posts/ekti-golpo')).status, 404)
   assert.equal((await call('POST', '/api/admin/posts', { as: adm, body: { title: 'আরেকটি', slug: 'ekti-golpo' } })).status, 400)
   const pub = await call('PATCH', `/api/admin/posts/${made.json.id}`, { as: adm, body: { status: 'published' } })
   assert.ok(pub.json.publishedAt)
   const list = (await call('GET', '/api/posts')).json
-  assert.equal(list.length, 1)
-  assert.equal('body' in list[0], false)
+  assert.equal(list.length, before + 1)
+  assert.equal(list.some((p) => 'body' in p), false)
   assert.equal((await call('GET', '/api/posts/ekti-golpo')).json.body, 'গল্প শুরু।')
   const xml = (await call('GET', '/api/sitemap.xml')).res.body
   assert.match(xml, /\/golpo\/ekti-golpo/)
@@ -70,7 +72,7 @@ test('messages and pages', async () => {
   const ok = await call('POST', '/api/messages', { body: { name: 'রিনা', phone: '01911111111', text: 'একটা প্রশ্ন আছে।' } })
   assert.equal(ok.status, 201)
   assert.equal((await call('GET', '/api/admin/messages', { as: adm })).json.length, 1)
-  assert.equal((await call('GET', '/api/pages/niyom')).status, 404)
+  assert.equal((await call('GET', '/api/pages/niyom')).status, 200)
   await call('PUT', '/api/admin/pages/niyom', { as: adm, body: { title: 'নিয়ম', body: 'নিয়মগুলো।' } })
   assert.equal((await call('GET', '/api/pages/niyom')).json.title, 'নিয়ম')
   assert.equal((await call('PUT', '/api/admin/pages/other', { as: adm, body: { title: 'ক', body: 'খ' } })).status, 404)
