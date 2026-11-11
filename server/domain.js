@@ -160,5 +160,5 @@ export function makeDomain(store) {
 
   const lowStockLine = (p, stock) => `"${p.nameBn}" আর ${toBn(stock)}টি আছে।`
 
-  return { settings, safeUser, sellerOfUser, me, publicSeller, isPublic, publicProducts, buyerOrder, newestFirst, settle, restoreOps, money, readProduct, mergeProduct, artFor, lowStockLine }
+  return { settings, safeUser, sellerOfUser, me, publicSeller, isPublic, withRating, publicProducts, buyerOrder, newestFirst, settle, restoreOps, money, readProduct, mergeProduct, artFor, lowStockLine }
 }

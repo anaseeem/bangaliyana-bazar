@@ -6,6 +6,10 @@
       "destination": "https://bangaliyana-bazar.onrender.com/api/:path*"
     },
     {
+      "source": "/sitemap.xml",
+      "destination": "https://bangaliyana-bazar.onrender.com/api/sitemap.xml"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

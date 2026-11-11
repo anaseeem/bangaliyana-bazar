@@ -1,0 +1,5 @@
+# HTTPS সনদ Caddy নিজে আনে। ডোমেইনের A রেকর্ড সার্ভারের আইপিতে থাকতে হবে।
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3001
+}

@@ -1,0 +1,48 @@
+# নিজের সার্ভারে পুরো বাজার: দোকান+এপিআই, Postgres আর Caddy (HTTPS নিজে থেকে)।
+# চালানো: .env.example থেকে .env বানিয়ে `docker compose up -d --build`
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://bazar:${DB_PASSWORD}@db:5432/bazar
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_PHONE: ${ADMIN_PHONE}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SITE_URL: https://${DOMAIN}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bazar
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: bazar
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bazar"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    depends_on:
+      - app
+
+volumes:
+  db:
+  caddy:

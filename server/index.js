@@ -11,17 +11,20 @@ import accountRoutes from './routes/account.js'
 import orderRoutes from './routes/orders.js'
 import sellerRoutes from './routes/seller.js'
 import adminRoutes from './routes/admin.js'
+import { serveSite } from './static.js'
 
 const PORT = Number(process.env.PORT ?? 3001)
 // Render এ বাইরে থেকে ডাকতে হয়, তাই সব ঠিকানায় শোনে। নিজের কম্পিউটারে শুধু 127.0.0.1।
 const HOST = process.env.HOST ?? (process.env.RENDER ? '0.0.0.0' : '127.0.0.1')
+// অনলাইনে চলছে কি না: Render নিজে RENDER বসায়, নিজের সার্ভারে NODE_ENV=production দিতে হয়
+export const LIVE = Boolean(process.env.RENDER) || process.env.NODE_ENV === 'production'
 
 // অ্যাডমিন: ADMIN_PHONE আর ADMIN_PASSWORD থাকলে সেটা। নিজের কম্পিউটারে না থাকলে ডিফল্ট।
 async function ensureAdmin(store, log) {
   let phone = normPhone(process.env.ADMIN_PHONE ?? '')
   let password = process.env.ADMIN_PASSWORD
   if (!phone || !password) {
-    if (process.env.RENDER) return
+    if (LIVE) return
     phone = '01700000000'
     password = 'admin123'
     log.warn('অ্যাডমিন ঢোকার ডিফল্ট নম্বর 01700000000, পাসওয়ার্ড admin123 (শুধু নিজের কম্পিউটারে)')
@@ -78,6 +81,12 @@ export async function buildApp(opts = {}) {
   orderRoutes(app, ctx)
   sellerRoutes(app, ctx)
   adminRoutes(app, ctx)
+  // SERVE_DIST=1 হলে বানানো দোকানও এখান থেকে যায় (নিজের সার্ভারে এক প্রসেসেই সব)
+  if (opts.distDir ?? process.env.SERVE_DIST) {
+    const siteUrl = (process.env.SITE_URL ?? 'https://bangaliyana-bazar.vercel.app').replace(/\/$/, '')
+    await serveSite(app, ctx, { distDir: opts.distDir ?? fileURLToPath(new URL('../dist', import.meta.url)), siteUrl })
+    app.get('/sitemap.xml', async (_req, reply) => reply.redirect('/api/sitemap.xml'))
+  }
   await app.ready()
   return app
 }

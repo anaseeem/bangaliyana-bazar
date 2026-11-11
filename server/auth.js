@@ -42,7 +42,7 @@ export function makeAuth(store, secret) {
     const u = pay && store.get('users', pay.uid)
     return u && !u.blocked ? u : null
   }
-  const attrs = `HttpOnly; Path=/; SameSite=Lax${process.env.RENDER ? '; Secure' : ''}`
+  const attrs = `HttpOnly; Path=/; SameSite=Lax${process.env.RENDER || process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
   const setCookie = (reply, uid) => reply.header('Set-Cookie', `${COOKIE}=${sign(uid)}; ${attrs}; Max-Age=${MAX_AGE}`)
   const clearCookie = (reply) => reply.header('Set-Cookie', `${COOKIE}=; ${attrs}; Max-Age=0`)
 
