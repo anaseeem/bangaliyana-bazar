@@ -9,11 +9,13 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "server": "node server/index.js",
+    "test:api": "node --test \"server/test/*.test.js\"",
     "dev:full": "node server/index.js & vite",
-    "sync:products": "node --experimental-strip-types scripts/sync-products.ts"
+    "sync:products": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/sync-products.ts"
   },
   "dependencies": {
     "fastify": "^5.12.7",
+    "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4"

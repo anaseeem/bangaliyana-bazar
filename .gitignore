@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# সার্ভারের ডেটা (নিজের কম্পিউটারে)
+data/db.json
+data/uploads/
+
 # Playwright MCP screenshots and logs
 .playwright-mcp
 

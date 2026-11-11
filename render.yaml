@@ -12,3 +12,12 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "24"
+      # নিচেরগুলো Render এর ড্যাশবোর্ডে বসান। DATABASE_URL না দিলে ডেটা রিস্টার্টে মুছে যায়।
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_PHONE
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

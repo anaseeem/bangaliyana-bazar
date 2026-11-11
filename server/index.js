@@ -1,117 +1,90 @@
 import Fastify from 'fastify'
-import { readFile, writeFile } from 'node:fs/promises'
+import { randomBytes } from 'node:crypto'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { openStore } from './store.js'
+import { makeAuth, hashPassword } from './auth.js'
+import { seed } from './seed.js'
+import { makeDomain } from './domain.js'
+import { newId, normPhone } from './validate.js'
+import publicRoutes from './routes/public.js'
+import accountRoutes from './routes/account.js'
+import orderRoutes from './routes/orders.js'
+import sellerRoutes from './routes/seller.js'
+import adminRoutes from './routes/admin.js'
 
 const PORT = Number(process.env.PORT ?? 3001)
 // Render এ বাইরে থেকে ডাকতে হয়, তাই সব ঠিকানায় শোনে। নিজের কম্পিউটারে শুধু 127.0.0.1।
 const HOST = process.env.HOST ?? (process.env.RENDER ? '0.0.0.0' : '127.0.0.1')
-const PRODUCTS_FILE = new URL('../data/products.json', import.meta.url)
-const ORDERS_FILE = new URL('../data/orders.json', import.meta.url)
-const DELIVERY_FEE = { Dhaka: 60, 'Outside Dhaka': 120 }
 
-const app = Fastify({ logger: true })
-
-// ডেমো এপিআই। ভাইট ডেভ সার্ভার (৫১৭৩) আর প্রিভিউ (৪১৭৩) ডাকতে পারে।
-app.addHook('onRequest', async (req, reply) => {
-  reply.header('Access-Control-Allow-Origin', '*')
-  reply.header('Access-Control-Allow-Headers', 'Content-Type')
-  reply.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  if (req.method === 'OPTIONS') {
-    reply.code(204).send()
+// অ্যাডমিন: ADMIN_PHONE আর ADMIN_PASSWORD থাকলে সেটা। নিজের কম্পিউটারে না থাকলে ডিফল্ট।
+async function ensureAdmin(store, log) {
+  let phone = normPhone(process.env.ADMIN_PHONE ?? '')
+  let password = process.env.ADMIN_PASSWORD
+  if (!phone || !password) {
+    if (process.env.RENDER) return
+    phone = '01700000000'
+    password = 'admin123'
+    log.warn('অ্যাডমিন ঢোকার ডিফল্ট নম্বর 01700000000, পাসওয়ার্ড admin123 (শুধু নিজের কম্পিউটারে)')
   }
-})
-
-async function loadProducts() {
-  const raw = await readFile(PRODUCTS_FILE, 'utf-8')
-  return JSON.parse(raw)
+  const u = store.all('users').find((x) => x.phone === phone)
+  if (u) {
+    if (u.role !== 'admin') await store.put('users', { ...u, role: 'admin' })
+    return
+  }
+  await store.put('users', { id: newId('u'), name: 'অ্যাডমিন', phone, passHash: await hashPassword(password), role: 'admin', createdAt: new Date().toISOString() })
 }
 
-async function loadOrders() {
-  try {
-    return JSON.parse(await readFile(ORDERS_FILE, 'utf-8'))
-  } catch {
-    return []
-  }
-}
+export async function buildApp(opts = {}) {
+  const dataDir = opts.dataDir ?? process.env.DATA_DIR ?? fileURLToPath(new URL('../data', import.meta.url))
+  const databaseUrl = 'databaseUrl' in opts ? opts.databaseUrl : process.env.DATABASE_URL
+  const app = Fastify({ logger: opts.logger ?? true, bodyLimit: 3 * 1024 * 1024, trustProxy: true })
 
-app.get('/api/health', async () => ({ ok: true, service: 'bangaliyana-bazar-api' }))
+  const store = await openStore({ dataDir, databaseUrl })
+  app.addHook('onClose', async () => { await store.close() })
+  await seed(store)
+  await ensureAdmin(store, app.log)
+  let secret = process.env.JWT_SECRET ?? store.getMeta('jwt')
+  if (!secret) {
+    secret = randomBytes(32).toString('hex')
+    await store.setMeta('jwt', secret)
+  }
+  const auth = makeAuth(store, secret)
+  const ctx = { store, auth, d: makeDomain(store) }
 
-app.get('/api/products', async () => loadProducts())
-
-app.get('/api/products/:id', async (req, reply) => {
-  const products = await loadProducts()
-  const product = products.find((p) => p.id === req.params.id)
-  if (!product) return reply.code(404).send({ error: 'পণ্যটি পাওয়া যায়নি।' })
-  return product
-})
-
-app.post('/api/orders', async (req, reply) => {
-  const body = req.body ?? {}
-  const { name, phone, district, address, delivery, items } = body
-
-  if (typeof name !== 'string' || name.trim().length < 3) {
-    return reply.code(400).send({ error: 'নাম লিখুন।' })
-  }
-  if (typeof phone !== 'string' || !/^01[3-9]\d{8}$/.test(phone.trim())) {
-    return reply.code(400).send({ error: 'সঠিক মোবাইল নম্বর দিন।' })
-  }
-  if (typeof district !== 'string' || district.trim().length === 0) {
-    return reply.code(400).send({ error: 'জেলা লিখুন।' })
-  }
-  if (typeof address !== 'string' || address.trim().length < 8) {
-    return reply.code(400).send({ error: 'ঠিকানা লিখুন।' })
-  }
-  if (!Array.isArray(items) || items.length === 0) {
-    return reply.code(400).send({ error: 'ঝুড়িতে কিছু নেই।' })
-  }
-  // ডেমো অর্ডার। শুধু ক্যাশ অন ডেলিভারি। অন্য পেমেন্ট নেওয়া হয় না।
-  if (body.paymentMethod !== undefined && body.paymentMethod !== 'ক্যাশ অন ডেলিভারি') {
-    return reply.code(400).send({ error: 'শুধু ক্যাশ অন ডেলিভারি হবে।' })
-  }
-  const deliveryKey = delivery === 'Outside Dhaka' ? 'Outside Dhaka' : 'Dhaka'
-  const fee = DELIVERY_FEE[deliveryKey]
-
-  const products = await loadProducts()
-  const byId = new Map(products.map((p) => [p.id, p]))
-  let subtotal = 0
-  const lines = []
-  for (const item of items) {
-    const product = byId.get(item?.id)
-    const qty = Number(item?.qty)
-    if (!product || !Number.isInteger(qty) || qty < 1 || qty > 99) {
-      return reply.code(400).send({ error: 'অর্ডারের জিনিস ঠিক নেই।' })
+  // খালি বডির POST (যেমন logout) ঠিকমতো নেয়
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => {
+    if (!body) return done(null, {})
+    try { done(null, JSON.parse(body)) } catch { done(Object.assign(new Error('bad json'), { statusCode: 400 })) }
+  })
+  // GET ছাড়া সব অনুরোধ জেসন হতে হবে
+  app.addHook('onRequest', async (req, reply) => {
+    const ct = req.headers['content-type']
+    if (req.method !== 'GET' && req.method !== 'HEAD' && ct && !ct.startsWith('application/json')) {
+      return reply.code(400).send({ error: 'অনুরোধটা ঠিক নেই।' })
     }
-    subtotal += product.price * qty
-    lines.push({ id: product.id, nameBn: product.nameBn, price: product.price, qty })
-  }
+  })
 
-  const orders = await loadOrders()
-  const order = {
-    id: `BB${String(orders.length + 1).padStart(4, '0')}${Date.now().toString().slice(-6)}`,
-    name: name.trim(),
-    phone: phone.trim(),
-    district: district.trim(),
-    address: address.trim(),
-    delivery: deliveryKey,
-    deliveryFee: fee,
-    paymentMethod: 'ক্যাশ অন ডেলিভারি',
-    items: lines,
-    subtotal,
-    total: subtotal + fee,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-  }
-  orders.push(order)
-  await writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2) + '\n', 'utf-8')
-  return reply.code(201).send({ id: order.id, total: order.total, paymentMethod: order.paymentMethod, status: order.status })
-})
+  app.setErrorHandler((err, req, reply) => {
+    if (err.expose) return reply.code(err.statusCode).send({ error: err.message })
+    if (err.statusCode === 413) return reply.code(413).send({ error: 'ছবিটা বেশি বড়।' })
+    if (err.statusCode && err.statusCode < 500) return reply.code(400).send({ error: 'অনুরোধটা ঠিক নেই।' })
+    req.log.error(err)
+    return reply.code(500).send({ error: 'সার্ভারে সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করুন।' })
+  })
+  app.setNotFoundHandler((_req, reply) => reply.code(404).send({ error: 'পাওয়া যায়নি।' }))
 
-app.get('/api/orders/:id', async (req, reply) => {
-  const orders = await loadOrders()
-  const order = orders.find((o) => o.id === req.params.id)
-  if (!order) return reply.code(404).send({ error: 'অর্ডারটি পাওয়া যায়নি।' })
-  return order
-})
+  publicRoutes(app, ctx)
+  accountRoutes(app, ctx)
+  orderRoutes(app, ctx)
+  sellerRoutes(app, ctx)
+  adminRoutes(app, ctx)
+  await app.ready()
+  return app
+}
 
-app.listen({ port: PORT, host: HOST }).then(() => {
+// সরাসরি চালালে শোনা শুরু করে। টেস্টে শুধু buildApp ব্যবহার হয়।
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const app = await buildApp()
+  await app.listen({ port: PORT, host: HOST })
   app.log.info(`Bangaliyana Bazar API listening on http://${HOST}:${PORT}`)
-})
+}
