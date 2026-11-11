@@ -12,6 +12,7 @@ import MascotRoad from '../components/MascotRoad'
 import { MamaLoader, MamaScene } from '../components/MamaScenes'
 import ProductPicture from '../components/ProductPicture'
 import QtyStepper from '../components/QtyStepper'
+import { useTitle } from '../lib/useTitle'
 import { StitchFrame, StitchLine } from '../components/Stitch'
 
 /** ঝুড়ি থেকে অর্ডার পর্যন্ত এক পাতায় চার ধাপ। ধাপটা ঠিকানায় থাকে, তাই ফোনের পেছনের বোতাম কাজ করে। */
@@ -48,6 +49,7 @@ function readLastOrder(): PlacedOrder | null {
 }
 
 export default function Jhuri() {
+  useTitle('ঝুড়ি')
   const [params, setParams] = useSearchParams()
   const { detailed, setQty, remove, clear, total, count } = useCart()
   const { user, sellers, settings, refresh } = useMarket()

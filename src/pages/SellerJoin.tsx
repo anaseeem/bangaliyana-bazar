@@ -4,12 +4,14 @@ import { bn } from '../data/products'
 import { BD_DISTRICTS, normalizePhone } from '../data/districts'
 import { useMarket } from '../store/market'
 import { BTN, Field, INPUT, Panel } from '../components/Form'
+import { useTitle } from '../lib/useTitle'
 import { MamaLoader } from '../components/MamaScenes'
 
 const STEPS = ['নিবন্ধন', 'অনুমোদন', 'পণ্য তোলা', 'অর্ডার পাওয়া']
 
 /** বিক্রেতা হওয়ার পাতা। আগে অ্যাকাউন্ট লাগে, তারপর দোকানের তথ্য। */
 export default function SellerJoin() {
+  useTitle('বিক্রেতা হোন')
   const { user, mySeller, ready } = useMarket()
 
   if (!ready) return <MamaLoader full />

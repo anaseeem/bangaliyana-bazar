@@ -10,6 +10,7 @@ import ProductPicture from '../components/ProductPicture'
 import Stall from '../components/Stall'
 import { PotBanner, SellerBanner } from '../components/Banners'
 import { useMarket } from '../store/market'
+import { KibhabeAshe, NotunGolpo } from '../components/HomeExtras'
 
 // শামিয়ানার রং, ধরন ধরে। নতুন ধরন হলে পাশের ছয় জোড়া থেকে ঘুরে ঘুরে নেয়।
 const AWNING: Record<string, [string, string]> = {
@@ -119,7 +120,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-12">
+      <KibhabeAshe />
+
+      <section className="mx-auto max-w-7xl px-4 pt-12 pb-12">
         <PotBanner />
       </section>
 
@@ -185,7 +188,9 @@ export default function Home() {
         </section>
       )}
 
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <NotunGolpo />
+
+      <section className="mx-auto max-w-7xl px-4 pb-12">
         <SellerBanner />
       </section>
     </div>

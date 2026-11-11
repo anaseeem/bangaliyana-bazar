@@ -3,10 +3,12 @@ import { Navigate, useSearchParams } from 'react-router-dom'
 import { normalizePhone } from '../data/districts'
 import { useMarket } from '../store/market'
 import { whatsappLink } from '../lib/whatsapp'
+import { useTitle } from '../lib/useTitle'
 import { BTN, Field, INPUT, Panel } from '../components/Form'
 
 /** ঢোকা আর নতুন অ্যাকাউন্ট এক পাতায়। ?next= থাকলে কাজ শেষে সেখানে ফেরে। */
 export default function Login() {
+  useTitle('ঢুকুন')
   const [params] = useSearchParams()
   const next = params.get('next') ?? '/amar'
   const { user, settings, login, signup } = useMarket()

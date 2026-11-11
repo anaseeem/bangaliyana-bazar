@@ -11,6 +11,9 @@ import ProductCard from '../components/ProductCard'
 import QtyStepper from '../components/QtyStepper'
 import { AlpanaCorner } from '../components/Alpana'
 import { StitchFrame } from '../components/Stitch'
+import Reviews from '../components/Reviews'
+import Share from '../components/Share'
+import { useTitle } from '../lib/useTitle'
 
 // পণ্য বদলালে পাতা নতুন করে শুরু হয়, যাতে আগের পণ্যের পরিমাণ থেকে না যায়
 export default function ProductDetailRoute() {
@@ -24,6 +27,7 @@ function ProductDetail({ id }: { id?: string }) {
   const { add, wishlist, toggleWish } = useCart()
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
+  useTitle(product?.nameBn)
 
   if (!product) {
     return (
@@ -102,8 +106,10 @@ function ProductDetail({ id }: { id?: string }) {
             WhatsApp-এ বিক্রেতাকে জিজ্ঞেস করুন
           </a>
           <p className="mt-6 text-sm text-stone-600">ঢাকায় ডেলিভারি {formatBDT(settings.feeDhaka)}, বাইরে {formatBDT(settings.feeOutside)}। হাতে পেয়ে টাকা দিন।</p>
+          <Share text={`${product.nameBn}, ${formatBDT(product.price)}। বাঙালিয়ানা বাজার`} className="mt-5" />
         </div>
       </div>
+      <Reviews productId={product.id} />
       {related.length > 0 && (
         <section className="mt-14">
           <h2 className="text-3xl">একই ধরনের আরও</h2>

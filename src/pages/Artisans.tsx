@@ -3,9 +3,11 @@ import { bn, formatBDT } from '../data/products'
 import { useMarket } from '../store/market'
 import { sellerIdOf } from '../data/sellers'
 import ProductPicture from '../components/ProductPicture'
+import { useTitle } from '../lib/useTitle'
 import { StitchFrame } from '../components/Stitch'
 
 export default function Artisans() {
+  useTitle('কারিগর')
   const { sellers, catalog } = useMarket()
   const approved = sellers.filter((s) => s.status === 'approved')
 

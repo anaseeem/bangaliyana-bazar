@@ -10,6 +10,7 @@ import { useApi } from '../lib/useApi'
 import { BTN, BTN_LINE, Field, INPUT, Panel } from '../components/Form'
 import ProductCard from '../components/ProductCard'
 import { MamaLoader, MamaScene } from '../components/MamaScenes'
+import { useTitle } from '../lib/useTitle'
 import { StitchLine } from '../components/Stitch'
 
 const dateBn = (iso: string) => new Date(iso).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -22,6 +23,7 @@ const STATUSES: OrderStatus[] = ['নেওয়া হয়েছে', 'প�
 
 /** ক্রেতার নিজের পাতা: অর্ডার, পছন্দের জিনিস, ঠিকানা আর নিজের তথ্য */
 export default function Account() {
+  useTitle('আমার পাতা')
   const { user, ready, logout, mySeller } = useMarket()
   const { wishlist } = useCart()
   const [params, setParams] = useSearchParams()

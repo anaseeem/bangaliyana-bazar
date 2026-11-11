@@ -6,6 +6,7 @@ import { useMarket } from '../store/market'
 import { useCart } from '../store/cart'
 import ProductCard from '../components/ProductCard'
 import { MamaScene } from '../components/MamaScenes'
+import { useTitle } from '../lib/useTitle'
 import { StitchFrame, StitchLine } from '../components/Stitch'
 
 type Sort = 'featured' | 'price-asc' | 'price-desc' | 'rating'
@@ -13,6 +14,7 @@ type Sort = 'featured' | 'price-asc' | 'price-desc' | 'rating'
 const SELECT = 'shrink-0 rounded-full border-2 border-amber-300 bg-paper px-4 py-2 focus:border-rickshaw focus:outline-none'
 
 export default function Shop() {
+  useTitle('বাজার')
   const [params, setParams] = useSearchParams()
   // খোঁজ আর ধরন ঠিকানায় থাকে, তাই হেডারের খোঁজ আর দোকানের লিংক সরাসরি কাজ করে
   const q = params.get('q') ?? ''
