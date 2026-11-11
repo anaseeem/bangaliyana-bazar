@@ -63,54 +63,62 @@ Goal: a store that looks and feels Bengali everywhere, not only in the hero. The
 Goal: the shop works for real. Accounts, sellers, orders and content live on the server, the owner controls everything from `/admin`, the uncle shows up beyond the jhuri, and there is a blog. The look does not change. Full design: `docs/production-plan.md`. Day-by-day notes: `JOURNAL.md`.
 
 ### Phase 5: Server that remembers
-- [ ] Storage with two drivers: Postgres when `DATABASE_URL` is set, a JSON file on the laptop.
-- [ ] First-boot seed: products, the nine artisans as sellers, settings, three stories, three pages.
-- [ ] Accounts: scrypt passwords, JWT in an httpOnly cookie, admin from env, login rate limit.
-- [ ] Orders: stock check and reduce, cancel restores, per-seller sent, delivered, tracking by number and phone.
-- [ ] Seller API: register, shop, products, orders, photo upload, earnings.
-- [ ] Admin API: summary, orders, products, sellers, users, posts, pages, messages, reviews, payouts, settings.
-- [ ] `pnpm test:api`.
+- [x] Storage with two drivers: Postgres when `DATABASE_URL` is set, a JSON file on the laptop.
+- [x] First-boot seed: products, the nine artisans as sellers, settings, three stories, three pages.
+- [x] Accounts: scrypt passwords, JWT in an httpOnly cookie, admin from env, login rate limit.
+- [x] Orders: stock check and reduce, cancel restores, per-seller sent, delivered, tracking by number and phone.
+- [x] Seller API: register, shop, products, orders, photo upload, earnings.
+- [x] Admin API: summary, orders, products, sellers, users, posts, pages, messages, reviews, payouts, settings.
+- [x] `pnpm test:api`.
 
 ### Phase 6: Shop on the API
-- [ ] `src/lib/api.ts` and an API-backed `market` store with the same shape.
-- [ ] Shop opens instantly from the saved or bundled catalog, then refreshes from `/api/boot`.
-- [ ] Login, signup, forgotten password help, `/amar`, seller join and dashboard use the server.
-- [ ] `/jhuri` always orders through the server; fees and WhatsApp number come from settings.
-- [ ] Seller photos upload to the server.
+- [x] `src/lib/api.ts` and an API-backed `market` store with the same shape.
+- [x] Shop opens instantly from the saved or bundled catalog, then refreshes from `/api/boot`.
+- [x] Login, signup, forgotten password help, `/amar`, seller join and dashboard use the server.
+- [x] `/jhuri` always orders through the server; fees and WhatsApp number come from settings.
+- [x] Seller photos upload to the server.
 
 ### Phase 7: Admin panel
-- [ ] `/admin/*` behind admin login, phone first.
-- [ ] সারাংশ, অর্ডার, পণ্য, বিক্রেতা, ক্রেতা.
-- [ ] বার্তা, মতামত, টাকা, সাজানো.
-- [ ] গল্প and পাতা editors (with Phase 10).
+- [x] `/admin/*` behind admin login, phone first.
+- [x] সারাংশ, অর্ডার, পণ্য, বিক্রেতা, ক্রেতা.
+- [x] বার্তা, মতামত, টাকা, সাজানো.
+- [x] গল্প and পাতা editors (with Phase 10).
 
 ### Phase 8: The uncle everywhere
 - [x] `pose` prop: jhuri, haat, machi, khoj, dekhano, haat-nara.
 - [x] `MamaLoader` (walks, then sits and swats flies) and `MamaScene` (khoj, khali, swagoto).
 - [x] 404, empty jhuri, empty orders, empty search.
-- [ ] Route fallback and error screen (with Phase 6, when pages start waiting for the server).
+- [x] Route fallback and error screen.
 
 ### Phase 9: Missing shopper pages
-- [ ] `/khoj` order tracking with the road.
-- [ ] `/amader-kotha`, `/sahajjo`, `/niyom`, `/jogajog`.
-- [ ] Reviews on the product page; cancel an order from `/amar`.
-- [ ] Footer and menu links.
+- [x] `/khoj` order tracking with the road.
+- [x] `/amader-kotha`, `/sahajjo`, `/niyom`, `/jogajog`.
+- [x] Reviews on the product page; cancel an order from `/amar`.
+- [x] Footer and menu links.
 
 ### Phase 10: Blog
-- [ ] Art themes: moyur, nouka, pakhi, shapla, jhalor (cut-paper SVG, slow motion, never over text).
-- [ ] `/golpo` list and `/golpo/:slug` reading page.
-- [ ] Editor with small markup, live preview and photo upload.
-- [ ] Three seeded stories.
+- [x] Art themes: moyur, nouka, pakhi, shapla, jhalor (cut-paper SVG, slow motion, never over text).
+- [x] `/golpo` list and `/golpo/:slug` reading page.
+- [x] Editor with small markup, live preview and photo upload.
+- [x] Three seeded stories.
 
 ### Phase 11: Brand and reach
-- [ ] Home: how-it-comes strip with the uncle, reviews row, newest stories.
-- [ ] Share buttons, page titles, Open Graph image, robots and sitemap.
+- [x] Home: how-it-comes strip with the uncle, newest stories.
+- [ ] Home: a row of real reviews (needs a public latest-reviews endpoint; wait until there are reviews).
+- [x] Share buttons, page titles, Open Graph image, robots and sitemap.
 
 ### Phase 12: Wrap up
-- [ ] VPS deploy: one Node process serves the built site and the API, Dockerfile and compose with Postgres, Caddy for HTTPS, a short guide.
-- [ ] Postgres driver checked against a real Postgres.
-- [ ] README, CLAUDE.md, render.yaml updated.
-- [ ] Full Playwright pass at 1366px and 390px.
+- [x] VPS deploy: one Node process serves the built site and the API, Dockerfile and compose with Postgres, Caddy for HTTPS, a short guide.
+- [x] Postgres driver checked against a real Postgres.
+- [x] README, CLAUDE.md, render.yaml updated.
+- [x] Playwright pass at 1366px and 390px: every admin tab, blog, tracking, order flow. See JOURNAL.md for what was only compiled.
+
+### Open, for the owner
+- [ ] Look through the branch, then merge into `redesign` (nothing was pushed or merged).
+- [ ] Create the Postgres database and set the env vars (Render now, or the VPS later).
+- [ ] Replace the demo product photos; several carry other shops' watermarks.
+- [ ] Rewrite the three starter stories and the help and terms pages in your own words.
+- [ ] Decide on Next.js, SvelteKit or staying on Vite (notes in JOURNAL.md).
 
 ## Each phase ends with
 - [ ] `pnpm build` and `pnpm lint` pass.
